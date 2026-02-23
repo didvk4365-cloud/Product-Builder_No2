@@ -72,14 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
 
         // Reset Disqus if it exists to re-detect theme
+        // Use a small timeout to allow CSS transitions to reach a state where Disqus can sample the color
         if (typeof DISQUS !== 'undefined') {
-            DISQUS.reset({
-                reload: true,
-                config: function () {
-                    this.page.identifier = window.location.pathname;
-                    this.page.url = window.location.href;
-                }
-            });
+            setTimeout(() => {
+                DISQUS.reset({
+                    reload: true,
+                    config: function () {
+                        this.page.identifier = window.location.pathname;
+                        this.page.url = window.location.href;
+                    }
+                });
+            }, 300);
         }
     };
 
