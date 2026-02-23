@@ -43,26 +43,31 @@ body.dark-mode .container {
 
 .timer-container {
     padding: 20px 40px;
-    background-color: var(--button-background-light);
+    background-color: var(--container-background-light);
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
     transition: background-color 0.3s;
 }
 
 body.dark-mode .timer-container {
-    background-color: var(--button-background-dark);
+    background-color: var(--container-background-dark);
 }
 
 .time-display {
     font-size: 1.1rem;
-    color: white;
+    color: var(--text-color-light);
     margin-bottom: 8px;
+    transition: color 0.3s;
+}
+
+body.dark-mode .time-display {
+    color: var(--text-color-dark);
 }
 
 .countdown-display {
     font-size: 1.2rem;
-    color: #ffd1d1;
+    color: #ff4757;
     font-weight: bold;
 }
 
