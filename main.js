@@ -90,6 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(event.target.checked);
     });
 
+    // Scroll listener for theme switcher
+    const themeSwitcher = document.querySelector('.theme-switcher-container');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            themeSwitcher.classList.add('scrolled');
+        } else {
+            themeSwitcher.classList.remove('scrolled');
+        }
+    });
+
     // Clock and Countdown logic
     const updateClockAndCountdown = () => {
         const now = new Date();

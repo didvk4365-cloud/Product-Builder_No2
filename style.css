@@ -89,7 +89,7 @@ h1 {
     align-items: center;
     gap: 15px;
     margin-bottom: 15px;
-    flex-wrap: wrap; /* Prevent squashing on mobile */
+    flex-wrap: wrap;
 }
 
 .number {
@@ -103,7 +103,7 @@ h1 {
     font-weight: bold;
     color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    flex-shrink: 0; /* Keep shape circular */
+    flex-shrink: 0;
 }
 
 .plus-sign {
@@ -163,7 +163,7 @@ body.dark-mode #generate-btn:hover {
 
 /* Theme Switch */
 .theme-switcher-container {
-    position: fixed; /* Changed to fixed for better accessibility */
+    position: fixed;
     top: 20px;
     right: 20px;
     display: flex;
@@ -171,6 +171,12 @@ body.dark-mode #generate-btn:hover {
     align-items: center;
     gap: 10px;
     z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.theme-switcher-container.scrolled {
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .icon-wrapper {
@@ -210,6 +216,7 @@ body.dark-mode .moon {
     display: inline-block;
     width: 60px;
     height: 34px;
+    transition: all 0.3s ease;
 }
 
 .theme-switch input {
@@ -250,6 +257,21 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
+/* Vertical state when scrolled */
+.scrolled .theme-switch {
+    width: 34px;
+    height: 60px;
+}
+
+.scrolled .slider:before {
+    left: 4px;
+    bottom: 4px;
+}
+
+.scrolled input:checked + .slider:before {
+    transform: translateY(-26px);
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 600px) {
     body {
@@ -267,17 +289,18 @@ input:checked + .slider:before {
     }
 
     .numbers-container {
-        gap: 8px;
+        gap: 5px;
+        flex-wrap: nowrap;
     }
 
     .number {
-        width: 45px;
-        height: 45px;
-        font-size: 18px;
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
     }
 
     .plus-sign {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .time-display {
