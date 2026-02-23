@@ -23,7 +23,7 @@ body {
     color: var(--text-color-light);
     transition: background-color 0.3s, color 0.3s;
     gap: 20px;
-    padding: 40px 20px;
+    padding: 80px 20px 40px; /* Increased top padding for fixed switcher */
 }
 
 body.dark-mode {
@@ -40,6 +40,7 @@ body.dark-mode {
     color: inherit;
     border-radius: 15px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 body.dark-mode .container {
@@ -47,12 +48,15 @@ body.dark-mode .container {
 }
 
 .timer-container {
+    width: 100%;
+    max-width: 600px;
     padding: 20px 40px;
     background-color: var(--container-background-light);
     color: inherit;
     border-radius: 15px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
+    box-sizing: border-box;
 }
 
 body.dark-mode .timer-container {
@@ -72,6 +76,7 @@ body.dark-mode .timer-container {
 
 h1 {
     margin-bottom: 30px;
+    font-size: 1.8rem;
 }
 
 .results-container {
@@ -84,6 +89,7 @@ h1 {
     align-items: center;
     gap: 15px;
     margin-bottom: 15px;
+    flex-wrap: wrap; /* Prevent squashing on mobile */
 }
 
 .number {
@@ -97,6 +103,7 @@ h1 {
     font-weight: bold;
     color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0; /* Keep shape circular */
 }
 
 .plus-sign {
@@ -156,13 +163,14 @@ body.dark-mode #generate-btn:hover {
 
 /* Theme Switch */
 .theme-switcher-container {
-    position: absolute;
+    position: fixed; /* Changed to fixed for better accessibility */
     top: 20px;
     right: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    z-index: 1000;
 }
 
 .icon-wrapper {
@@ -240,4 +248,66 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(26px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    body {
+        padding-top: 100px;
+        padding-bottom: 20px;
+    }
+
+    .container, .timer-container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .numbers-container {
+        gap: 8px;
+    }
+
+    .number {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+
+    .plus-sign {
+        font-size: 24px;
+    }
+
+    .time-display {
+        font-size: 0.9rem;
+    }
+
+    .countdown-display {
+        font-size: 1rem;
+    }
+
+    .theme-switcher-container {
+        top: 10px;
+        right: 10px;
+    }
+
+    .theme-icon {
+        font-size: 24px;
+    }
+
+    .theme-switch {
+        width: 50px;
+        height: 28px;
+    }
+
+    .slider:before {
+        height: 20px;
+        width: 20px;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
 }
