@@ -22,6 +22,7 @@ body {
     background-color: var(--background-color-light);
     transition: background-color 0.3s;
     gap: 20px;
+    padding: 40px 20px; /* Added vertical padding */
 }
 
 body.dark-mode {
@@ -29,6 +30,8 @@ body.dark-mode {
 }
 
 .container {
+    width: 100%;
+    max-width: 600px; /* Consistent width */
     text-align: center;
     padding: 40px;
     background-color: var(--container-background-light);
