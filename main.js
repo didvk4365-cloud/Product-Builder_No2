@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('results-container');
     const countInput = document.getElementById('count-input');
     const themeCheckbox = document.getElementById('checkbox');
+    const currentTimeDisplay = document.getElementById('current-time');
+    const countdownDisplay = document.getElementById('lotto-countdown');
 
     // Function to get a random color for the lottery balls
     const getRandomColor = () => {
@@ -74,6 +76,39 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(event.target.checked);
     });
 
+    // Clock and Countdown logic
+    const updateClockAndCountdown = () => {
+        const now = new Date();
+        
+        // Update current time
+        const options = { 
+            year: 'numeric', month: 'long', day: 'numeric', 
+            weekday: 'long', hour: '2-digit', minute: '2-digit', second: '2-digit' 
+        };
+        currentTimeDisplay.textContent = `현재 시간: ${now.toLocaleDateString('ko-KR', options)}`;
+
+        // Calculate next Saturday 20:45
+        let nextDraw = new Date(now);
+        nextDraw.setHours(20, 45, 0, 0);
+        
+        // 0 is Sunday, 6 is Saturday
+        const dayDiff = (6 - now.getDay() + 7) % 7;
+        nextDraw.setDate(now.getDate() + dayDiff);
+
+        // If it's already past 20:45 on Saturday, move to next Saturday
+        if (now > nextDraw) {
+            nextDraw.setDate(nextDraw.getDate() + 7);
+        }
+
+        const diff = nextDraw - now;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        countdownDisplay.textContent = `다음 추첨까지: ${days}일 ${hours}시간 ${minutes}분 ${seconds}초 남음`;
+    };
+
     // Load saved theme or default to dark mode
     const savedTheme = localStorage.getItem('theme');
     const shouldBeDark = savedTheme ? savedTheme === 'dark' : true; // Default to dark mode
@@ -82,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateBtn.addEventListener('click', displayNumbers);
 
-    // Initial generation
+    // Initial setup
     displayNumbers();
+    updateClockAndCountdown();
+    setInterval(updateClockAndCountdown, 1000);
 });

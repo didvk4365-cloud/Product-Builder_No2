@@ -39,6 +39,28 @@ body.dark-mode .container {
     background-color: var(--container-background-dark);
 }
 
+.timer-container {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.time-display {
+    font-size: 1.2rem;
+    color: var(--text-color-light);
+    margin-bottom: 5px;
+    transition: color 0.3s;
+}
+
+.countdown-display {
+    font-size: 1rem;
+    color: #ff4757;
+    font-weight: bold;
+}
+
+body.dark-mode .time-display {
+    color: var(--text-color-dark);
+}
+
 h1 {
     color: var(--text-color-light);
     margin-bottom: 30px;
