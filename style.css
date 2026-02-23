@@ -15,11 +15,13 @@
 body {
     font-family: sans-serif;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     background-color: var(--background-color-light);
     transition: background-color 0.3s;
+    gap: 20px;
 }
 
 body.dark-mode {
@@ -40,25 +42,28 @@ body.dark-mode .container {
 }
 
 .timer-container {
-    margin-bottom: 20px;
+    padding: 20px 40px;
+    background-color: var(--button-background-light);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
     text-align: center;
+    transition: background-color 0.3s;
+}
+
+body.dark-mode .timer-container {
+    background-color: var(--button-background-dark);
 }
 
 .time-display {
-    font-size: 1.2rem;
-    color: var(--text-color-light);
-    margin-bottom: 5px;
-    transition: color 0.3s;
+    font-size: 1.1rem;
+    color: white;
+    margin-bottom: 8px;
 }
 
 .countdown-display {
-    font-size: 1rem;
-    color: #ff4757;
+    font-size: 1.2rem;
+    color: #ffd1d1;
     font-weight: bold;
-}
-
-body.dark-mode .time-display {
-    color: var(--text-color-dark);
 }
 
 h1 {
