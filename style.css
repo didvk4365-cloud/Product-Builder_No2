@@ -1,1 +1,215 @@
-/* Add styles here */
+:root {
+    --background-color-light: #f0f0f0;
+    --container-background-light: white;
+    --text-color-light: #333;
+    --button-background-light: #007bff;
+    --button-hover-light: #0056b3;
+
+    --background-color-dark: #222;
+    --container-background-dark: #333;
+    --text-color-dark: #f0f0f0;
+    --button-background-dark: #0056b3;
+    --button-hover-dark: #007bff;
+}
+
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color-light);
+    transition: background-color 0.3s;
+}
+
+body.dark-mode {
+    background-color: var(--background-color-dark);
+}
+
+.container {
+    text-align: center;
+    padding: 40px;
+    background-color: var(--container-background-light);
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+body.dark-mode .container {
+    background-color: var(--container-background-dark);
+}
+
+h1 {
+    color: var(--text-color-light);
+    margin-bottom: 30px;
+    transition: color 0.3s;
+}
+
+body.dark-mode h1 {
+    color: var(--text-color-dark);
+}
+
+.results-container {
+    margin-bottom: 30px;
+}
+
+.numbers-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px; /* Add some space between number sets */
+}
+
+.number {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.plus-sign {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--text-color-light);
+    transition: color 0.3s;
+}
+
+body.dark-mode .plus-sign {
+    color: var(--text-color-dark);
+}
+
+.controls-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#count-input {
+    width: 60px;
+    padding: 10px;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+#generate-btn {
+    padding: 15px 30px;
+    font-size: 18px;
+    color: white;
+    background-color: var(--button-background-light);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.5);
+}
+
+#generate-btn:hover {
+    background-color: var(--button-hover-light);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.7);
+}
+
+body.dark-mode #generate-btn {
+    background-color: var(--button-background-dark);
+}
+
+body.dark-mode #generate-btn:hover {
+    background-color: var(--button-hover-dark);
+}
+
+/* Theme Switch */
+.theme-switcher-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 32px; /* Accommodate larger icon */
+    height: 32px; /* Accommodate larger icon */
+}
+
+.theme-icon {
+    font-size: 32px; /* Increased icon size */
+    position: absolute;
+    transition: opacity 0.3s;
+    line-height: 32px; /* Match wrapper height */
+}
+
+.sun {
+    opacity: 1;
+}
+
+.moon {
+    opacity: 0;
+}
+
+body.dark-mode .sun {
+    opacity: 0;
+}
+
+body.dark-mode .moon {
+    opacity: 1;
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
