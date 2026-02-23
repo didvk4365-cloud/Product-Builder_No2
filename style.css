@@ -64,7 +64,8 @@ body.dark-mode .timer-container {
 }
 
 .time-display {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
     margin-bottom: 8px;
 }
 
@@ -304,7 +305,8 @@ input:checked + .slider:before {
     }
 
     .time-display {
-        font-size: 0.9rem;
+        font-size: 1rem;
+        font-weight: bold;
     }
 
     .countdown-display {
