@@ -70,6 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyTheme = (isDarkMode) => {
         document.body.classList.toggle('dark-mode', isDarkMode);
         localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+
+        // Reset Disqus if it exists to re-detect theme
+        if (typeof DISQUS !== 'undefined') {
+            DISQUS.reset({
+                reload: true,
+                config: function () {
+                    this.page.identifier = window.location.pathname;
+                    this.page.url = window.location.href;
+                }
+            });
+        }
     };
 
     themeCheckbox.addEventListener('change', (event) => {

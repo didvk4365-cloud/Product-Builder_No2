@@ -35,13 +35,15 @@ body.dark-mode {
     text-align: center;
     padding: 40px;
     background-color: var(--container-background-light);
+    color: var(--text-color-light); /* Added color */
     border-radius: 15px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s; /* Added color transition */
 }
 
 body.dark-mode .container {
     background-color: var(--container-background-dark);
+    color: var(--text-color-dark); /* Added color for dark mode */
 }
 
 .timer-container {
