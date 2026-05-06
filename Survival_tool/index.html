@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>All-in-One Survival Web Tool</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --surface-color: #1a1a1a;
+            --primary-color: #ff9800;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --border-color: #333333;
+            --danger-color: #f44336;
+        }
+
+        /* 토스트 알림 */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(255, 152, 0, 0.95);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 8px;
+            animation: toastIn 0.25s ease-out forwards;
+            box-shadow: 0 4px 20px rgba(255, 152, 0, 0.4);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding-bottom: 70px;
+            overflow-x: hidden;
+            transition: background-color 0.1s;
+        }
+
+        .flash-active {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .strobe-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            z-index: 9999;
+            display: none;
+            cursor: pointer;
+        }
+
+        .strobe-overlay.active {
+            display: block;
+        }
+
+        .strobe-overlay.flash {
+            background-color: #ffffff;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-top: 0;
+        }
+
+        header {
+            background-color: var(--surface-color);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            max-width: 480px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+
+        .header-clock {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* 숫자 입력 화살표 제거 */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+            color: #fff;
+        }
+
+        button.secondary {
+            background-color: var(--surface-color);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--surface-color);
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--border-color);
+            z-index: 100;
+            padding: 5px 0;
+            padding-bottom: env(safe-area-inset-bottom, 5px);
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flex-row > div {
+            flex: 1;
+        }
+
+        .compass-circle {
+            width: 220px;
+            height: 220px;
+            border: 8px solid #2a2a2a;
+            border-radius: 50%;
+            margin: 30px auto;
+            position: relative;
+            background: #111;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .compass-rose {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 0.1s ease-out;
+            pointer-events: none;
+        }
+
+        .compass-rose::before {
+            content: "N";
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--danger-color);
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose::after {
+            content: "S";
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose .east {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose .west {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        /* 고정 바늘 (상단 가이드) */
+        .compass-needle {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 30px;
+            background: var(--primary-color);
+            z-index: 10;
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        #compass_text {
+            position: absolute;
+            z-index: 11;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--primary-color);
+        }
+
+        /* 데스크톱 보더 구별선 */
+        @media (min-width: 520px) {
+            body { background-color: #111; }
+            .container {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+                min-height: calc(100vh - 60px);
+                background-color: var(--bg-color);
+            }
+            .bottom-nav {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+            }
+            header {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+            }
+        }
+
+        /* 다중 알람 스타일 */
+        .alarm-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+            gap: 10px;
+        }
+        .alarm-item.dragging {
+            opacity: 0.5;
+            background: var(--surface-color);
+        }
+        .alarm-info {
+            flex: 1;
+            pointer-events: none;
+        }
+        .alarm-time {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .alarm-settings-summary {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            padding: 5px;
+            user-select: none;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        .alarm-checkbox {
+            width: 20px !important;
+            height: 20px;
+            margin: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 스트로보 전체 화면 오버레이 -->
+    <div id="strobe_overlay" class="strobe-overlay" onclick="stopSignal()">
+        <div id="strobe_text" style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;"></div>
+        <div style="position:absolute; top:60%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;">화면을 터치하면 꺼집니다.</div>
+    </div>
+
+    <header>
+        <div class="header-inner">
+            <h1>Survival Tool</h1>
+            <div id="current_time" class="header-clock">00:00:00</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 1. 정화 & 용량 계산기 -->
+        <div id="tab-water" class="tab-content active">
+            <div class="card">
+                <h2>용량 계산기 (Volume)</h2>
+                <div class="flex-row">
+                    <div class="form-group">
+                        <label>가로 (cm)</label>
+                        <input type="number" id="w_w" placeholder="0" oninput="saveAndCalcWater()">
+                    </div>
+                    <div class="form-group">
+                        <label>세로 (cm)</label>
+                        <input type="number" id="w_l" placeholder="0" oninput="saveAndCalcWater()">
+                    </div>
+                    <div class="form-group">
+                        <label>높이 (cm)</label>
+                        <input type="number" id="w_h" placeholder="0" oninput="saveAndCalcWater()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>또는 물의 양 직접 입력 (L)</label>
+                    <input type="number" id="w_v" placeholder="예: 1.5" oninput="saveAndCalcWater(true)">
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>수질 정화 (Purification)</h2>
+                <div class="form-group">
+                    <label>락스 농도 (%)</label>
+                    <select id="w_c" onchange="saveAndCalcWater()">
+                        <option value="4">4% (일반 가정용)</option>
+                        <option value="5">5% (표준 가정용)</option>
+                        <option value="5.25" selected>5.25% (유한락스 등)</option>
+                        <option value="10">10%</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>물 상태</label>
+                    <select id="w_s" onchange="saveAndCalcWater()">
+                        <option value="1">맑은 물 (Clear)</option>
+                        <option value="2">탁한 물 (Cloudy)</option>
+                    </select>
+                </div>
+
+                <div class="result-box" id="water_result">
+                    물의 양을 입력하세요.
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 주의: 향료나 계면활성제가 없는 순수 차아염소산나트륨(락스)만 사용. 반드시 30분 대기 후 냄새 확인.</p>
+            </div>
+        </div>
+
+        <!-- 2. 신호 및 통신 -->
+        <div id="tab-signal" class="tab-content">
+            <div class="card">
+                <h2>모스부호 (Morse Code)</h2>
+                <div class="form-group">
+                    <label>텍스트 입력 (영문/숫자)</label>
+                    <input type="text" id="s_text" value="SOS" oninput="saveInputs()" onfocus="if(this.value==='SOS')this.value=''" style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; white-space:nowrap;"><input type="checkbox" id="s_repeat" onchange="saveInputs()">반복 재생 (Loop)</label>
+                </div>
+                <div class="result-box" id="s_morse_result" style="font-size: 1.5rem; letter-spacing: 2px; word-wrap: break-word;"></div>
+                
+                <div class="flex-row">
+                    <button onclick="playMorse(false)">🎵 Sound</button>
+                    <button onclick="playMorse(true)">💡 Light</button>
+                </div>
+                <button class="secondary" onclick="stopSignal()">⏹ STOP</button>
+            </div>
+
+            <div class="card">
+                <h2>긴급 스트로보 (Strobe)</h2>
+                <button class="danger" onclick="toggleStrobe()" id="btn_strobe">🚨 SOS 스트로보 시작</button>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 경고: 광과민성 발작을 유발할 수 있습니다. (Wake Lock 작동)</p>
+            </div>
+
+            <div class="card">
+                <h2>비콘 모드 (Beacon)</h2>
+                <div class="flex-row">
+                    <div class="form-group">
+                        <label>간격 (초)</label>
+                        <input type="number" id="s_beacon_interval" value="3" min="1" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group">
+                        <label>횟수 (회)</label>
+                        <input type="number" id="s_beacon_count" value="1" min="1" oninput="saveInputs()">
+                    </div>
+                </div>
+                <button class="secondary" onclick="toggleBeacon()" id="btn_beacon">📡 비콘 모드 시작</button>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 위치 표시를 위해 일정 간격으로 강력한 섬광을 내보냅니다.</p>
+            </div>
+        </div>
+
+        <!-- 3. 천체 및 위치 -->
+        <div id="tab-nav" class="tab-content">
+            <div class="card">
+                <h2>디지털 나침반</h2>
+                <div class="compass-circle">
+                    <div class="compass-needle"></div>
+                    <div class="compass-rose" id="compass_rose">
+                        <div class="east">E</div>
+                        <div class="west">W</div>
+                    </div>
+                    <span id="compass_text">---°</span>
+                </div>
+                <button onclick="startCompass()" id="btn_compass">나침반 (권한요청)</button>
+            </div>
+
+            <div class="card">
+                <h2>일출/일몰 & 월출/월몰</h2>
+                <div class="flex-row">
+                    <div class="form-group">
+                        <label>위도 (Latitude)</label>
+                        <input type="number" id="n_lat" placeholder="37.56" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group">
+                        <label>경도 (Longitude)</label>
+                        <input type="number" id="n_lng" placeholder="126.97" oninput="saveInputs()">
+                    </div>
+                </div>
+                <button class="secondary" onclick="getLocation()">📍 현재 위치</button>
+                <button onclick="calcSunMoon()">계산하기</button>
+                <div class="result-box" id="sun_result">
+                    위치 정보를 입력하세요.
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>단위 변환기</h2>
+                <div class="form-group">
+                    <label>분류</label>
+                    <select id="c_category" onchange="updateUnitOptions()">
+                        <option value="temp">온도 (Temperature)</option>
+                        <option value="length">거리 (Length)</option>
+                        <option value="weight">무게 (Weight)</option>
+                        <option value="volume">부피 (Volume)</option>
+                    </select>
+                </div>
+                <div class="flex-row" style="align-items: center;">
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <input type="number" id="c_val_from" placeholder="값" oninput="convertUnit()">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <select id="c_unit_from" onchange="convertUnit()"></select>
+                    </div>
+                </div>
+                <div style="text-align:center; padding: 10px 0; color:var(--primary-color);">▼</div>
+                <div class="flex-row" style="align-items: center;">
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <input type="text" id="c_val_to" placeholder="결과" readonly style="background-color:var(--surface-color);">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <select id="c_unit_to" onchange="convertUnit()"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 알람 시스템 -->
+        <div id="tab-alert" class="tab-content">
+            <div class="card">
+                <h2>⏱ 타이머 (Timer)</h2>
+                <div class="flex-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label>시</label>
+                        <input type="number" id="a_h" value="0" min="0" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>분</label>
+                        <input type="number" id="a_m" value="0" min="0" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>초</label>
+                        <input type="number" id="a_s" value="0" min="0" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group" style="flex: 1.5;">
+                        <label style="white-space: nowrap;">알람길이(초)</label>
+                        <input type="number" id="t_duration" value="2" min="1" oninput="saveInputs()">
+                    </div>
+                </div>
+                <div class="flex-row" style="margin-top:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>소리</label>
+                        <select id="t_sound" onchange="saveInputs()">
+                            <option value="none">음소거</option>
+                            <option value="siren" selected>사이렌</option>
+                            <option value="beep_fast">빠른 비프음</option>
+                            <option value="beep_slow">느린 비프음</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>진동</label>
+                        <select id="t_vibe" onchange="saveInputs()">
+                            <option value="none">진동 끄기</option>
+                            <option value="long" selected>긴 진동</option>
+                            <option value="short">짧은 진동</option>
+                            <option value="sos">SOS 패턴</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex-row" style="margin-top:10px; align-items: center;">
+                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; white-space:nowrap; flex:none;"><input type="checkbox" id="a_repeat" onchange="saveInputs()">반복설정</label>
+                    <div class="form-group" style="margin-bottom:0; flex:1; margin-left:10px;">
+                        <label style="font-size:0.75rem; margin-bottom:2px;">인터벌(초)</label>
+                        <input type="number" id="t_interval" value="0" min="0" oninput="saveInputs()" style="padding: 8px;">
+                    </div>
+                </div>
+                <div class="result-box" id="timer_display_box" style="font-size: 2rem; text-align: center; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <span id="timer_status" style="font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 1px;">READY</span>
+                    <span id="timer_display">00:00:00</span>
+                </div>
+                <div class="flex-row">
+                    <button onclick="startTimer()" id="btn_timer_start">시작</button>
+                    <button class="secondary" onclick="stopTimer()" style="white-space:nowrap;">정지/초기화</button>
+                    <button class="secondary" onclick="playAlarmSound('timer', true)" style="width:auto; flex:none; padding:12px 14px;">🔊</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⏰ 특정 시간 알람</h2>
+                <div class="flex-row">
+                    <div class="form-group" style="flex:2;">
+                        <label>시간 설정</label>
+                        <input type="time" id="a_time" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label style="white-space: nowrap;">알람길이(초)</label>
+                        <input type="number" id="a_duration" value="2" min="1" oninput="saveInputs()">
+                    </div>
+                </div>
+                <div class="flex-row" style="margin-top:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>소리</label>
+                        <select id="a_sound" onchange="saveInputs()">
+                            <option value="none">음소거</option>
+                            <option value="siren">사이렌</option>
+                            <option value="beep_fast" selected>빠른 비프음</option>
+                            <option value="beep_slow">느린 비프음</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>진동</label>
+                        <select id="a_vibe" onchange="saveInputs()">
+                            <option value="none">진동 끄기</option>
+                            <option value="long">긴 진동</option>
+                            <option value="short" selected>짧은 진동</option>
+                            <option value="sos">SOS 패턴</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex-row">
+                    <button onclick="addAlarm()" style="flex:1;">➕ 추가</button>
+                    <button class="danger" onclick="deleteSelectedAlarms()" style="flex:1;">🗑 삭제</button>
+                    <button class="secondary" onclick="playAlarmSound('alarm', true)" style="width:auto; flex:none; padding:12px 14px;">🔊</button>
+                </div>
+                <div id="alarm_list" style="margin-top:15px;"></div>
+                <div class="result-box" id="alarm_status" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- 5. 설정 및 백업 (Settings) -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <h2>데이터 백업 및 복구</h2>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">인터넷 연결이 끊겼을 때를 대비해 설정과 위치 정보를 기기에 백업합니다.</p>
+                <button onclick="exportData()">💾 JSON 내보내기 (Export)</button>
+                <button class="secondary" onclick="document.getElementById('import_file').click()">📂 JSON 가져오기 (Import)</button>
+                <input type="file" id="import_file" style="display: none;" accept=".json" onchange="importData(event)">
+            </div>
+
+            <div class="card">
+                <h2>초기화</h2>
+                <button class="danger" onclick="clearData()">⚠️ 로컬 데이터 삭제</button>
+            </div>
+
+            <div style="text-align:center; color:var(--text-secondary); font-size:0.8rem; margin-top:20px;">
+                Offline First Web Tool<br>No CDN, No External Requests.
+            </div>
+        </div>
+    </div>
+
+    <!-- 하단 탭 바 -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('tab-water', this)">
+            <span class="nav-icon">💧</span>
+            <span>정화</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tab-signal', this)">
+            <span class="nav-icon">🔦</span>
+            <span>신호</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tab-nav', this)">
+            <span class="nav-icon">🧭</span>
+            <span>위치</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tab-alert', this)">
+            <span class="nav-icon">⏰</span>
+            <span>알람</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tab-settings', this)">
+            <span class="nav-icon">⚙️</span>
+            <span>설정</span>
+        </button>
+    </nav>
+
+    <!-- 오디오 컨텍스트용 -->
+    <script>
+        // === 서비스 워커 등록 (PWA) ===
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+            });
+        }
+
+        // === 실시간 시계 (24H) ===
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = `${h}:${m}:${s}`;
+            const clockEl = document.getElementById('current_time');
+            if (clockEl) clockEl.innerText = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // === 상태 관리 (LocalStorage) ===
+        let appData = {};
+        const DATA_KEY = 'survival_data';
+
+        function loadData() {
+            const saved = localStorage.getItem(DATA_KEY);
+            if (saved) {
+                try {
+                    appData = JSON.parse(saved);
+                    appData.alarms = appData.alarms || [];
+                    const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_interval', 's_beacon_interval', 's_beacon_count'];
+                    inputs.forEach(id => {
+                        if (appData[id] !== undefined) {
+                            const el = document.getElementById(id);
+                            if (el) el.value = appData[id];
+                        }
+                    });
+                    if (appData['a_repeat'] !== undefined) {
+                        document.getElementById('a_repeat').checked = appData['a_repeat'];
+                    }
+                    if (appData['s_repeat'] !== undefined) {
+                        document.getElementById('s_repeat').checked = appData['s_repeat'];
+                    }
+                    if (appData['c_category']) {
+                        updateUnitOptions(true);
+                        if (appData['c_unit_from']) document.getElementById('c_unit_from').value = appData['c_unit_from'];
+                        if (appData['c_unit_to']) document.getElementById('c_unit_to').value = appData['c_unit_to'];
+                        convertUnit();
+                    }
+                    saveAndCalcWater();
+                    updateMorseText();
+                    renderAlarms();
+                } catch (e) { }
+            }
+        }
+
+        function saveInputs() {
+            const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_interval', 's_beacon_interval', 's_beacon_count'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) appData[id] = el.value;
+            });
+            appData['a_repeat'] = document.getElementById('a_repeat').checked;
+            appData['s_repeat'] = document.getElementById('s_repeat').checked;
+            appData['alarms'] = appData['alarms'] || [];
+            localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+        }
+
+        // === 탭 전환 로직 ===
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // === A. 정화 (Water) 로직 ===
+        function saveAndCalcWater(directVolume = false) {
+            saveInputs();
+            const w = parseFloat(appData.w_w) || 0;
+            const l = parseFloat(appData.w_l) || 0;
+            const h = parseFloat(appData.w_h) || 0;
+            let v = parseFloat(appData.w_v) || 0;
+
+            if (!directVolume && w && l && h) {
+                v = (w * l * h) / 1000;
+                document.getElementById('w_v').value = v.toFixed(2);
+                appData.w_v = v;
+                localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+            }
+
+            if (v <= 0) {
+                document.getElementById('water_result').innerHTML = "물의 양을 입력하세요.";
+                return;
+            }
+
+            const conc = parseFloat(appData.w_c) || 5.25;
+            const cloudy = parseInt(appData.w_s) === 2;
+
+            // 타겟 PPM: 맑은물 4ppm, 탁한물 8ppm
+            const targetPPM = cloudy ? 8 : 4;
+
+            // 계산: 필요 락스 양(ml) = (V * targetPPM) / (conc * 10)
+            const mlNeeded = (v * targetPPM) / (conc * 10);
+            const dropsNeeded = mlNeeded * 20; // 1ml ≒ 20 drops
+
+            document.getElementById('water_result').innerHTML = `
+                <strong>총 물의 양:</strong> ${v.toFixed(2)} L<br>
+                <strong>필요 락스 양:</strong> 약 ${dropsNeeded.toFixed(1)} 방울 (${mlNeeded.toFixed(2)} ml)
+            `;
+        }
+
+        // === B. 신호 (Signal) 로직 ===
+        const MORSE_MAP = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+            'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+            'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+            '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
+            ' ': ' '
+        };
+
+        document.getElementById('s_text').addEventListener('input', function () {
+            saveInputs();
+            updateMorseText();
+        });
+
+        function updateMorseText() {
+            const txt = (document.getElementById('s_text').value || "").toUpperCase();
+            let morse = '';
+            for (let c of txt) {
+                if (MORSE_MAP[c]) morse += MORSE_MAP[c] + ' ';
+                else if (c === ' ') morse += '  '; // 단어 띄어쓰기 표시
+            }
+            document.getElementById('s_morse_result').innerText = morse;
+        }
+
+        let signalTimeout;
+        let wakeLock = null;
+        let isSignaling = false;
+        let strobeActive = false;
+
+        // Web Audio Context
+        let audioCtx = null;
+
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) { console.log('WakeLock Error:', err); }
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => wakeLock = null);
+            }
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function beep(duration) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 800; // 800Hz Hz beep
+
+            // 부드러운 시작/종료로 팝(Pop) 노이즈 방지
+            const t = audioCtx.currentTime;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(1, t + 0.01);
+            gain.gain.setValueAtTime(1, t + (duration / 1000) - 0.01);
+            gain.gain.linearRampToValueAtTime(0, t + (duration / 1000));
+
+            osc.start(t);
+            osc.stop(t + (duration / 1000));
+        }
+
+        function flashBg(duration) {
+            document.body.classList.add('flash-active');
+            setTimeout(() => {
+                document.body.classList.remove('flash-active');
+            }, duration);
+        }
+
+        function stopSignal() {
+            isSignaling = false;
+            strobeActive = false;
+            beaconActive = false;
+            clearTimeout(signalTimeout);
+            document.body.classList.remove('flash-active');
+            releaseWakeLock();
+            document.getElementById('btn_strobe').innerText = "🚨 SOS 스트로보 시작";
+            document.getElementById('btn_beacon').innerText = "📡 비콘 모드 시작";
+            const overlay = document.getElementById('strobe_overlay');
+            if (overlay) overlay.classList.remove('active', 'flash');
+        }
+
+        function playMorse(useFlash) {
+            stopSignal();
+            if (useFlash) requestWakeLock();
+            if (!useFlash) initAudio();
+
+            const txt = (document.getElementById('s_text').value || "").toUpperCase();
+            if (!txt) return;
+
+            isSignaling = true;
+            const unitTime = 120; // 1단위 (ms) - 국제 표준 WPM에 가깝게 조절
+            let sequence = [];
+
+            for (let i = 0; i < txt.length; i++) {
+                const c = txt[i];
+                if (c === ' ') {
+                    sequence.push({ on: false, dur: unitTime * 7 }); // 단어 사이 7단위 공백
+                    continue;
+                }
+                const m = MORSE_MAP[c];
+                if (!m) continue;
+
+                for (let j = 0; j < m.length; j++) {
+                    const symbol = m[j];
+                    if (symbol === '.') sequence.push({ on: true, dur: unitTime });
+                    if (symbol === '-') sequence.push({ on: true, dur: unitTime * 3 });
+
+                    // 같은 글자 내의 기호 사이: 1단위 공백
+                    if (j < m.length - 1) {
+                        sequence.push({ on: false, dur: unitTime });
+                    }
+                }
+                // 글자와 글자 사이: 3단위 공백
+                if (i < txt.length - 1 && txt[i + 1] !== ' ') {
+                    sequence.push({ on: false, dur: unitTime * 3 });
+                }
+            }
+
+            let idx = 0;
+            // 오버레이 사용 준비 (시각적 모스부호일 경우 오버레이 사용)
+            const overlay = document.getElementById('strobe_overlay');
+            if (useFlash) {
+                document.getElementById('strobe_text').innerText = txt;
+                overlay.classList.add('active');
+                overlay.classList.remove('flash');
+            }
+
+            function runSeq() {
+                if (!isSignaling) {
+                    if (useFlash) overlay.classList.remove('active', 'flash');
+                    return;
+                }
+                if (idx >= sequence.length) {
+                    if (document.getElementById('s_repeat').checked) {
+                        idx = 0;
+                        signalTimeout = setTimeout(runSeq, unitTime * 7); // 반복 시 단어 간 공백만큼 대기
+                        return;
+                    }
+                    stopSignal();
+                    return;
+                }
+                const s = sequence[idx];
+                if (s.on) {
+                    if (useFlash) {
+                        overlay.classList.add('flash');
+                        setTimeout(() => overlay.classList.remove('flash'), s.dur);
+                    }
+                    else beep(s.dur);
+                }
+                idx++;
+                signalTimeout = setTimeout(runSeq, s.dur);
+            }
+            runSeq();
+        }
+
+        // Strobe Logic
+        function toggleStrobe() {
+            const btn = document.getElementById('btn_strobe');
+            const overlay = document.getElementById('strobe_overlay');
+            if (isSignaling && strobeActive) {
+                stopSignal();
+                strobeActive = false;
+                overlay.classList.remove('active');
+                btn.innerText = "🚨 SOS 스트로보 시작";
+            } else {
+                stopSignal();
+                requestWakeLock();
+                isSignaling = true;
+                strobeActive = true;
+                document.getElementById('strobe_text').innerText = "SOS STROBE";
+                overlay.classList.add('active');
+                btn.innerText = "🚨 스트로보 정지";
+
+                function runStrobe() {
+                    if (!isSignaling || !strobeActive) {
+                        overlay.classList.remove('active');
+                        return;
+                    }
+                    overlay.classList.toggle('flash');
+                    signalTimeout = setTimeout(runStrobe, 50);
+                }
+                runStrobe();
+            }
+        }
+
+        let beaconActive = false;
+        function toggleBeacon() {
+            const btn = document.getElementById('btn_beacon');
+            const overlay = document.getElementById('strobe_overlay');
+
+            if (isSignaling && beaconActive) {
+                stopSignal();
+            } else {
+                stopSignal();
+                requestWakeLock();
+                isSignaling = true;
+                beaconActive = true;
+                document.getElementById('strobe_text').innerText = "BEACON MODE";
+                overlay.classList.add('active');
+                btn.innerText = "⏹ 비콘 중지";
+
+                function runBeacon() {
+                    if (!isSignaling || !beaconActive) {
+                        overlay.classList.remove('active');
+                        return;
+                    }
+
+                    const count = parseInt(appData.s_beacon_count) || 1;
+                    let currentFlash = 0;
+
+                    function doBurst() {
+                        if (!isSignaling || !beaconActive) return;
+
+                        overlay.classList.add('flash');
+                        setTimeout(() => {
+                            overlay.classList.remove('flash');
+                            currentFlash++;
+                            if (currentFlash < count) {
+                                // 섬광 사이 짧은 간격 (0.15초)
+                                signalTimeout = setTimeout(doBurst, 150);
+                            } else {
+                                // 버스트 완료 후 설정된 간격만큼 대기
+                                const interval = (parseInt(appData.s_beacon_interval) || 3) * 1000;
+                                signalTimeout = setTimeout(runBeacon, interval);
+                            }
+                        }, 100); // 섬광 지속 시간 0.1초
+                    }
+                    doBurst();
+                }
+                runBeacon();
+            }
+        }
+
+        // === C. 위치 및 천체 (Nav) 로직 ===
+        // Compass
+        let compassWatchId = null;
+        let currentRotation = 0;
+        let lastHeading = 0;
+
+        function startCompass() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                        }
+                    }).catch(console.error);
+            } else {
+                window.addEventListener('deviceorientationabsolute', handleOrientation);
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+            document.getElementById('btn_compass').innerText = "나침반 작동중...";
+        }
+
+        function handleOrientation(e) {
+            let heading = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+            if (heading != null) {
+                // 최단 경로 회전 로직 (359 -> 0도 시 반대 회전 방지)
+                let diff = heading - lastHeading;
+                if (diff > 180) diff -= 360;
+                else if (diff < -180) diff += 360;
+
+                currentRotation += diff;
+                lastHeading = heading;
+
+                const rose = document.getElementById('compass_rose');
+                if (rose) rose.style.transform = `rotate(${-currentRotation}deg)`;
+                document.getElementById('compass_text').innerText = `${Math.round(heading)}°`;
+            }
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    document.getElementById('n_lat').value = pos.coords.latitude.toFixed(4);
+                    document.getElementById('n_lng').value = pos.coords.longitude.toFixed(4);
+                    saveInputs();
+                    calcSunMoon();
+                }, (err) => {
+                    alert("위치 정보를 가져올 수 없습니다.");
+                }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+            }
+        }
+
+        function calcSunMoon() {
+            saveInputs();
+            const lat = parseFloat(appData.n_lat);
+            const lng = parseFloat(appData.n_lng);
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            const res = getSunriseSunset(lat, lng, new Date());
+            const moon = getMoonPhaseAndTimes(new Date());
+
+            document.getElementById('sun_result').innerHTML = `
+                <strong>일출:</strong> ${res.sunrise}<br>
+                <strong>일몰:</strong> ${res.sunset}<br><br>
+                <strong>월령(달 위상):</strong> ${moon.phaseName}<br>
+                <strong>월출(대략):</strong> ${moon.rise}<br>
+                <strong>월몰(대략):</strong> ${moon.set}
+            `;
+        }
+
+        // Simplified Sunrise/Sunset Algorithm
+        function getSunriseSunset(lat, lng, date) {
+            const d = new Date(date);
+            const startOfYear = new Date(d.getFullYear(), 0, 0);
+            const diff = d - startOfYear;
+            const dayOfYear = Math.floor(diff / 86400000);
+            const rad = Math.PI / 180;
+
+            const declination = 23.45 * Math.sin(rad * (360 / 365) * (dayOfYear - 81));
+            const eqTime = 9.87 * Math.sin(2 * rad * (360 / 365) * (dayOfYear - 81)) - 7.53 * Math.cos(rad * (360 / 365) * (dayOfYear - 81)) - 1.5 * Math.sin(rad * (360 / 365) * (dayOfYear - 81));
+
+            let cosHA = -Math.tan(lat * rad) * Math.tan(declination * rad);
+            if (cosHA > 1) return { sunrise: "백야/극야", sunset: "백야/극야" };
+            if (cosHA < -1) return { sunrise: "백야/극야", sunset: "백야/극야" };
+
+            const ha = Math.acos(cosHA) / rad;
+            const solarNoon = 12 - (lng / 15) - (eqTime / 60);
+
+            const formatTime = (hoursUTC) => {
+                const dateObj = new Date(date);
+                const h = Math.floor(hoursUTC);
+                const m = Math.floor((hoursUTC - h) * 60);
+                dateObj.setUTCHours(h, m, 0, 0);
+                return dateObj.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+            };
+
+            return {
+                sunrise: formatTime(solarNoon - (ha / 15)),
+                sunset: formatTime(solarNoon + (ha / 15))
+            };
+        }
+
+        // Approximate Moon Phase and Rise/Set
+        function getMoonPhaseAndTimes(date) {
+            const d = new Date(date);
+            const knownNewMoon = new Date(Date.UTC(2024, 0, 11, 11, 57));
+            const diff = d - knownNewMoon;
+            const lunarCycle = 29.53058867 * 86400000;
+            let phase = (diff % lunarCycle) / lunarCycle;
+            if (phase < 0) phase += 1;
+
+            let phaseName = "";
+            if (phase < 0.05 || phase > 0.95) phaseName = "🌑 삭 (밤새 관측 불가)";
+            else if (phase < 0.2) phaseName = "🌒 초승달";
+            else if (phase < 0.3) phaseName = "🌓 상현달";
+            else if (phase < 0.45) phaseName = "🌔 상현망간";
+            else if (phase < 0.55) phaseName = "🌕 보름달 (밤새 관측)";
+            else if (phase < 0.7) phaseName = "🌖 하현망간";
+            else if (phase < 0.8) phaseName = "🌗 하현달";
+            else phaseName = "🌘 그믐달";
+
+            let transitHour = (12 + 24 * phase) % 24;
+            let riseHour = (transitHour - 6 + 24) % 24;
+            let setHour = (transitHour + 6) % 24;
+
+            const formatTime = (h) => {
+                const hh = Math.floor(h);
+                const mm = Math.floor((h - hh) * 60);
+                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')} (오차 ±2시간)`;
+            };
+
+            return { phaseName: phaseName, rise: formatTime(riseHour), set: formatTime(setHour) };
+        }
+
+        // Unit Converter
+        const UNIT_DATA = {
+            temp: [
+                { id: 'C', name: 'Celsius (°C)' },
+                { id: 'F', name: 'Fahrenheit (°F)' },
+                { id: 'K', name: 'Kelvin (K)' }
+            ],
+            length: [
+                { id: 'm', name: 'Meter (m)', factor: 1 },
+                { id: 'km', name: 'Kilometer (km)', factor: 1000 },
+                { id: 'cm', name: 'Centimeter (cm)', factor: 0.01 },
+                { id: 'mm', name: 'Millimeter (mm)', factor: 0.001 },
+                { id: 'mile', name: 'Mile (mi)', factor: 1609.344 },
+                { id: 'yard', name: 'Yard (yd)', factor: 0.9144 },
+                { id: 'foot', name: 'Foot (ft)', factor: 0.3048 },
+                { id: 'inch', name: 'Inch (in)', factor: 0.0254 }
+            ],
+            weight: [
+                { id: 'g', name: 'Gram (g)', factor: 1 },
+                { id: 'kg', name: 'Kilogram (kg)', factor: 1000 },
+                { id: 'mg', name: 'Milligram (mg)', factor: 0.001 },
+                { id: 'lb', name: 'Pound (lb)', factor: 453.59237 },
+                { id: 'oz', name: 'Ounce (oz)', factor: 28.34952 }
+            ],
+            volume: [
+                { id: 'L', name: 'Liter (L)', factor: 1 },
+                { id: 'ml', name: 'Milliliter (ml)', factor: 0.001 },
+                { id: 'gal', name: 'US Gallon (gal)', factor: 3.78541 },
+                { id: 'floz', name: 'US Fl.Ounce (fl oz)', factor: 0.0295735 }
+            ]
+        };
+
+        function updateUnitOptions(isRestore = false) {
+            const cat = document.getElementById('c_category').value;
+            const fromSelect = document.getElementById('c_unit_from');
+            const toSelect = document.getElementById('c_unit_to');
+
+            let optionsHTML = '';
+            UNIT_DATA[cat].forEach(u => {
+                optionsHTML += `<option value="${u.id}">${u.name}</option>`;
+            });
+
+            fromSelect.innerHTML = optionsHTML;
+            toSelect.innerHTML = optionsHTML;
+
+            if (!isRestore) {
+                if (UNIT_DATA[cat].length > 1) toSelect.selectedIndex = 1;
+                convertUnit();
+            }
+        }
+
+        function convertUnit() {
+            saveInputs();
+            const valFrom = parseFloat(document.getElementById('c_val_from').value);
+            if (isNaN(valFrom)) {
+                document.getElementById('c_val_to').value = '';
+                return;
+            }
+
+            const cat = document.getElementById('c_category').value;
+            const unitFrom = document.getElementById('c_unit_from').value;
+            const unitTo = document.getElementById('c_unit_to').value;
+
+            let result = 0;
+
+            if (cat === 'temp') {
+                let tempInC = valFrom;
+                if (unitFrom === 'F') tempInC = (valFrom - 32) * 5 / 9;
+                else if (unitFrom === 'K') tempInC = valFrom - 273.15;
+
+                if (unitTo === 'C') result = tempInC;
+                else if (unitTo === 'F') result = (tempInC * 9 / 5) + 32;
+                else if (unitTo === 'K') result = tempInC + 273.15;
+            } else {
+                const units = UNIT_DATA[cat];
+                const factorFrom = units.find(u => u.id === unitFrom).factor;
+                const factorTo = units.find(u => u.id === unitTo).factor;
+
+                const baseValue = valFrom * factorFrom;
+                result = baseValue / factorTo;
+            }
+
+            let resStr = parseFloat(result.toFixed(6)).toString();
+            document.getElementById('c_val_to').value = resStr;
+        }
+
+        // === D. 알림 시스템 (Alert) ===
+        let timerInterval;
+        let totalSeconds = 0;
+        let isResting = false;
+
+        function startTimer() {
+            stopTimer();
+            initAudio();
+            saveInputs();
+            isResting = false;
+            runTimerStep();
+        }
+
+        function runTimerStep() {
+            clearInterval(timerInterval);
+
+            if (!isResting) {
+                const h = parseInt(appData.a_h) || 0;
+                const m = parseInt(appData.a_m) || 0;
+                const s = parseInt(appData.a_s) || 0;
+                totalSeconds = (h * 3600) + (m * 60) + s;
+                document.getElementById('timer_status').innerText = "WORK";
+                document.getElementById('timer_status').style.color = "var(--primary-color)";
+                showToast("활동(WORK) 시작!", 2000);
+            } else {
+                totalSeconds = parseInt(appData.t_interval) || 0;
+                document.getElementById('timer_status').innerText = "REST";
+                document.getElementById('timer_status').style.color = "#2196F3";
+                showToast("휴식(REST) 시작!", 5000);
+            }
+
+            if (totalSeconds <= 0 && !isResting) {
+                stopTimer();
+                return;
+            }
+
+            document.getElementById('btn_timer_start').innerText = "작동중...";
+            document.getElementById('btn_timer_start').disabled = true;
+
+            timerInterval = setInterval(() => {
+                totalSeconds--;
+                updateTimerDisplay();
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+
+                    if (!isResting) {
+                        playAlarmSound('timer');
+                        const interval = parseInt(appData.t_interval) || 0;
+                        if (appData.a_repeat && interval > 0) {
+                            isResting = true;
+                            runTimerStep();
+                        } else if (appData.a_repeat) {
+                            runTimerStep();
+                        } else {
+                            stopTimer();
+                        }
+                    } else {
+                        isResting = false;
+                        if (appData.a_repeat) {
+                            runTimerStep();
+                        } else {
+                            stopTimer();
+                        }
+                    }
+                }
+            }, 1000);
+            updateTimerDisplay();
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            isResting = false;
+            document.getElementById('btn_timer_start').innerText = "시작";
+            document.getElementById('btn_timer_start').disabled = false;
+            document.getElementById('timer_status').innerText = "READY";
+            document.getElementById('timer_status').style.color = "var(--text-secondary)";
+            document.getElementById('timer_display').innerText = "00:00:00";
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            const pad = num => String(num).padStart(2, '0');
+            document.getElementById('timer_display').innerText = `${pad(h)}:${pad(m)}:${pad(s)}`;
+        }
+
+        // Multi-Alarm Management
+        function addAlarm() {
+            saveInputs();
+            const timeStr = document.getElementById('a_time').value;
+            if (!timeStr) {
+                showToast("시간을 설정해주세요.");
+                return;
+            }
+            const sound = document.getElementById('a_sound').value;
+            const vibe = document.getElementById('a_vibe').value;
+            const dur = parseInt(document.getElementById('a_duration').value) || 2;
+
+            const newAlarm = {
+                id: Date.now(),
+                time: timeStr,
+                sound: sound,
+                vibe: vibe,
+                duration: dur,
+                triggered: false
+            };
+
+            appData.alarms.push(newAlarm);
+            saveInputs();
+            renderAlarms();
+            showToast("알람이 추가되었습니다.");
+        }
+
+        function deleteSelectedAlarms() {
+            const checkboxes = document.querySelectorAll('.alarm-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showToast("삭제할 알람을 선택해주세요.");
+                return;
+            }
+            const idsToDelete = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+            appData.alarms = appData.alarms.filter(a => !idsToDelete.includes(a.id));
+            saveInputs();
+            renderAlarms();
+            showToast(`${idsToDelete.length}개의 알람이 삭제되었습니다.`);
+        }
+
+        function renderAlarms() {
+            const container = document.getElementById('alarm_list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            appData.alarms.forEach(alarm => {
+                const item = document.createElement('div');
+                item.className = 'alarm-item';
+                item.draggable = true;
+                item.dataset.id = alarm.id;
+
+                const soundName = { 'none': '음소거', 'siren': '사이렌', 'beep_fast': '빠른비프', 'beep_slow': '느린비프' }[alarm.sound] || '알수없음';
+                const vibeName = { 'none': '진동끔', 'long': '긴진동', 'short': '짧은진동', 'sos': 'SOS' }[alarm.vibe] || '알수없음';
+
+                item.innerHTML = `
+                    <div class="drag-handle">☰</div>
+                    <input type="checkbox" class="alarm-checkbox" data-id="${alarm.id}">
+                    <div class="alarm-info">
+                        <div class="alarm-time">${alarm.time}</div>
+                        <div class="alarm-settings-summary">${soundName} / ${vibeName} / ${alarm.duration}초</div>
+                    </div>
+                `;
+
+                // Drag and Drop Events
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+
+                container.appendChild(item);
+            });
+        }
+
+        let dragSrcEl = null;
+        function handleDragStart(e) {
+            dragSrcEl = this;
+            e.dataTransfer.effectAllowed = 'move';
+            this.classList.add('dragging');
+        }
+        function handleDragOver(e) {
+            e.preventDefault();
+            return false;
+        }
+        function handleDrop(e) {
+            e.stopPropagation();
+            if (dragSrcEl !== this) {
+                const list = appData.alarms;
+                const fromId = parseInt(dragSrcEl.dataset.id);
+                const toId = parseInt(this.dataset.id);
+                const fromIdx = list.findIndex(a => a.id === fromId);
+                const toIdx = list.findIndex(a => a.id === toId);
+
+                const temp = list[fromIdx];
+                list.splice(fromIdx, 1);
+                list.splice(toIdx, 0, temp);
+
+                saveInputs();
+                renderAlarms();
+            }
+            return false;
+        }
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        // Main Alarm Check Loop
+        setInterval(() => {
+            const now = new Date();
+            const curTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const curSec = now.getSeconds();
+
+            if (appData.alarms) {
+                appData.alarms.forEach(alarm => {
+                    // 초가 0일 때 (정각 분)에 한 번만 실행되도록
+                    if (alarm.time === curTime && curSec === 0 && !alarm.triggered) {
+                        playAlarmSound('alarm', false, alarm);
+                        alarm.triggered = true;
+                    }
+                    // 분이 바뀌면 트리거 초기화
+                    if (alarm.time !== curTime) {
+                        alarm.triggered = false;
+                    }
+                });
+            }
+        }, 1000);
+
+        function playAlarmSound(source = 'timer', isTest = false, alarmData = null) {
+            let sound, vibe, duration;
+
+            if (alarmData) {
+                // 실제 알람 발생 시
+                sound = alarmData.sound;
+                vibe = alarmData.vibe;
+                duration = alarmData.duration;
+            } else if (source === 'timer') {
+                sound = document.getElementById('t_sound').value;
+                vibe = document.getElementById('t_vibe').value;
+                duration = parseInt(document.getElementById('t_duration').value) || 2;
+            } else {
+                // 알람 테스트 시
+                sound = document.getElementById('a_sound').value;
+                vibe = document.getElementById('a_vibe').value;
+                duration = parseInt(document.getElementById('a_duration').value) || 2;
+            }
+
+            // 진동 처리
+            if (vibe !== 'none' && 'vibrate' in navigator) {
+                const durMs = duration * 1000;
+                if (vibe === 'long') navigator.vibrate([durMs]);
+                else if (vibe === 'short') {
+                    let pattern = [];
+                    for (let i = 0; i < duration * 5; i++) pattern.push(100, 100);
+                    navigator.vibrate(pattern);
+                }
+                else if (vibe === 'sos') {
+                    let pattern = [100, 100, 100, 100, 100, 300, 300, 100, 300, 100, 300, 300, 100, 100, 100, 100, 100, 500];
+                    let fullPattern = [];
+                    while (fullPattern.reduce((a, b) => a + b, 0) < durMs) fullPattern = fullPattern.concat(pattern);
+                    navigator.vibrate(fullPattern);
+                }
+            }
+
+            // 소리 처리
+            if (sound !== 'none') {
+                if (!audioCtx) initAudio();
+                if (audioCtx) {
+                    let startTime = audioCtx.currentTime;
+
+                    if (sound === 'siren') {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(400, startTime);
+                        for (let t = 0; t < duration; t += 2) {
+                            osc.frequency.linearRampToValueAtTime(800, startTime + t + 1.0);
+                            osc.frequency.linearRampToValueAtTime(400, startTime + t + 2.0);
+                        }
+                        gain.gain.setValueAtTime(0.8, startTime);
+                        gain.gain.linearRampToValueAtTime(0, startTime + duration - 0.05);
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    } else if (sound === 'beep_fast') {
+                        for (let i = 0; i < duration * 5; i++) {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.type = 'sine';
+                            osc.frequency.value = 1000;
+                            gain.gain.setValueAtTime(0.8, startTime + i * 0.2);
+                            gain.gain.linearRampToValueAtTime(0, startTime + i * 0.2 + 0.09);
+                            osc.start(startTime + i * 0.2);
+                            osc.stop(startTime + i * 0.2 + 0.1);
+                        }
+                    } else if (sound === 'beep_slow') {
+                        for (let i = 0; i < duration; i++) {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.type = 'sine';
+                            osc.frequency.value = 800;
+                            gain.gain.setValueAtTime(0.8, startTime + i * 1.0);
+                            gain.gain.linearRampToValueAtTime(0, startTime + i * 1.0 + 0.45);
+                            osc.start(startTime + i * 1.0);
+                            osc.stop(startTime + i * 1.0 + 0.5);
+                        }
+                    }
+                }
+            }
+
+            flashBg(duration * 1000);
+
+            if (!isTest) {
+                const msg = alarmData ? `⏰ 알람 (${alarmData.time})!` : '⏱ 타이머 완료!';
+                showToast(msg);
+            }
+        }
+
+        function showToast(msg, duration = 2100) {
+            let container = document.getElementById('toast_container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast_container';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+
+            const removeToast = () => {
+                if (toast.parentNode) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.parentNode.removeChild(toast);
+                    }, 300);
+                }
+            };
+
+            toast.onclick = removeToast;
+            container.appendChild(toast);
+            setTimeout(removeToast, duration);
+        }
+
+        // === E. 설정 및 백업 (Settings) ===
+        function exportData() {
+            saveInputs();
+            const dataStr = localStorage.getItem(DATA_KEY);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            const dateStr = new Date().toISOString().slice(0, 10);
+            a.download = `survival_backup_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const content = e.target.result;
+                    JSON.parse(content); // validate json
+                    localStorage.setItem(DATA_KEY, content);
+                    alert("데이터가 성공적으로 복원되었습니다.");
+                    loadData();
+                } catch (err) {
+                    alert("올바르지 않은 백업 파일입니다.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearData() {
+            if (confirm("모든 로컬 저장 데이터를 삭제하시겠습니까?")) {
+                localStorage.removeItem(DATA_KEY);
+                location.reload();
+            }
+        }
+
+        // Initialize
+        loadData();
+        if (!document.getElementById('c_unit_from').options.length) {
+            updateUnitOptions();
+        }
+
+    </script>
+</body>
+
+</html>
