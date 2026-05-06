@@ -18,3 +18,11 @@ self.addEventListener('fetch', event => {
       .then(response => response || fetch(event.request))
   );
 });
+
+self.addEventListener('install', (event) => {
+  self.skipWaiting(); // 대기하지 않고 즉시 설치
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim()); // 즉시 제어권 획득
+});
