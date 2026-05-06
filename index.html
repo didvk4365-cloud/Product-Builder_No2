@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>All-in-One Survival Web Tool</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --surface-color: #1a1a1a;
+            --primary-color: #ff9800;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --border-color: #333333;
+            --danger-color: #f44336;
+        }
+
+        /* 토스트 알림 */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(255, 152, 0, 0.95);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 8px;
+            animation: toastIn 0.25s ease-out forwards;
+            box-shadow: 0 4px 20px rgba(255, 152, 0, 0.4);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;
+            padding-bottom: 70px;
+            overflow-x: hidden;
+            transition: background-color 0.1s;
+        }
+
+        .flash-active {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .strobe-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            z-index: 9999;
+            display: none;
+            cursor: pointer;
+        }
+
+        .strobe-overlay.active {
+            display: block;
+        }
+
+        .strobe-overlay.flash {
+            background-color: #ffffff;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-top: 0;
+        }
+
+        header {
+            background-color: var(--surface-color);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            max-width: 480px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+
+        .header-clock {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* \354\210\253\354\232\220 \354\235\274\353\240\245 \355\231\224\354\202\264\355\221\234 \354\240\234\352\261\260 */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+            color: #fff;
+        }
+
+        button.secondary {
+            background-color: var(--surface-color);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--surface-color);
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--border-color);
+            z-index: 100;
+            padding: 5px 0;
+            padding-bottom: env(safe-area-inset-bottom, 5px);
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flex-row>div {
+            flex: 1;
+        }
+
+        .compass-circle {
+            width: 220px;
+            height: 220px;
+            border: 8px solid #2a2a2a;
+            border-radius: 50%;
+            margin: 30px auto;
+            position: relative;
+            background: #111;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .compass-rose {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 0.1s ease-out;
+            pointer-events: none;
+        }
+
+        .compass-rose::before {
+            content: \"N\";
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--danger-color);
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose::after {
+            content: \"S\";
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose .east {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose .west {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        /* \352\263\240\354\240\225 \353\260\224\353\212\230 (\354\203\201\353\213\250 \352\260\200\354\235\264\353\223\234) */
+        .compass-needle {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 30px;
+            background: var(--primary-color);
+            z-index: 10;
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        #compass_text {
+            position: absolute;
+            z-index: 11;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--primary-color);
+        }
+
+        /* \353\215\260\354\212\244\355\201\254\355\206\261 \353\263\264\353\215\224 \352\265\254\353\263\204\354\204\240 */
+        @media (min-width: 520px) {
+            body {
+                background-color: #111;
+            }
+
+            .container {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+                min-height: calc(100vh - 60px);
+                background-color: var(--bg-color);
+            }
+
+            .bottom-nav {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+            }
+
+            header {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+            }
+        }
+
+        /* \353\213\244\354\244\221 \354\225\214\353\236\214 \354\212\244\355\203\200\354\235\274 */
+        .alarm-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+            gap: 10px;
+        }
+
+        .alarm-item.dragging {
+            opacity: 0.5;
+            background: var(--surface-color);
+        }
+
+        .alarm-info {
+            flex: 1;
+            pointer-events: none;
+        }
+
+        .alarm-time {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .alarm-settings-summary {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            padding: 5px;
+            user-select: none;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .alarm-checkbox {
+            width: 20px !important;
+            height: 20px;
+            margin: 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- \354\212\244\355\212\270\353\241\234\353\263\264 \354\240\204\354\262\264 \355\231\224\353\251\264 \354\230\244\353\262\204\353\240\210\354\235\264 -->
+    <div id=\"strobe_overlay\" class=\"strobe-overlay\" onclick=\"stopSignal()\">
+        <div id=\"strobe_text\"
+            style=\"position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;\">
+        </div>
+        <div
+            style=\"position:absolute; top:60%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;\">
+            \355\231\224\353\251\264\354\235\204 \355\204\260\354\271\230\355\225\230\353\251\264 \352\272\274\354\247\221\353\213\210\353\213\244.
+        </div>
+    </div>
+
+    <header>
+        <div class=\"header-inner\">
+            <h1>Survival Tool</h1>
+            <div id=\"current_time\" class=\"header-clock\">00:00:00</div>
+        </div>
+    </header>
+
+    <div class=\"container\">
+        <!-- 1. \354\240\225\355\231\224 & \354\232\251\353\237\211 \352\263\204\354\202\260\352\270\260 -->
+        <div id=\"tab-water\" class=\"tab-content active\">
+            <div class=\"card\">
+                <h2>\354\232\251\353\237\211 \352\263\204\354\202\260\352\270\260 (Volume)</h2>
+                <div class=\"flex-row\">
+                    <div class=\"form-group\">
+                        <label>\352\260\200\353\241\234 (cm)</label>
+                        <input type=\"number\" id=\"w_w\" placeholder=\"0\" oninput=\"saveAndCalcWater()\">
+                    </div>
+                    <div class=\"form-group\">
+                        <label>\354\204\270\353\241\234 (cm)</label>
+                        <input type=\"number\" id=\"w_l\" placeholder=\"0\" oninput=\"saveAndCalcWater()\">
+                    </div>
+                    <div class=\"form-group\">
+                        <label>\353\203\222\354\235\264 (cm)</label>
+                        <input type=\"number\" id=\"w_h\" placeholder=\"0\" oninput=\"saveAndCalcWater()\">
+                    </div>
+                </div>
+                <div class=\"form-group\">
+                    <label>\353\230\220\353\212\224 \353\254\274\354\235\230 \354\226\221 \354\247\201\354\240\221 \354\235\274\353\240\245 (L)</label>
+                    <input type=\"number\" id=\"w_v\" placeholder=\"\354\230\210: 1.5\" oninput=\"saveAndCalcWater(true)\">
+                </div>
+            </div>
+
+            <div class=\"card\">
+                <h2>\354\212\230\354\247\210 \354\240\225\355\231\224 (Purification)</h2>
+                <div class=\"form-group\">
+                    <label>\353\235\275\354\212\244 \353\206\215\353\215\224 (%)</label>
+                    <select id=\"w_c\" onchange=\"saveAndCalcWater()\">
+                        <option value=\"4\">4% (\354\235\274\353\260\230 \352\260\200\354\240\225\354\232\251)</option>
+                        <option value=\"5\">5% (\355\221\234\354\240\200 \352\260\200\354\240\225\354\232\251)</option>
+                        <option value=\"5.25\" selected>5.25% (\354\234\240\355\225\234\353\235\275\354\212\244 \353\223\261)</option>
+                        <option value=\"10\">10%</option>
+                    </select>
+                </div>
+                <div class=\"form-group\">
+                    <label>\353\254\274 \354\203\201\355\203\234</label>
+                    <select id=\"w_s\" onchange=\"saveAndCalcWater()\">
+                        <option value=\"1\">\353\247\221\354\235\200 \353\254\274 (Clear)</option>
+                        <option value=\"2\">\355\203\201\355\225\234 \353\254\274 (Cloudy)</option>
+                    </select>
+                </div>
+
+                <div class=\"result-box\" id=\"water_result\">
+                    \353\254\274\354\235\230 \354\226\221\354\235\204 \354\235\274\353\240\245\355\225\230\353\213\244.
+                </div>
+                <p style=\"font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;\">* \354\243\274\354\235\230: \355\226\245\353\243\214\353\202\230 \352\263\204\353\251\264\355\231\234\354\214\261\354\240\234\352\260\200 \354\227\206\353\212\224 \354\212\234\354\210\230
+                    \354\260\250\354\225\204\354\227\274\354\202\214\354\202\260\353\202\230\355\212\270\353\245\250(\353\235\275\354\212\244)\353\247\214 \354\202\254\354\232\251. \353\260\230\353\223\234\354\213\234 30\353\266\204 \353\214\200\352\270\260 \355\233\204 \353\203\204\353\203\210 \355\231\225\354\235\270.</p>
+            </div>
+        </div>
+
+        <!-- 2. \354\212\240\355\230\270 \353\260\217 \355\206\265\354\213\240 -->
+        <div id=\"tab-signal\" class=\"tab-content\">
+            <div class=\"card\">
+                <h2>\353\252\250\354\212\244\353\266\200\355\230\270 (Morse Code)</h2>
+                <div class=\"form-group\">
+                    <label>\355\205\215\354\212\244\355\212\270 \354\235\274\353\240\245 (\354\236\201\353\254\270/\354\210\253\354\232\220)</label>
+                    <input type=\"text\" id=\"s_text\" value=\"SOS\" oninput=\"saveInputs()\"
+                        onfocus=\"if(this.value==='SOS')this.value=''\" style=\"text-transform: uppercase;\">
+                </div>
+                <div class=\"form-group\">
+                    <label
+                        style=\"display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; white-space:nowrap;\"><input
+                            type=\"checkbox\" id=\"s_repeat\" onchange=\"saveInputs()\">\353\260\230\353\263\265 \354\236\254\354\203\235 (Loop)</label>
+                </div>
+                <div class=\"result-box\" id=\"s_morse_result\"
+                    style=\"font-size: 1.5rem; letter-spacing: 2px; word-wrap: break-word;\"></div>
+
+                <div class=\"flex-row\">
+                    <button onclick=\"playMorse(false)\">\360\237\216\265 Sound</button>
+                    <button onclick=\"playMorse(true)\">\360\237\222\241 Light</button>
+                </div>
+                <button class=\"secondary\" onclick=\"stopSignal()\">\342\217\271 STOP</button>
+            </div>
+
+            <div class=\"card\">
+                <h2>\352\270\264\352\270\211 \354\212\244\355\212\270\353\241\234\353\263\264 (Strobe)</h2>
+                <button class=\"danger\" onclick=\"toggleStrobe()\" id=\"btn_strobe\">\360\237\232\250 SOS \354\212\244\355\212\270\353\241\234\353\263\264 \354\213\234\354\236\221</button>
+                <p style=\"font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;\">* \352\262\275\352\263\240: \352\264\221\352\263\274\353\257\274\354\202\261 \353\260\234\354\236\221\354\235\204 \354\234\240\353\260\234\355\225\240 \354\212\232 \354\230\210\354\212\265\353\213\210\353\213\244.
+                    (Wake Lock \354\236\221\353\217\231)</p>
+            </div>
+
+            <div class=\"card\">
+                <h2>\353\271\204\354\272\230 \353\252\252\353\223\234 (Beacon)</h2>
+                <div class=\"flex-row\">
+                    <div class=\"form-group\">
+                        <label>\352\260\204\352\262\251 (\354\263\210)</label>
+                        <input type=\"number\" id=\"s_beacon_interval\" value=\"3\" min=\"1\" oninput=\"saveInputs()\">
+                    </div>
+                    <div class=\"form-group\">
+                        <label>\355\233\237\354\210\230 (\355\233\237)</label>
+                        <input type=\"number\" id=\"s_beacon_count\" value=\"1\" min=\"1\" oninput=\"saveInputs()\">
+                    </div>
+                </div>
+                <button class=\"secondary\" onclick=\"toggleBeacon()\" id=\"btn_beacon\">\360\237\223\241 Beacon Start</button>
+                <p style=\"font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;\">* \354\234\204\354\271\230 \355\221\234\354\214\234\353\245\274 \354\234\204\355\225\264 \354\235\274\354\240\225 \352\260\204\352\262\251\354\234\274\353\241\234 \352\260\225\353\240\245\355\225\234 \354\204\254\342\234\224\354\235\204
+                    \353\202\264\353\263\264\353\213\210\353\213\244.</p>
+            </div>
+        </div>
+
+        <!-- 3. \354\262\234\354\262\264 \353\260\217 \354\234\204\354\271\230 -->
+        <div id=\"tab-nav\" class=\"tab-content\">
+            <div class=\"card\">
+                <h2>\353\224\224\354\247\200\355\204\270 \353\202\230\354\271\250\353\260\230</h2>
+                <div class=\"compass-circle\">
+                    <div class=\"compass-needle\"></div>
+                    <div class=\"compass-rose\" id=\"compass_rose\">
+                        <div class=\"east\">E</div>
+                        <div class=\"west\">W</div>
+                    </div>
+                    <span id=\"compass_text\">---\302\260</span>
+                </div>
+                <button onclick=\"startCompass()\" id=\"btn_compass\">\353\202\230\354\271\250\353\260\230 (\352\266\214\355\225\234\354\232\224\354\262\255)</button>
+            </div>
+
+            <div class=\"card\">
+                <h2>\354\235\274\354\266\234/\354\235\274\353\252\252 & \354\233\224\354\266\234/\354\233\224\353\252\252</h2>
+                <div class=\"flex-row\">
+                    <div class=\"form-group\">
+                        <label>\354\234\204\353\213\224 (Latitude)</label>
+                        <input type=\"number\" id=\"n_lat\" placeholder=\"37.56\" oninput=\"saveInputs()\">
+                    </div>
+                    <div class=\"form-group\">
+                        <label>\352\262\275\353\213\224 (Longitude)</label>
+                        <input type=\"number\" id=\"n_lng\" placeholder=\"126.97\" oninput=\"saveInputs()\">
+                    </div>
+                </div>
+                <button class=\"secondary\" onclick=\"getLocation()\">\360\237\223\215 \355\230\204\354\236\254 \354\234\204\354\271\230</button>
+                <button onclick=\"calcSunMoon()\">\352\263\204\354\202\260\355\225\230\352\270\260</button>
+                <div class=\"result-box\" id=\"sun_result\">
+                    \354\234\204\354\271\230 \354\240\225\353\263\264\353\245\274 \354\235\274\353\240\245\355\225\230\353\213\244.
+                </div>
+            </div>
+
+            <div class=\"card\">
+                <h2>\353\213\250\354\234\204 \353\263\200\355\231\230\352\270\260</h2>
+                <div class=\"form-group\">
+                    <label>\353\266\204\353\245\230</label>
+                    <select id=\"c_category\" onchange=\"updateUnitOptions()\">
+                        <option value=\"temp\">\354\230\250\353\213\224 (Temperature)</option>
+                        <option value=\"length\">\352\261\260\353\241\254 (Length)</option>
+                        <option value=\"weight\">\353\254\264\352\262\214 (Weight)</option>
+                        <option value=\"volume\">\353\266\200\355\224\274 (Volume)</option>
+                    </select>
+                </div>
+                <div class=\"flex-row\" style=\"align-items: center;\">
+                    <div class=\"form-group\" style=\"margin-bottom:0; flex:1;\">
+                        <input type=\"number\" id=\"c_val_from\" placeholder=\"\352\260\222\" oninput=\"convertUnit()\">
+                    </div>
+                    <div class=\"form-group\" style=\"margin-bottom:0; flex:1;\">
+                        <select id=\"c_unit_from\" onchange=\"convertUnit()\"></select>
+                    </div>
+                </div>
+                <div style=\"text-align:center; padding: 10px 0; color:var(--primary-color);\">\342\226\274</div>
+                <div class=\"flex-row\" style=\"align-items: center;\">
+                    <div class=\"form-group\" style=\"margin-bottom:0; flex:1;\">
+                        <input type=\"text\" id=\"c_val_to\" placeholder=\"\352\262\260\352\263\274\" readonly
+                            style=\"background-color:var(--surface-color);\">
+                    </div>
+                    <div class=\"form-group\" style=\"margin-bottom:0; flex:1;\">
+                        <select id=\"c_unit_to\" onchange=\"convertUnit()\"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. \354\225\214\353\236\214 \354\212\234\355\212\270\355\205\234 -->
+        <div id=\"tab-alert\" class=\"tab-content\">
+            <div class=\"card\">
+                <h2>\342\216\261 \355\203\200\354\235\264\353\250\270 (Timer)</h2>
+                <div class=\"flex-row\">
+                    <div class=\"form-group\" style=\"flex: 1;\">
+                        <label>\354\213\234</label>
+                        <input type=\"number\" id=\"a_h\" value=\"0\" min=\"0\" oninput=\"saveInputs()\">
+                    </div>
+                    <div class=\"form-group\" style=\"flex: 1;\">
+                        <label>\353\266\204</label>
+                        <input type=\"number\" id=\"a_m\" value=\"0\" min=\"0\" oninput=\"saveInputs()\">
+                    </div>
+                    <div class=\"form-group\" style=\"flex: 1;\">
+                        <label>\354\263\210</label>
+                        <input type=\"number\" id=\"a_s\" value=\"0\" min=\"0\" oninput=\"saveInputs()\">
+                    </div>
+                    <div class=\"form-group\" style=\"flex: 1.5;\">
+                        <label style=\"white-space: nowrap;\">\354\225\214\353\236\214\352\270\270\354\235\264(\354\263\210)</label>
+                        <input type=\"number\" id=\"t_duration\" value=\"2\" min=\"1\" oninput=\"saveInputs()\">
+                    </div>
+                </div>
+                <div class=\"flex-row\" style=\"margin-top:10px;\">
+                    <div class=\"form-group\" style=\"flex:1;\">
+                        <label>\354\226\214\353\246\254</label>
+                        <select id=\"t_sound\" onchange=\"saveInputs()\">
+                            <option value=\"none\">\354\235\214\354\216\261\352\261\260</option>
+                            <option value=\"siren\" selected>\354\202\254\354\235\264\353\240\214</option>
+                            <option value=\"beep_fast\">\353\271\240\353\245\270 \353\271\204\355\224\204\354\235\214</option>
+                            <option value=\"beep_slow\">\353\212\220\353\246\260 \353\271\204\355\224\204\354\235\214</option>
+                        </select>
+                    </div>
+                    <div class=\"form-group\" style=\"flex:1;\">
+                        <label>\354\247\204\353\217\231</label>
+                        <select id=\"t_vibe\" onchange=\"saveInputs()\">
+                            <option value=\"none\">\354\247\204\353\217\231 \352\272\274\352\270\260</option>
+                            <option value=\"long\" selected>\352\270\264 \354\247\204\353\217\231</option>
+                            <option value=\"short\">\354\247\247\354\235\200 \354\247\204\353\217\231</option>
+                            <option value=\"sos\">SOS \355\214\250\355\204\264</option>
+                        </select>
+                    </div>
+                </div>
+                <div class=\"flex-row\" style=\"margin-top:10px; align-items: center;\">
+                    <label
+                        style=\"display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; white-space:nowrap; flex:none;\"><input
+                            type=\"checkbox\" id=\"a_repeat\" onchange=\"saveInputs()\">\353\260\230\353\263\265\354\204\244\354\240\225</label>
+                    <div class=\"form-group\" style=\"margin-bottom:0; flex:1; margin-left:10px;\">
+                        <label style=\"font-size:0.75rem; margin-bottom:2px;\">\354\235\270\355\204\260\353\262\214(\354\263\210)</label>
+                        <input type=\"number\" id=\"t_interval\" value=\"0\" min=\"0\" oninput=\"saveInputs()\"
+                            style=\"padding: 8px;\">
+                    </div>
+                </div>
+                <div class=\"result-box\" id=\"timer_display_box\"
+                    style=\"font-size: 2rem; text-align: center; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 15px;\">
+                    <span id=\"timer_status\"
+                        style=\"font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 1px;\">READY</span>
+                    <span id=\"timer_display\">00:00:00</span>
+                </div>
+                <div class=\"flex-row\">
+                    <button onclick=\"startTimer()\" id=\"btn_timer_start\">\354\213\234\354\236\221</button>
+                    <button class=\"secondary\" onclick=\"stopTimer()\" style=\"white-space:nowrap;\">\354\240\225\354\247\200/\354\264\210\352\270\260\355\231\224</button>
+                    <button class=\"secondary\" onclick=\"playAlarmSound('timer', true)\"
+                        style=\"width:auto; flex:none; padding:12px 14px;\">\360\237\224\212</button>
+                </div>
+            </div>
+
+            <div class=\"card\">
+                <h2>\342\212\232 \355\212\271\354\240\225 \354\213\234\352\260\204 \354\225\214\353\236\214</h2>
+                <div class=\"flex-row\">
+                    <div class=\"form-group\" style=\"flex:2;\">
+                        <label>\354\213\234\322\204\352\260\204 \354\204\244\354\240\225</label>
+                        <input type=\"time\" id=\"a_time\" oninput=\"saveInputs()\">
+                    </div>
+                    <div class=\"form-group\" style=\"flex:1;\">
+                        <label style=\"white-space: nowrap;\">\354\225\214\353\236\214\352\270\270\354\235\264(\354\263\210)</label>
+                        <input type=\"number\" id=\"a_duration\" value=\"2\" min=\"1\" oninput=\"saveInputs()\">
+                    </div>
+                </div>
+                <div class=\"flex-row\" style=\"margin-top:10px;\">
+                    <div class=\"form-group\" style=\"flex:1;\">
+                        <label>\354\226\214\353\246\254</label>
+                        <select id=\"a_sound\" onchange=\"saveInputs()\">
+                            <option value=\"none\">\354\235\214\354\216\261\352\261\260</option>
+                            <option value=\"siren\">\354\202\254\354\235\264\353\240\214</option>
+                            <option value=\"beep_fast\" selected>\353\271\240\353\245\270 \353\271\204\355\224\204\354\235\214</option>
+                            <option value=\"beep_slow\">\353\212\220\353\246\260 \353\271\204\355\224\204\354\235\214</option>
+                        </select>
+                    </div>
+                    <div class=\"form-group\" style=\"flex:1;\">
+                        <label>\354\247\204\353\217\231</label>
+                        <select id=\"a_vibe\" onchange=\"saveInputs()\">
+                            <option value=\"none\">\354\247\204\353\217\231 \352\272\274\352\270\260</option>
+                            <option value=\"long\">\352\270\264 \354\247\204\353\217\231</option>
+                            <option value=\"short\" selected>\354\247\247\354\235\200 \354\247\204\353\217\231</option>
+                            <option value=\"sos\">SOS \355\214\250\355\204\264</option>
+                        </select>
+                    </div>
+                </div>
+                <div class=\"flex-row\">
+                    <button onclick=\"addAlarm()\" style=\"flex:1;\">\342\236\225 \354\263\224\352\260\200</button>
+                    <button class=\"danger\" onclick=\"deleteSelectedAlarms()\" style=\"flex:1;\">\360\237\227\221 \354\202\255\354\240\234</button>
+                    <button class=\"secondary\" onclick=\"playAlarmSound('alarm', true)\"
+                        style=\"width:auto; flex:none; padding:12px 14px;\">\360\237\224\212</button>
+                </div>
+                <div id=\"alarm_list\" style=\"margin-top:15px;\"></div>
+                <div class=\"result-box\" id=\"alarm_status\" style=\"display:none;\"></div>
+            </div>
+        </div>
+
+        <!-- 5. \354\204\244\354\240\225 \353\260\217 \353\260\261\354\227\205 (Settings) -->
+        <div id=\"tab-settings\" class=\"tab-content\">
+            <div class=\"card\">
+                <h2>\353\215\260\354\235\264\355\204\260 \353\260\261\354\227\205 \353\260\217 \353\263\265\352\265\254</h2>
+                <p style=\"font-size: 0.9rem; color: var(--text-secondary);\">\354\235\270\355\204\260\353\204\267 \354\227\260\352\262\260\354\235\264 \353\211\232\352\270\260\354\227\210\354\235\204 \353\225\214\353\245\274 \353\214\200\353\271\204\355\225\264 \354\204\244\354\240\225\352\263\274 \354\234\204\354\271\230 \354\240\225\353\263\264\353\245\274 \352\270\260\352\270\260\354\220\220 \353\260\261\354\227\205\355\225\251\353\213\210\353\213\244.</p>
+                <button onclick=\"exportData()\">\360\237\222\276 JSON \353\202\264\353\263\264\353\202\264\352\270\260 (Export)</button>
+                <button class=\"secondary\" onclick=\"document.getElementById('import_file').click()\">\360\237\223\202 JSON \352\260\200\354\240\270\354\230\244\352\270\260
+                    (Import)</button>
+                <input type=\"file\" id=\"import_file\" style=\"display: none;\" accept=\".json\" onchange=\"importData(event)\">
+            </div>
+
+            <div class=\"card\">
+                <h2>\354\264\210\352\270\260\355\231\224</h2>
+                <button class=\"danger\" onclick=\"clearData()\">\342\232\240\357\270\217 \353\241\234\354\272\254 \353\215\260\354\235\264\355\204\260 \354\202\255\354\240\234</button>
+            </div>
+
+            <div style=\"text-align:center; color:var(--text-secondary); font-size:0.8rem; margin-top:20px;\">
+                Offline First Web Tool<br>No CDN, No External Requests.
+            </div>
+        </div>
+    </div>
+
+    <!-- \355\225\230\353\213\250 \355\203\255 \353\260\224 -->
+    <nav class=\"bottom-nav\">
+        <button class=\"nav-item active\" onclick=\"switchTab('tab-water', this)\">
+            <span class=\"nav-icon\">\360\237\222\247</span>
+            <span>\354\240\225\355\231\224</span>
+        </button>
+        <button class=\"nav-item\" onclick=\"switchTab('tab-signal', this)\">
+            <span class=\"nav-icon\">\360\237\224\246</span>
+            <span>\354\212\240\355\230\270</span>
+        </button>
+        <button class=\"nav-item\" onclick=\"switchTab('tab-nav', this)\">
+            <span class=\"nav-icon\">\356\247\255</span>
+            <span>\354\234\204\354\271\230</span>
+        </button>
+        <button class=\"nav-item\" onclick=\"switchTab('tab-alert', this)\">
+            <span class=\"nav-icon\">\342\212\232</span>
+            <span>\354\225\214\353\236\214</span>
+        </button>
+        <button class=\"nav-item\" onclick=\"switchTab('tab-settings', this)\">
+            <span class=\"nav-icon\">\342\232\231\357\270\217</span>
+            <span>\354\204\244\354\240\225</span>
+        </button>
+    </nav>
+
+    <!-- \354\230\244\353\224\224\354\230\244 \354\272\250\355\205\215\354\212\244\355\212\270\354\232\251 -->
+    <script>
+        // === \354\202\254\353\271\204\354\212\244 \354\233\214\354\272\254 \353\223\261\353\241\235 (PWA) ===
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+            });
+        }
+
+        // === \354\213\244\354\213\234\352\260\204 \354\213\234\352\260\204 (24H) ===
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = `${h}:${m}:${s}`;
+            const clockEl = document.getElementById('current_time');
+            if (clockEl) clockEl.innerText = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // === \354\203\201\355\203\234 \352\260\200\353\246\254 (LocalStorage) ===
+        let appData = {};
+        const DATA_KEY = 'survival_data';
+
+        function loadData() {
+            const saved = localStorage.getItem(DATA_KEY);
+            if (saved) {
+                try {
+                    appData = JSON.parse(saved);
+                    appData.alarms = appData.alarms || [];
+                    const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_interval', 's_beacon_interval', 's_beacon_count'];
+                    inputs.forEach(id => {
+                        if (appData[id] !== undefined) {
+                            const el = document.getElementById(id);
+                            if (el) el.value = appData[id];
+                        }
+                    });
+                    if (appData['a_repeat'] !== undefined) {
+                        document.getElementById('a_repeat').checked = appData['a_repeat'];
+                    }
+                    if (appData['s_repeat'] !== undefined) {
+                        document.getElementById('s_repeat').checked = appData['s_repeat'];
+                    }
+                    if (appData['c_category']) {
+                        updateUnitOptions(true);
+                        if (appData['c_unit_from']) document.getElementById('c_unit_from').value = appData['c_unit_from'];
+                        if (appData['c_unit_to']) document.getElementById('c_unit_to').value = appData['c_unit_to'];
+                        convertUnit();
+                    }
+                    saveAndCalcWater();
+                    updateMorseText();
+                    renderAlarms();
+                } catch (e) { }
+            }
+        }
+
+        function saveInputs() {
+            const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_interval', 's_beacon_interval', 's_beacon_count'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) appData[id] = el.value;
+            });
+            appData['a_repeat'] = document.getElementById('a_repeat').checked;
+            appData['s_repeat'] = document.getElementById('s_repeat').checked;
+            appData['alarms'] = appData['alarms'] || [];
+            localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+        }
+
+        // === \355\203\255 \354\240\204\355\231\230 \353\241\234\354\247\201 ===
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // === A. \354\240\225\355\231\224 (Water) \353\241\234\354\247\201 ===
+        function saveAndCalcWater(directVolume = false) {
+            saveInputs();
+            const w = parseFloat(appData.w_w) || 0;
+            const l = parseFloat(appData.w_l) || 0;
+            const h = parseFloat(appData.w_h) || 0;
+            let v = parseFloat(appData.w_v) || 0;
+
+            if (!directVolume && w && l && h) {
+                v = (w * l * h) / 1000;
+                document.getElementById('w_v').value = v.toFixed(2);
+                appData.w_v = v;
+                localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+            }
+
+            if (v <= 0) {
+                document.getElementById('water_result').innerHTML = \"\353\254\274\354\235\230 \354\226\221\354\235\204 \354\235\274\353\240\245\355\225\230\353\213\244.\";
+                return;
+            }
+
+            const conc = parseFloat(appData.w_c) || 5.25;
+            const cloudy = parseInt(appData.w_s) === 2;
+
+            // \355\203\200\352\262\277 PPM: \353\247\221\354\235\200\353\254\274 4ppm, \355\203\201\355\225\234\353\254\274 8ppm
+            const targetPPM = cloudy ? 8 : 4;
+
+            // \352\263\204\354\202\260: \355\225\204\354\232\224 \353\235\275\354\212\244 \354\226\221(ml) = (V * targetPPM) / (conc * 10)
+            const mlNeeded = (v * targetPPM) / (conc * 10);
+            const dropsNeeded = mlNeeded * 20; // 1ml \342\211\222 20 drops
+
+            document.getElementById('water_result').innerHTML = `
+                <strong>\354\264\235 \353\254\274\354\235\230 \354\226\221:</strong> \${v.toFixed(2)} L<br>
+                <strong>\355\225\204\354\232\224 \353\235\275\354\212\244 \354\226\221:</strong> \354\225\275 \${dropsNeeded.toFixed(1)} \353\260\251\354\232\270 (\${mlNeeded.toFixed(2)} ml)
+            `;
+        }
+
+        // === B. \354\212\240\355\230\270 (Signal) \353\241\234\354\247\201 ===
+        const MORSE_MAP = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+            'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+            'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+            '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
+            ' ': ' '
+        };
+
+        document.getElementById('s_text').addEventListener('input', function () {
+            saveInputs();
+            updateMorseText();
+        });
+
+        function updateMorseText() {
+            const txt = (document.getElementById('s_text').value || \"\").toUpperCase();
+            let morse = '';
+            for (let c of txt) {
+                if (MORSE_MAP[c]) morse += MORSE_MAP[c] + ' ';
+                else if (c === ' ') morse += '  '; // \353\213\250\354\226\264 \353\235\204\354\226\264\354\223\260\352\270\260 \355\221\234\354\214\234
+            }
+            document.getElementById('s_morse_result').innerText = morse;
+        }
+
+        let signalTimeout;
+        let wakeLock = null;
+        let isSignaling = false;
+        let strobeActive = false;
+
+        // Web Audio Context
+        let audioCtx = null;
+
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) { console.log('WakeLock Error:', err); }
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => wakeLock = null);
+            }
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function beep(duration) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 800; // 800Hz Hz beep
+
+            // \353\266\200\353\223\234\353\237\274\354\232\264 \354\213\234\354\236\221/\354\242\205\353\243\214\353\241\234 \355\230\221(Pop) \353\205\270\354\235\264\354\246\210 \353\260\251\354\247\200
+            const t = audioCtx.currentTime;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(1, t + 0.01);
+            gain.gain.setValueAtTime(1, t + (duration / 1000) - 0.01);
+            gain.gain.linearRampToValueAtTime(0, t + (duration / 1000));
+
+            osc.start(t);
+            osc.stop(t + (duration / 1000));
+        }
+
+        function flashBg(duration) {
+            document.body.classList.add('flash-active');
+            setTimeout(() => {
+                document.body.classList.remove('flash-active');
+            }, duration);
+        }
+
+        function stopSignal() {
+            isSignaling = false;
+            strobeActive = false;
+            beaconActive = false;
+            clearTimeout(signalTimeout);
+            document.body.classList.remove('flash-active');
+            releaseWakeLock();
+            document.getElementById('btn_strobe').innerText = \"\360\237\232\250 SOS \354\212\244\355\212\270\353\241\234\353\263\264 \354\213\234\354\236\221\";
+            document.getElementById('btn_beacon').innerText = \"\360\237\223\241 \353\271\204\354\272\230 \353\252\252\353\223\234 \354\213\234\354\236\221\";
+            const overlay = document.getElementById('strobe_overlay');
+            if (overlay) overlay.classList.remove('active', 'flash');
+        }
+
+        function playMorse(useFlash) {
+            stopSignal();
+            if (useFlash) requestWakeLock();
+            if (!useFlash) initAudio();
+
+            const txt = (document.getElementById('s_text').value || \"\").toUpperCase();
+            if (!txt) return;
+
+            isSignaling = true;
+            const unitTime = 120; // 1\353\213\250\354\234\204 (ms) - \352\265\255\354\240\234 \355\221\234\354\240\200 WPM\354\220\220 \352\260\200\352\271\235\352\262\214 \354\241\260\354\240\210
+            let sequence = [];
+
+            for (let i = 0; i < txt.length; i++) {
+                const c = txt[i];
+                if (c === ' ') {
+                    sequence.push({ on: false, dur: unitTime * 7 }); // \353\213\250\354\226\264 \354\202\254\354\235\264 7\353\213\250\354\234\204 \352\263\265\353\262\271
+                    continue;
+                }
+                const m = MORSE_MAP[c];
+                if (!m) continue;
+
+                for (let j = 0; j < m.length; j++) {
+                    const symbol = m[j];
+                    if (symbol === '.') sequence.push({ on: true, dur: unitTime });
+                    if (symbol === '-') sequence.push({ on: true, dur: unitTime * 3 });
+
+                    // \352\260\231\354\235\200 \352\270\200\354\236\220 \353\202\264\354\235\230 \352\270\260\355\230\270 \354\202\254\354\235\264: 1\353\213\250\354\234\204 \352\263\265\353\262\271
+                    if (j < m.length - 1) {
+                        sequence.push({ on: false, dur: unitTime });
+                    }
+                }
+                // \352\270\200\354\236\220\354\231\200 \352\270\200\354\236\220 \354\202\254\354\235\264: 3\353\213\250\354\234\204 \352\263\265\353\262\271
+                if (i < txt.length - 1 && txt[i + 1] !== ' ') {
+                    sequence.push({ on: false, dur: unitTime * 3 });
+                }
+            }
+
+            let idx = 0;
+            // \354\230\244\353\262\204\353\240\210\354\235\264 \354\202\254\354\232\251 \354\241\200\353\271\204 (\354\213\234\352\260\201\354\240\201 \353\252\250\354\212\244\353\266\200\355\230\270\354\235\274 \352\262\275\354\232\260 \354\230\244\353\262\204\353\240\210\354\235\264 \354\202\254\354\232\251)
+            const overlay = document.getElementById('strobe_overlay');
+            if (useFlash) {
+                document.getElementById('strobe_text').innerText = txt;
+                overlay.classList.add('active');
+                overlay.classList.remove('flash');
+            }
+
+            function runSeq() {
+                if (!isSignaling) {
+                    if (useFlash) overlay.classList.remove('active', 'flash');
+                    return;
+                }
+                if (idx >= sequence.length) {
+                    if (document.getElementById('s_repeat').checked) {
+                        idx = 0;
+                        signalTimeout = setTimeout(runSeq, unitTime * 7); // \353\260\230\353\263\265 \354\213\234 \353\213\250\354\226\264 \352\260\204 \352\263\265\353\262\271\353\247\214\355\225\254 \353\214\200\322\204
+                        return;
+                    }
+                    stopSignal();
+                    return;
+                }
+                const s = sequence[idx];
+                if (s.on) {
+                    if (useFlash) {
+                        overlay.classList.add('flash');
+                        setTimeout(() => overlay.classList.remove('flash'), s.dur);
+                    }
+                    else beep(s.dur);
+                }
+                idx++;
+                signalTimeout = setTimeout(runSeq, s.dur);
+            }
+            runSeq();
+        }
+
+        // Strobe Logic
+        function toggleStrobe() {
+            const btn = document.getElementById('btn_strobe');
+            const overlay = document.getElementById('strobe_overlay');
+            if (isSignaling && strobeActive) {
+                stopSignal();
+                strobeActive = false;
+                overlay.classList.remove('active');
+                btn.innerText = \"\360\237\232\250 SOS \354\212\244\355\212\270\353\241\234\353\263\264 \354\213\234\354\236\221\";
+            } else {
+                stopSignal();
+                requestWakeLock();
+                isSignaling = true;
+                strobeActive = true;
+                document.getElementById('strobe_text').innerText = \"SOS STROBE\";
+                overlay.classList.add('active');
+                btn.innerText = \"\360\237\232\250 \354\212\244\355\212\270\353\241\234\353\263\264 \354\240\225\342\214\225\";
+
+                function runStrobe() {
+                    if (!isSignaling || !strobeActive) {
+                        overlay.classList.remove('active');
+                        return;
+                    }
+                    overlay.classList.toggle('flash');
+                    signalTimeout = setTimeout(runStrobe, 50);
+                }
+                runStrobe();
+            }
+        }
+
+        let beaconActive = false;
+        function toggleBeacon() {
+            const btn = document.getElementById('btn_beacon');
+            const overlay = document.getElementById('strobe_overlay');
+
+            if (isSignaling && beaconActive) {
+                stopSignal();
+            } else {
+                stopSignal();
+                requestWakeLock();
+                isSignaling = true;
+                beaconActive = true;
+                document.getElementById('strobe_text').innerText = \"BEACON MODE\";
+                overlay.classList.add('active');
+                btn.innerText = \"\342\217\271 \353\271\204\354\272\230 \354\244\221\342\214\225\";
+
+                function runBeacon() {
+                    if (!isSignaling || !beaconActive) {
+                        overlay.classList.remove('active');
+                        return;
+                    }
+
+                    const count = parseInt(appData.s_beacon_count) || 1;
+                    let currentFlash = 0;
+
+                    function doBurst() {
+                        if (!isSignaling || !beaconActive) return;
+
+                        overlay.classList.add('flash');
+                        setTimeout(() => {
+                            overlay.classList.remove('flash');
+                            currentFlash++;
+                            if (currentFlash < count) {
+                                // \354\204\254\342\234\224 \354\202\254\354\235\264 \354\247\247\354\235\200 \352\260\204\352\262\251 (0.15\354\263\210)
+                                signalTimeout = setTimeout(doBurst, 150);
+                            } else {
+                                // \353\262\204\354\212\244\355\212\270 \354\231\204\353\243\214 \355\233\204 \354\204\244\354\240\225\353\220\234 \352\260\204\352\262\251\353\247\214\355\225\254 \353\214\200\322\204
+                                const interval = (parseInt(appData.s_beacon_interval) || 3) * 1000;
+                                signalTimeout = setTimeout(runBeacon, interval);
+                            }
+                        }, 100); // \354\204\254\342\234\224 \354\247\200\354\202\255 \354\213\234\352\260\204 0.1\354\263\210
+                    }
+                    doBurst();
+                }
+                runBeacon();
+            }
+        }
+
+        // === C. \354\234\204\354\271\230 \353\260\217 \354\262\234\354\262\264 (Nav) \353\241\234\354\247\201 ===
+        // Compass
+        let compassWatchId = null;
+        let currentRotation = 0;
+        let lastHeading = 0;
+
+        function startCompass() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                        }
+                    }).catch(console.error);
+            } else {
+                window.addEventListener('deviceorientationabsolute', handleOrientation);
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+            document.getElementById('btn_compass').innerText = \"\353\202\230\354\271\250\353\260\230 \354\236\221\353\217\231\354\244\221...\";
+        }
+
+        function handleOrientation(e) {
+            let heading = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+            if (heading != null) {
+                // \354\263\210\353\213\250 \352\262\275\353\241\234 \355\231\224\354\240\225 \353\241\234\354\247\201 (359 -> 0\353\213\224 \354\213\234 \353\260\230\353\214\200 \355\231\224\354\240\225 \353\260\251\354\247\200)
+                let diff = heading - lastHeading;
+                if (diff > 180) diff -= 360;
+                else if (diff < -180) diff += 360;
+
+                currentRotation += diff;
+                lastHeading = heading;
+
+                const rose = document.getElementById('compass_rose');
+                if (rose) rose.style.transform = `rotate(\${-currentRotation}deg)`;
+                document.getElementById('compass_text').innerText = `\${Math.round(heading)}\302\260`;
+            }
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    document.getElementById('n_lat').value = pos.coords.latitude.toFixed(4);
+                    document.getElementById('n_lng').value = pos.coords.longitude.toFixed(4);
+                    saveInputs();
+                    calcSunMoon();
+                }, (err) => {
+                    alert(\"\354\234\204\354\271\230 \354\240\225\353\263\264\353\245\274 \352\260\200\354\240\270\354\230\244\354\212\244 \354\227\206\354\212\265\353\213\210\353\213\244.\");
+                }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+            }
+        }
+
+        function calcSunMoon() {
+            saveInputs();
+            const lat = parseFloat(appData.n_lat);
+            const lng = parseFloat(appData.n_lng);
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            const res = getSunriseSunset(lat, lng, new Date());
+            const moon = getMoonPhaseAndTimes(new Date());
+
+            document.getElementById('sun_result').innerHTML = `
+                <strong>\354\235\274\354\266\234:</strong> \${res.sunrise}<br>
+                <strong>\354\235\274\353\252\252:</strong> \${res.sunset}<br><br>
+                <strong>\354\233\224\353\240\271(\353\213\254 \354\234\204\354\203\201):</strong> \${moon.phaseName}<br>
+                <strong>\354\233\224\352\263\204(대략):</strong> \${moon.rise}<br>
+                <strong>\354\233\224\353\252\252(대략):</strong> \${moon.set}
+            `;
+        }
+
+        // Simplified Sunrise/Sunset Algorithm
+        function getSunriseSunset(lat, lng, date) {
+            const d = new Date(date);
+            const startOfYear = new Date(d.getFullYear(), 0, 0);
+            const diff = d - startOfYear;
+            const dayOfYear = Math.floor(diff / 86400000);
+            const rad = Math.PI / 180;
+
+            const declination = 23.45 * Math.sin(rad * (360 / 365) * (dayOfYear - 81));
+            const eqTime = 9.87 * Math.sin(2 * rad * (360 / 365) * (dayOfYear - 81)) - 7.53 * Math.cos(rad * (360 / 365) * (dayOfYear - 81)) - 1.5 * Math.sin(rad * (360 / 365) * (dayOfYear - 81));
+
+            let cosHA = -Math.tan(lat * rad) * Math.tan(declination * rad);
+            if (cosHA > 1) return { sunrise: \"\353\260\261\354\225\274/\352\270\271\354\225\274\", sunset: \"\353\260\261\354\225\274/\352\270\271\354\225\274\" };
+            if (cosHA < -1) return { sunrise: \"\353\260\261\354\225\274/\352\270\271\354\225\274\", sunset: \"\353\260\261\354\225\274/\352\270\271\354\225\274\" };
+
+            const ha = Math.acos(cosHA) / rad;
+            const solarNoon = 12 - (lng / 15) - (eqTime / 60);
+
+            const formatTime = (hoursUTC) => {
+                const dateObj = new Date(date);
+                const h = Math.floor(hoursUTC);
+                const m = Math.floor((hoursUTC - h) * 60);
+                dateObj.setUTCHours(h, m, 0, 0);
+                return dateObj.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+            };
+
+            return {
+                sunrise: formatTime(solarNoon - (ha / 15)),
+                sunset: formatTime(solarNoon + (ha / 15))
+            };
+        }
+
+        // Approximate Moon Phase and Rise/Set
+        function getMoonPhaseAndTimes(date) {
+            const d = new Date(date);
+            const knownNewMoon = new Date(Date.UTC(2024, 0, 11, 11, 57));
+            const diff = d - knownNewMoon;
+            const lunarCycle = 29.53058867 * 86400000;
+            let phase = (diff % lunarCycle) / lunarCycle;
+            if (phase < 0) phase += 1;
+
+            let phaseName = \"\";
+            if (phase < 0.05 || phase > 0.95) phaseName = \"\360\237\214\221 \354\202\255 (\353\260\244\354\203\210 \352\264\200\354\270\241 \353\263\210\352\260\200)\";
+            else if (phase < 0.2) phaseName = \"\360\237\214\222 \354\263\210\354\212\275\353\213\254\";
+            else if (phase < 0.3) phaseName = \"\360\237\214\223 \354\203\201\355\230\204\353\213\254\";
+            else if (phase < 0.45) phaseName = \"\360\237\214\224 \354\203\201\355\230\204\353\247\235\352\260\204\";
+            else if (phase < 0.55) phaseName = \"\360\237\214\225 \353\263\264\353\246\204\353\213\254 (\353\260\244\354\203\210 \352\264\200\354\270\241)\";
+            else if (phase < 0.7) phaseName = \"\360\237\214\226 \355\225\230\355\230\204\353\247\235\352\260\204\";
+            else if (phase < 0.8) phaseName = \"\360\237\214\227 \355\225\230\355\230\204\353\213\254\";
+            else phaseName = \"\360\237\214\228 \352\263\204\353\252\240\353\213\254\";
+
+            let transitHour = (12 + 24 * phase) % 24;
+            let riseHour = (transitHour - 6 + 24) % 24;
+            let setHour = (transitHour + 6) % 24;
+
+            const formatTime = (h) => {
+                const hh = Math.floor(h);
+                const mm = Math.floor((h - hh) * 60);
+                return `\${String(hh).padStart(2, '0')}:\${String(mm).padStart(2, '0')} (\354\230\244\354\260\250 \302\2612\354\213\234\352\260\204)`;
+            };
+
+            return { phaseName: phaseName, rise: formatTime(riseHour), set: formatTime(setHour) };
+        }
+
+        // Unit Converter
+        const UNIT_DATA = {
+            temp: [
+                { id: 'C', name: 'Celsius (\302\260C)' },
+                { id: 'F', name: 'Fahrenheit (\302\260F)' },
+                { id: 'K', name: 'Kelvin (K)' }
+            ],
+            length: [
+                { id: 'm', name: 'Meter (m)', factor: 1 },
+                { id: 'km', name: 'Kilometer (km)', factor: 1000 },
+                { id: 'cm', name: 'Centimeter (cm)', factor: 0.01 },
+                { id: 'mm', name: 'Millimeter (mm)', factor: 0.001 },
+                { id: 'mile', name: 'Mile (mi)', factor: 1609.344 },
+                { id: 'yard', name: 'Yard (yd)', factor: 0.9144 },
+                { id: 'foot', name: 'Foot (ft)', factor: 0.3048 },
+                { id: 'inch', name: 'Inch (in)', factor: 0.0254 }
+            ],
+            weight: [
+                { id: 'g', name: 'Gram (g)', factor: 1 },
+                { id: 'kg', name: 'Kilogram (kg)', factor: 1000 },
+                { id: 'mg', name: 'Milligram (mg)', factor: 0.001 },
+                { id: 'lb', name: 'Pound (lb)', factor: 453.59237 },
+                { id: 'oz', name: 'Ounce (oz)', factor: 28.34952 }
+            ],
+            volume: [
+                { id: 'L', name: 'Liter (L)', factor: 1 },
+                { id: 'ml', name: 'Milliliter (ml)', factor: 0.001 },
+                { id: 'gal', name: 'US Gallon (gal)', factor: 3.78541 },
+                { id: 'floz', name: 'US Fl.Ounce (fl oz)', factor: 0.0295735 }
+            ]
+        };
+
+        function updateUnitOptions(isRestore = false) {
+            const cat = document.getElementById('c_category').value;
+            const fromSelect = document.getElementById('c_unit_from');
+            const toSelect = document.getElementById('c_unit_to');
+
+            let optionsHTML = '';
+            UNIT_DATA[cat].forEach(u => {
+                optionsHTML += `<option value=\"\${u.id}\">\${u.name}</option>`;
+            });
+
+            fromSelect.innerHTML = optionsHTML;
+            toSelect.innerHTML = optionsHTML;
+
+            if (!isRestore) {
+                if (UNIT_DATA[cat].length > 1) toSelect.selectedIndex = 1;
+                convertUnit();
+            }
+        }
+
+        function convertUnit() {
+            saveInputs();
+            const valFrom = parseFloat(document.getElementById('c_val_from').value);
+            if (isNaN(valFrom)) {
+                document.getElementById('c_val_to').value = '';
+                return;
+            }
+
+            const cat = document.getElementById('c_category').value;
+            const unitFrom = document.getElementById('c_unit_from').value;
+            const unitTo = document.getElementById('c_unit_to').value;
+
+            let result = 0;
+
+            if (cat === 'temp') {
+                let tempInC = valFrom;
+                if (unitFrom === 'F') tempInC = (valFrom - 32) * 5 / 9;
+                else if (unitFrom === 'K') tempInC = valFrom - 273.15;
+
+                if (unitTo === 'C') result = tempInC;
+                else if (unitTo === 'F') result = (tempInC * 9 / 5) + 32;
+                else if (unitTo === 'K') result = tempInC + 273.15;
+            } else {
+                const units = UNIT_DATA[cat];
+                const factorFrom = units.find(u => u.id === unitFrom).factor;
+                const factorTo = units.find(u => u.id === unitTo).factor;
+
+                const baseValue = valFrom * factorFrom;
+                result = baseValue / factorTo;
+            }
+
+            let resStr = parseFloat(result.toFixed(6)).toString();
+            document.getElementById('c_val_to').value = resStr;
+        }
+
+        // === D. \354\225\214\353\236\214 \354\212\234\355\203\200\355\205\234 (Alert) ===
+        let timerInterval;
+        let totalSeconds = 0;
+        let isResting = false;
+
+        function startTimer() {
+            stopTimer();
+            initAudio();
+            saveInputs();
+            isResting = false;
+            runTimerStep();
+        }
+
+        function runTimerStep() {
+            clearInterval(timerInterval);
+
+            if (!isResting) {
+                const h = parseInt(appData.a_h) || 0;
+                const m = parseInt(appData.a_m) || 0;
+                const s = parseInt(appData.a_s) || 0;
+                totalSeconds = (h * 3600) + (m * 60) + s;
+                document.getElementById('timer_status').innerText = \"WORK\";
+                document.getElementById('timer_status').style.color = \"var(--primary-color)\";
+                showToast(\"\355\231\234\353\217\231(WORK) \354\213\234\354\236\221!\", 2000);
+            } else {
+                totalSeconds = parseInt(appData.t_interval) || 0;
+                document.getElementById('timer_status').innerText = \"REST\";
+                document.getElementById('timer_status').style.color = \"#2196F3\";
+                showToast(\"\355\234\264\354\213\235(REST) \354\213\234\354\236\221!\", 5000);
+            }
+
+            if (totalSeconds <= 0 && !isResting) {
+                stopTimer();
+                return;
+            }
+
+            document.getElementById('btn_timer_start').innerText = \"\354\236\221\353\217\231\354\244\221...\";
+            document.getElementById('btn_timer_start').disabled = true;
+
+            timerInterval = setInterval(() => {
+                totalSeconds--;
+                updateTimerDisplay();
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+
+                    if (!isResting) {
+                        playAlarmSound('timer');
+                        const interval = parseInt(appData.t_interval) || 0;
+                        if (appData.a_repeat && interval > 0) {
+                            isResting = true;
+                            runTimerStep();
+                        } else if (appData.a_repeat) {
+                            runTimerStep();
+                        } else {
+                            stopTimer();
+                        }
+                    } else {
+                        isResting = false;
+                        if (appData.a_repeat) {
+                            runTimerStep();
+                        } else {
+                            stopTimer();
+                        }
+                    }
+                }
+            }, 1000);
+            updateTimerDisplay();
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            isResting = false;
+            document.getElementById('btn_timer_start').innerText = \"\354\213\234\354\236\221\";
+            document.getElementById('btn_timer_start').disabled = false;
+            document.getElementById('timer_status').innerText = \"READY\";
+            document.getElementById('timer_status').style.color = \"var(--text-secondary)\";
+            document.getElementById('timer_display').innerText = \"00:00:00\";
+        }
+
+        function updateTimerDisplay() {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            const pad = num => String(num).padStart(2, '0');
+            document.getElementById('timer_display').innerText = `\${pad(h)}:\${pad(m)}:\${pad(s)}`;
+        }
+
+        // Multi-Alarm Management
+        function addAlarm() {
+            saveInputs();
+            const timeStr = document.getElementById('a_time').value;
+            if (!timeStr) {
+                showToast(\"\354\213\234\322\204\352\260\200 \354\204\244\354\240\225\355\225\264\354\243\274\354\204\270\354\232\224.\");
+                return;
+            }
+            const sound = document.getElementById('a_sound').value;
+            const vibe = document.getElementById('a_vibe').value;
+            const dur = parseInt(document.getElementById('a_duration').value) || 2;
+
+            const newAlarm = {
+                id: Date.now(),
+                time: timeStr,
+                sound: sound,
+                vibe: vibe,
+                duration: dur,
+                triggered: false
+            };
+
+            appData.alarms.push(newAlarm);
+            saveInputs();
+            renderAlarms();
+            showToast(\"\354\225\214\353\236\214\354\235\264 \354\263\224\352\260\200\353\220\230\354\227\210\354\212\265\353\213\210\353\213\244.\");
+        }
+
+        function deleteSelectedAlarms() {
+            const checkboxes = document.querySelectorAll('.alarm-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showToast(\"\354\202\255\354\240\234\355\225\240 \354\225\214\353\236\214\354\235\204 \354\204\244\355\203\235\355\225\264\354\243\274\354\204\270\354\232\224.\");
+                return;
+            }
+            const idsToDelete = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+            appData.alarms = appData.alarms.filter(a => !idsToDelete.includes(a.id));
+            saveInputs();
+            renderAlarms();
+            showToast(`\${idsToDelete.length}\352\260\234\354\235\230 \354\225\214\353\236\214\354\235\264 \354\202\255\354\240\234\353\220\230\354\227\210\354\212\265\353\213\210\353\213\244.`);
+        }
+
+        function renderAlarms() {
+            const container = document.getElementById('alarm_list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            appData.alarms.forEach(alarm => {
+                const item = document.createElement('div');
+                item.className = 'alarm-item';
+                item.draggable = true;
+                item.dataset.id = alarm.id;
+
+                const soundName = { 'none': '\354\235\214\354\216\261\352\261\260', 'siren': '\354\202\254\354\235\264\353\240\214', 'beep_fast': '\353\271\240\353\245\270\353\271\204\355\224\204', 'beep_slow': '\353\212\220\353\246\260\353\271\204\355\224\204' }[alarm.sound] || '\354\225\214\354\210\230\354\227\206\354\235\214';
+                const vibeName = { 'none': '\354\247\204\353\217\231\352\272\274', 'long': '\352\270\264\354\247\204\353\217\231', 'short': '\354\247\247\354\235\200\354\247\204\353\217\231', 'sos': 'SOS' }[alarm.vibe] || '\354\225\214\354\210\230\354\227\206\354\235\214';
+
+                item.innerHTML = `
+                    <div class=\"drag-handle\">\342\230\260</div>
+                    <input type=\"checkbox\" class=\"alarm-checkbox\" data-id=\"\${alarm.id}\">
+                    <div class=\"alarm-info\">
+                        <div class=\"alarm-time\">\${alarm.time}</div>
+                        <div class=\"alarm-settings-summary\">\${soundName} / \${vibeName} / \${alarm.duration}\354\263\210</div>
+                    </div>
+                `;
+
+                // Drag and Drop Events
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+
+                container.appendChild(item);
+            });
+        }
+
+        let dragSrcEl = null;
+        function handleDragStart(e) {
+            dragSrcEl = this;
+            e.dataTransfer.effectAllowed = 'move';
+            this.classList.add('dragging');
+        }
+        function handleDragOver(e) {
+            e.preventDefault();
+            return false;
+        }
+        function handleDrop(e) {
+            e.stopPropagation();
+            if (dragSrcEl !== this) {
+                const list = appData.alarms;
+                const fromId = parseInt(dragSrcEl.dataset.id);
+                const toId = parseInt(this.dataset.id);
+                const fromIdx = list.findIndex(a => a.id === fromId);
+                const toIdx = list.findIndex(a => a.id === toId);
+
+                const temp = list[fromIdx];
+                list.splice(fromIdx, 1);
+                list.splice(toIdx, 0, temp);
+
+                saveInputs();
+                renderAlarms();
+            }
+            return false;
+        }
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        // Main Alarm Check Loop
+        setInterval(() => {
+            const now = new Date();
+            const curTime = `\${String(now.getHours()).padStart(2, '0')}:\${String(now.getMinutes()).padStart(2, '0')}`;
+            const curSec = now.getSeconds();
+
+            if (appData.alarms) {
+                appData.alarms.forEach(alarm => {
+                    // \354\263\210\352\260\200 0\354\235\274 \353\225\214 (\354\240\225\352\260\201 \353\266\204)\354\227\220 \355\225\234 \353\262\210\353\247\214 \354\213\244\355\222\209\353\220\230\353\217\204\353\241\235
+                    if (alarm.time === curTime && curSec === 0 && !alarm.triggered) {
+                        playAlarmSound('alarm', false, alarm);
+                        alarm.triggered = true;
+                    }
+                    // \353\266\204\354\235\264 \353\260\224\353\200\214\353\251\264 \355\212\270\353\246\254\352\261\260 \354\264\210\352\270\260\355\231\224
+                    if (alarm.time !== curTime) {
+                        alarm.triggered = false;
+                    }
+                });
+            }
+        }, 1000);
+
+        function playAlarmSound(source = 'timer', isTest = false, alarmData = null) {
+            let sound, vibe, duration;
+
+            if (alarmData) {
+                // \354\213\244\354\240\234 \354\225\214\353\236\214 \353\260\234\354\203\235 \354\213\234
+                sound = alarmData.sound;
+                vibe = alarmData.vibe;
+                duration = alarmData.duration;
+            } else if (source === 'timer') {
+                sound = document.getElementById('t_sound').value;
+                vibe = document.getElementById('t_vibe').value;
+                duration = parseInt(document.getElementById('t_duration').value) || 2;
+            } else {
+                // \354\225\214\353\236\214 \355\205\214\354\212\244\355\212\270 \354\213\234
+                sound = document.getElementById('a_sound').value;
+                vibe = document.getElementById('a_vibe').value;
+                duration = parseInt(document.getElementById('a_duration').value) || 2;
+            }
+
+            // \354\247\204\353\217\231 \354\262\234\353\246\254
+            if (vibe !== 'none' && 'vibrate' in navigator) {
+                const durMs = duration * 1000;
+                if (vibe === 'long') navigator.vibrate([durMs]);
+                else if (vibe === 'short') {
+                    let pattern = [];
+                    for (let i = 0; i < duration * 5; i++) pattern.push(100, 100);
+                    navigator.vibrate(pattern);
+                }
+                else if (vibe === 'sos') {
+                    let pattern = [100, 100, 100, 100, 100, 300, 300, 100, 300, 100, 300, 300, 100, 100, 100, 100, 100, 500];
+                    let fullPattern = [];
+                    while (fullPattern.reduce((a, b) => a + b, 0) < durMs) fullPattern = fullPattern.concat(pattern);
+                    navigator.vibrate(fullPattern);
+                }
+            }
+
+            // \354\202\254\353\246\254 \354\262\234\353\246\254
+            if (sound !== 'none') {
+                if (!audioCtx) initAudio();
+                if (audioCtx) {
+                    let startTime = audioCtx.currentTime;
+
+                    if (sound === 'siren') {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(400, startTime);
+                        for (let t = 0; t < duration; t += 2) {
+                            osc.frequency.linearRampToValueAtTime(800, startTime + t + 1.0);
+                            osc.frequency.linearRampToValueAtTime(400, startTime + t + 2.0);
+                        }
+                        gain.gain.setValueAtTime(0.8, startTime);
+                        gain.gain.linearRampToValueAtTime(0, startTime + duration - 0.05);
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    } else if (sound === 'beep_fast') {
+                        for (let i = 0; i < duration * 5; i++) {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.type = 'sine';
+                            osc.frequency.value = 1000;
+                            gain.gain.setValueAtTime(0.8, startTime + i * 0.2);
+                            gain.gain.linearRampToValueAtTime(0, startTime + i * 0.2 + 0.09);
+                            osc.start(startTime + i * 0.2);
+                            osc.stop(startTime + i * 0.2 + 0.1);
+                        }
+                    } else if (sound === 'beep_slow') {
+                        for (let i = 0; i < duration; i++) {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.type = 'sine';
+                            osc.frequency.value = 800;
+                            gain.gain.setValueAtTime(0.8, startTime + i * 1.0);
+                            gain.gain.linearRampToValueAtTime(0, startTime + i * 1.0 + 0.45);
+                            osc.start(startTime + i * 1.0);
+                            osc.stop(startTime + i * 1.0 + 0.5);
+                        }
+                    }
+                }
+            }
+
+            flashBg(duration * 1000);
+
+            if (!isTest) {
+                const msg = alarmData ? `\342\212\232 \354\225\214\353\236\214 (\${alarmData.time})!` : '\342\216\261 \355\203\200\354\235\264\353\250\270 \354\231\204\353\243\214!';
+                showToast(msg);
+            }
+        }
+
+        function showToast(msg, duration = 2100) {
+            let container = document.getElementById('toast_container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast_container';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+
+            const removeToast = () => {
+                if (toast.parentNode) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.parentNode.removeChild(toast);
+                    }, 300);
+                }
+            };
+
+            toast.onclick = removeToast;
+            container.appendChild(toast);
+            setTimeout(removeToast, duration);
+        }
+
+        // === E. \354\204\244\354\240\225 \353\260\217 \353\260\261\354\227\205 (Settings) ===
+        function exportData() {
+            saveInputs();
+            const dataStr = localStorage.getItem(DATA_KEY);
+            const blob = new Blob([dataStr], { type: \"application/json\" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement(\"a\");
+            a.href = url;
+            const dateStr = new Date().toISOString().slice(0, 10);
+            a.download = `survival_backup_\${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const content = e.target.result;
+                    JSON.parse(content); // validate json
+                    localStorage.setItem(DATA_KEY, content);
+                    alert(\"\353\215\260\354\235\264\355\204\260\352\260\200 \354\202\261\352\263\265\354\240\201\354\234\274\353\241\234 \353\263\265\342\214\225\353\220\230\354\227\210\354\212\265\353\213\210\353\213\244.\");
+                    loadData();
+                } catch (err) {
+                    alert(\"\354\230\254\353\260\224\353\245\264\354\247\200 \354\222\212\354\235\200 \353\260\261\354\227\205 \355\214\214\354\235\274\354\235\270\353\213\210\353\213\244.\");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearData() {
+            if (confirm(\"\353\252\252\353\223\240 \353\241\234\354\272\254 \354\240\200\354\236\245 \353\215\260\354\235\264\355\204\260\353\245\274 \354\202\255\354\240\234\355\225\230\354\213\234\352\262\240\354\212\265\353\213\210\352\271\214?\")) {
+                localStorage.removeItem(DATA_KEY);
+                location.reload();
+            }
+        }
+
+        // Initialize
+        loadData();
+        if (!document.getElementById('c_unit_from').options.length) {
+            updateUnitOptions();
+        }
+
+    </script>
+</body>
+
+</html>
