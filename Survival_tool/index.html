@@ -290,7 +290,7 @@
             gap: 10px;
         }
 
-        .flex-row > div {
+        .flex-row>div {
             flex: 1;
         }
 
@@ -302,7 +302,7 @@
             margin: 30px auto;
             position: relative;
             background: #111;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.05);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -376,27 +376,32 @@
         #compass_text {
             position: absolute;
             z-index: 11;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 1.2rem;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: var(--primary-color);
         }
 
-        /* 데스크톱 보더 구별선 */
+        /* 데스크톱 보더 구분선 */
         @media (min-width: 520px) {
-            body { background-color: #111; }
+            body {
+                background-color: #111;
+            }
+
             .container {
                 border-left: 1px solid var(--border-color);
                 border-right: 1px solid var(--border-color);
                 min-height: calc(100vh - 60px);
                 background-color: var(--bg-color);
             }
+
             .bottom-nav {
                 border-left: 1px solid var(--border-color);
                 border-right: 1px solid var(--border-color);
             }
+
             header {
                 border-left: 1px solid var(--border-color);
                 border-right: 1px solid var(--border-color);
@@ -407,30 +412,35 @@
         .alarm-item {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 8px;
             border: 1px solid var(--border-color);
             gap: 10px;
         }
+
         .alarm-item.dragging {
             opacity: 0.5;
             background: var(--surface-color);
         }
+
         .alarm-info {
             flex: 1;
             pointer-events: none;
         }
+
         .alarm-time {
             font-size: 1.1rem;
             font-weight: bold;
             color: var(--primary-color);
         }
+
         .alarm-settings-summary {
             font-size: 0.75rem;
             color: var(--text-secondary);
         }
+
         .drag-handle {
             cursor: grab;
             color: var(--text-secondary);
@@ -438,9 +448,11 @@
             padding: 5px;
             user-select: none;
         }
+
         .drag-handle:active {
             cursor: grabbing;
         }
+
         .alarm-checkbox {
             width: 20px !important;
             height: 20px;
@@ -453,8 +465,13 @@
 <body>
     <!-- 스트로보 전체 화면 오버레이 -->
     <div id="strobe_overlay" class="strobe-overlay" onclick="stopSignal()">
-        <div id="strobe_text" style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;"></div>
-        <div style="position:absolute; top:60%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;">화면을 터치하면 꺼집니다.</div>
+        <div id="strobe_text"
+            style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;">
+        </div>
+        <div
+            style="position:absolute; top:60%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;">
+            화면을 터치하면 꺼집니다.
+        </div>
     </div>
 
     <header>
@@ -511,7 +528,8 @@
                 <div class="result-box" id="water_result">
                     물의 양을 입력하세요.
                 </div>
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 주의: 향료나 계면활성제가 없는 순수 차아염소산나트륨(락스)만 사용. 반드시 30분 대기 후 냄새 확인.</p>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 주의: 향료나 계면활성제가 없는 순수
+                    차아염소산나트륨(락스)만 사용. 반드시 30분 대기 후 냄새 확인.</p>
             </div>
         </div>
 
@@ -521,13 +539,17 @@
                 <h2>모스부호 (Morse Code)</h2>
                 <div class="form-group">
                     <label>텍스트 입력 (영문/숫자)</label>
-                    <input type="text" id="s_text" value="SOS" oninput="saveInputs()" onfocus="if(this.value==='SOS')this.value=''" style="text-transform: uppercase;">
+                    <input type="text" id="s_text" value="SOS" oninput="saveInputs()"
+                        onfocus="if(this.value==='SOS')this.value=''" style="text-transform: uppercase;">
                 </div>
                 <div class="form-group">
-                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; white-space:nowrap;"><input type="checkbox" id="s_repeat" onchange="saveInputs()">반복 재생 (Loop)</label>
+                    <label
+                        style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; white-space:nowrap;"><input
+                            type="checkbox" id="s_repeat" onchange="saveInputs()">반복 재생 (Loop)</label>
                 </div>
-                <div class="result-box" id="s_morse_result" style="font-size: 1.5rem; letter-spacing: 2px; word-wrap: break-word;"></div>
-                
+                <div class="result-box" id="s_morse_result"
+                    style="font-size: 1.5rem; letter-spacing: 2px; word-wrap: break-word;"></div>
+
                 <div class="flex-row">
                     <button onclick="playMorse(false)">🎵 Sound</button>
                     <button onclick="playMorse(true)">💡 Light</button>
@@ -538,7 +560,8 @@
             <div class="card">
                 <h2>긴급 스트로보 (Strobe)</h2>
                 <button class="danger" onclick="toggleStrobe()" id="btn_strobe">🚨 SOS 스트로보 시작</button>
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 경고: 광과민성 발작을 유발할 수 있습니다. (Wake Lock 작동)</p>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 경고: 광과민성 발작을 유발할 수 있습니다.
+                    (Wake Lock 작동)</p>
             </div>
 
             <div class="card">
@@ -553,8 +576,9 @@
                         <input type="number" id="s_beacon_count" value="1" min="1" oninput="saveInputs()">
                     </div>
                 </div>
-                <button class="secondary" onclick="toggleBeacon()" id="btn_beacon">📡 비콘 모드 시작</button>
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 위치 표시를 위해 일정 간격으로 강력한 섬광을 내보냅니다.</p>
+                <button class="secondary" onclick="toggleBeacon()" id="btn_beacon">📡 Beacon Start</button>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 위치 표시를 위해 일정 간격으로 강력한 섬광을
+                    내보냅니다.</p>
             </div>
         </div>
 
@@ -614,7 +638,8 @@
                 <div style="text-align:center; padding: 10px 0; color:var(--primary-color);">▼</div>
                 <div class="flex-row" style="align-items: center;">
                     <div class="form-group" style="margin-bottom:0; flex:1;">
-                        <input type="text" id="c_val_to" placeholder="결과" readonly style="background-color:var(--surface-color);">
+                        <input type="text" id="c_val_to" placeholder="결과" readonly
+                            style="background-color:var(--surface-color);">
                     </div>
                     <div class="form-group" style="margin-bottom:0; flex:1;">
                         <select id="c_unit_to" onchange="convertUnit()"></select>
@@ -623,7 +648,7 @@
             </div>
         </div>
 
-        <!-- 4. 알람 시스템 -->
+        <!-- 4. 알림 시스템 -->
         <div id="tab-alert" class="tab-content">
             <div class="card">
                 <h2>⏱ 타이머 (Timer)</h2>
@@ -666,20 +691,26 @@
                     </div>
                 </div>
                 <div class="flex-row" style="margin-top:10px; align-items: center;">
-                    <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; white-space:nowrap; flex:none;"><input type="checkbox" id="a_repeat" onchange="saveInputs()">반복설정</label>
+                    <label
+                        style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; white-space:nowrap; flex:none;"><input
+                            type="checkbox" id="a_repeat" onchange="saveInputs()">반복설정</label>
                     <div class="form-group" style="margin-bottom:0; flex:1; margin-left:10px;">
                         <label style="font-size:0.75rem; margin-bottom:2px;">인터벌(초)</label>
-                        <input type="number" id="t_interval" value="0" min="0" oninput="saveInputs()" style="padding: 8px;">
+                        <input type="number" id="t_interval" value="0" min="0" oninput="saveInputs()"
+                            style="padding: 8px;">
                     </div>
                 </div>
-                <div class="result-box" id="timer_display_box" style="font-size: 2rem; text-align: center; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                    <span id="timer_status" style="font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 1px;">READY</span>
+                <div class="result-box" id="timer_display_box"
+                    style="font-size: 2rem; text-align: center; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <span id="timer_status"
+                        style="font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 1px;">READY</span>
                     <span id="timer_display">00:00:00</span>
                 </div>
                 <div class="flex-row">
                     <button onclick="startTimer()" id="btn_timer_start">시작</button>
                     <button class="secondary" onclick="stopTimer()" style="white-space:nowrap;">정지/초기화</button>
-                    <button class="secondary" onclick="playAlarmSound('timer', true)" style="width:auto; flex:none; padding:12px 14px;">🔊</button>
+                    <button class="secondary" onclick="playAlarmSound('timer', true)"
+                        style="width:auto; flex:none; padding:12px 14px;">🔊</button>
                 </div>
             </div>
 
@@ -718,20 +749,22 @@
                 <div class="flex-row">
                     <button onclick="addAlarm()" style="flex:1;">➕ 추가</button>
                     <button class="danger" onclick="deleteSelectedAlarms()" style="flex:1;">🗑 삭제</button>
-                    <button class="secondary" onclick="playAlarmSound('alarm', true)" style="width:auto; flex:none; padding:12px 14px;">🔊</button>
+                    <button class="secondary" onclick="playAlarmSound('alarm', true)"
+                        style="width:auto; flex:none; padding:12px 14px;">🔊</button>
                 </div>
                 <div id="alarm_list" style="margin-top:15px;"></div>
                 <div class="result-box" id="alarm_status" style="display:none;"></div>
             </div>
         </div>
 
-        <!-- 5. 설정 및 백업 (Settings) -->
+        <!-- 5. 설정 및 백업 -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
                 <h2>데이터 백업 및 복구</h2>
                 <p style="font-size: 0.9rem; color: var(--text-secondary);">인터넷 연결이 끊겼을 때를 대비해 설정과 위치 정보를 기기에 백업합니다.</p>
                 <button onclick="exportData()">💾 JSON 내보내기 (Export)</button>
-                <button class="secondary" onclick="document.getElementById('import_file').click()">📂 JSON 가져오기 (Import)</button>
+                <button class="secondary" onclick="document.getElementById('import_file').click()">📂 JSON 가져오기
+                    (Import)</button>
                 <input type="file" id="import_file" style="display: none;" accept=".json" onchange="importData(event)">
             </div>
 
@@ -785,7 +818,7 @@
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
-            const timeStr = `\${h}:\${m}:\${s}`;
+            const timeStr = h + ':' + m + ':' + s;
             const clockEl = document.getElementById('current_time');
             if (clockEl) clockEl.innerText = timeStr;
         }
@@ -878,10 +911,9 @@
             const mlNeeded = (v * targetPPM) / (conc * 10);
             const dropsNeeded = mlNeeded * 20; // 1ml ≒ 20 drops
 
-            document.getElementById('water_result').innerHTML = `
-                <strong>총 물의 양:</strong> \${v.toFixed(2)} L<br>
-                <strong>필요 락스 양:</strong> 약 \${dropsNeeded.toFixed(1)} 방울 (\${mlNeeded.toFixed(2)} ml)
-            `;
+            document.getElementById('water_result').innerHTML = 
+                '<strong>총 물의 양:</strong> ' + v.toFixed(2) + ' L<br>' +
+                '<strong>필요 락스 양:</strong> 약 ' + dropsNeeded.toFixed(1) + ' 방울 (' + mlNeeded.toFixed(2) + ' ml)';
         }
 
         // === B. 신호 (Signal) 로직 ===
@@ -1164,8 +1196,8 @@
                 lastHeading = heading;
 
                 const rose = document.getElementById('compass_rose');
-                if (rose) rose.style.transform = `rotate(\${-currentRotation}deg)`;
-                document.getElementById('compass_text').innerText = `\${Math.round(heading)}°`;
+                if (rose) rose.style.transform = 'rotate(' + (-currentRotation) + 'deg)';
+                document.getElementById('compass_text').innerText = Math.round(heading) + '°';
             }
         }
 
@@ -1191,13 +1223,12 @@
             const res = getSunriseSunset(lat, lng, new Date());
             const moon = getMoonPhaseAndTimes(new Date());
 
-            document.getElementById('sun_result').innerHTML = `
-                <strong>일출:</strong> \${res.sunrise}<br>
-                <strong>일몰:</strong> \${res.sunset}<br><br>
-                <strong>월령(달 위상):</strong> \${moon.phaseName}<br>
-                <strong>월출(대략):</strong> \${moon.rise}<br>
-                <strong>월몰(대략):</strong> \${moon.set}
-            `;
+            document.getElementById('sun_result').innerHTML = 
+                '<strong>일출:</strong> ' + res.sunrise + '<br>' +
+                '<strong>일몰:</strong> ' + res.sunset + '<br><br>' +
+                '<strong>월령(달 위상):</strong> ' + moon.phaseName + '<br>' +
+                '<strong>월출(대략):</strong> ' + moon.rise + '<br>' +
+                '<strong>월몰(대략):</strong> ' + moon.set;
         }
 
         // Simplified Sunrise/Sunset Algorithm
@@ -1258,7 +1289,7 @@
             const formatTime = (h) => {
                 const hh = Math.floor(h);
                 const mm = Math.floor((h - hh) * 60);
-                return `\${String(hh).padStart(2, '0')}:\${String(mm).padStart(2, '0')} (오차 ±2시간)`;
+                return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0') + ' (오차 ±2시간)';
             };
 
             return { phaseName: phaseName, rise: formatTime(riseHour), set: formatTime(setHour) };
@@ -1303,7 +1334,7 @@
 
             let optionsHTML = '';
             UNIT_DATA[cat].forEach(u => {
-                optionsHTML += `<option value=\"\${u.id}\">\${u.name}</option>`;
+                optionsHTML += '<option value="' + u.id + '">' + u.name + '</option>';
             });
 
             fromSelect.innerHTML = optionsHTML;
@@ -1434,7 +1465,7 @@
             const m = Math.floor((totalSeconds % 3600) / 60);
             const s = totalSeconds % 60;
             const pad = num => String(num).padStart(2, '0');
-            document.getElementById('timer_display').innerText = `\${pad(h)}:\${pad(m)}:\${pad(s)}`;
+            document.getElementById('timer_display').innerText = pad(h) + ':' + pad(m) + ':' + pad(s);
         }
 
         // Multi-Alarm Management
@@ -1474,7 +1505,7 @@
             appData.alarms = appData.alarms.filter(a => !idsToDelete.includes(a.id));
             saveInputs();
             renderAlarms();
-            showToast(`\${idsToDelete.length}개의 알람이 삭제되었습니다.`);
+            showToast(idsToDelete.length + '개의 알람이 삭제되었습니다.');
         }
 
         function renderAlarms() {
@@ -1491,14 +1522,13 @@
                 const soundName = { 'none': '음소거', 'siren': '사이렌', 'beep_fast': '빠른비프', 'beep_slow': '느린비프' }[alarm.sound] || '알수없음';
                 const vibeName = { 'none': '진동끔', 'long': '긴진동', 'short': '짧은진동', 'sos': 'SOS' }[alarm.vibe] || '알수없음';
 
-                item.innerHTML = `
-                    <div class=\"drag-handle\">☰</div>
-                    <input type=\"checkbox\" class=\"alarm-checkbox\" data-id=\"\${alarm.id}\">
-                    <div class=\"alarm-info\">
-                        <div class=\"alarm-time\">\${alarm.time}</div>
-                        <div class=\"alarm-settings-summary\">\${soundName} / \${vibeName} / \${alarm.duration}초</div>
-                    </div>
-                `;
+                item.innerHTML = 
+                    '<div class="drag-handle">☰</div>' +
+                    '<input type="checkbox" class="alarm-checkbox" data-id="' + alarm.id + '">' +
+                    '<div class="alarm-info">' +
+                        '<div class="alarm-time">' + alarm.time + '</div>' +
+                        '<div class="alarm-settings-summary">' + soundName + ' / ' + vibeName + ' / ' + alarm.duration + '초</div>' +
+                    '</div>';
 
                 // Drag and Drop Events
                 item.addEventListener('dragstart', handleDragStart);
@@ -1545,7 +1575,7 @@
         // Main Alarm Check Loop
         setInterval(() => {
             const now = new Date();
-            const curTime = `\${String(now.getHours()).padStart(2, '0')}:\${String(now.getMinutes()).padStart(2, '0')}`;
+            const curTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
             const curSec = now.getSeconds();
 
             if (appData.alarms) {
@@ -1653,7 +1683,7 @@
             flashBg(duration * 1000);
 
             if (!isTest) {
-                const msg = alarmData ? `⏰ 알람 (\${alarmData.time})!` : '⏱ 타이머 완료!';
+                const msg = alarmData ? '⏰ 알람 (' + alarmData.time + ')!' : '⏱ 타이머 완료!';
                 showToast(msg);
             }
         }
@@ -1694,7 +1724,7 @@
             const a = document.createElement("a");
             a.href = url;
             const dateStr = new Date().toISOString().slice(0, 10);
-            a.download = `survival_backup_\${dateStr}.json`;
+            a.download = 'survival_backup_' + dateStr + '.json';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1736,5 +1766,3 @@
 </body>
 
 </html>
-
-
