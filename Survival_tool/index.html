@@ -785,7 +785,7 @@
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
-            const timeStr = `${h}:${m}:${s}`;
+            const timeStr = `\${h}:\${m}:\${s}`;
             const clockEl = document.getElementById('current_time');
             if (clockEl) clockEl.innerText = timeStr;
         }
@@ -879,8 +879,8 @@
             const dropsNeeded = mlNeeded * 20; // 1ml ≒ 20 drops
 
             document.getElementById('water_result').innerHTML = `
-                <strong>총 물의 양:</strong> ${v.toFixed(2)} L<br>
-                <strong>필요 락스 양:</strong> 약 ${dropsNeeded.toFixed(1)} 방울 (${mlNeeded.toFixed(2)} ml)
+                <strong>총 물의 양:</strong> \${v.toFixed(2)} L<br>
+                <strong>필요 락스 양:</strong> 약 \${dropsNeeded.toFixed(1)} 방울 (\${mlNeeded.toFixed(2)} ml)
             `;
         }
 
@@ -1164,8 +1164,8 @@
                 lastHeading = heading;
 
                 const rose = document.getElementById('compass_rose');
-                if (rose) rose.style.transform = `rotate(${-currentRotation}deg)`;
-                document.getElementById('compass_text').innerText = `${Math.round(heading)}°`;
+                if (rose) rose.style.transform = `rotate(\${-currentRotation}deg)`;
+                document.getElementById('compass_text').innerText = `\${Math.round(heading)}°`;
             }
         }
 
@@ -1192,11 +1192,11 @@
             const moon = getMoonPhaseAndTimes(new Date());
 
             document.getElementById('sun_result').innerHTML = `
-                <strong>일출:</strong> ${res.sunrise}<br>
-                <strong>일몰:</strong> ${res.sunset}<br><br>
-                <strong>월령(달 위상):</strong> ${moon.phaseName}<br>
-                <strong>월출(대략):</strong> ${moon.rise}<br>
-                <strong>월몰(대략):</strong> ${moon.set}
+                <strong>일출:</strong> \${res.sunrise}<br>
+                <strong>일몰:</strong> \${res.sunset}<br><br>
+                <strong>월령(달 위상):</strong> \${moon.phaseName}<br>
+                <strong>월출(대략):</strong> \${moon.rise}<br>
+                <strong>월몰(대략):</strong> \${moon.set}
             `;
         }
 
@@ -1258,7 +1258,7 @@
             const formatTime = (h) => {
                 const hh = Math.floor(h);
                 const mm = Math.floor((h - hh) * 60);
-                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')} (오차 ±2시간)`;
+                return `\${String(hh).padStart(2, '0')}:\${String(mm).padStart(2, '0')} (오차 ±2시간)`;
             };
 
             return { phaseName: phaseName, rise: formatTime(riseHour), set: formatTime(setHour) };
@@ -1303,7 +1303,7 @@
 
             let optionsHTML = '';
             UNIT_DATA[cat].forEach(u => {
-                optionsHTML += `<option value="${u.id}">${u.name}</option>`;
+                optionsHTML += `<option value=\"\${u.id}\">\${u.name}</option>`;
             });
 
             fromSelect.innerHTML = optionsHTML;
@@ -1434,7 +1434,7 @@
             const m = Math.floor((totalSeconds % 3600) / 60);
             const s = totalSeconds % 60;
             const pad = num => String(num).padStart(2, '0');
-            document.getElementById('timer_display').innerText = `${pad(h)}:${pad(m)}:${pad(s)}`;
+            document.getElementById('timer_display').innerText = `\${pad(h)}:\${pad(m)}:\${pad(s)}`;
         }
 
         // Multi-Alarm Management
@@ -1474,7 +1474,7 @@
             appData.alarms = appData.alarms.filter(a => !idsToDelete.includes(a.id));
             saveInputs();
             renderAlarms();
-            showToast(`${idsToDelete.length}개의 알람이 삭제되었습니다.`);
+            showToast(`\${idsToDelete.length}개의 알람이 삭제되었습니다.`);
         }
 
         function renderAlarms() {
@@ -1492,11 +1492,11 @@
                 const vibeName = { 'none': '진동끔', 'long': '긴진동', 'short': '짧은진동', 'sos': 'SOS' }[alarm.vibe] || '알수없음';
 
                 item.innerHTML = `
-                    <div class="drag-handle">☰</div>
-                    <input type="checkbox" class="alarm-checkbox" data-id="${alarm.id}">
-                    <div class="alarm-info">
-                        <div class="alarm-time">${alarm.time}</div>
-                        <div class="alarm-settings-summary">${soundName} / ${vibeName} / ${alarm.duration}초</div>
+                    <div class=\"drag-handle\">☰</div>
+                    <input type=\"checkbox\" class=\"alarm-checkbox\" data-id=\"\${alarm.id}\">
+                    <div class=\"alarm-info\">
+                        <div class=\"alarm-time\">\${alarm.time}</div>
+                        <div class=\"alarm-settings-summary\">\${soundName} / \${vibeName} / \${alarm.duration}초</div>
                     </div>
                 `;
 
@@ -1545,7 +1545,7 @@
         // Main Alarm Check Loop
         setInterval(() => {
             const now = new Date();
-            const curTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const curTime = `\${String(now.getHours()).padStart(2, '0')}:\${String(now.getMinutes()).padStart(2, '0')}`;
             const curSec = now.getSeconds();
 
             if (appData.alarms) {
@@ -1653,7 +1653,7 @@
             flashBg(duration * 1000);
 
             if (!isTest) {
-                const msg = alarmData ? `⏰ 알람 (${alarmData.time})!` : '⏱ 타이머 완료!';
+                const msg = alarmData ? `⏰ 알람 (\${alarmData.time})!` : '⏱ 타이머 완료!';
                 showToast(msg);
             }
         }
@@ -1694,7 +1694,7 @@
             const a = document.createElement("a");
             a.href = url;
             const dateStr = new Date().toISOString().slice(0, 10);
-            a.download = `survival_backup_${dateStr}.json`;
+            a.download = `survival_backup_\${dateStr}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1736,3 +1736,5 @@
 </body>
 
 </html>
+
+
