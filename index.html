@@ -894,17 +894,19 @@
 
         #level_text {
             position: absolute;
-            bottom: 25px;
+            bottom: 75px;
+            left: 15px;
             z-index: 11;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 5px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
             border: 1px solid var(--border-color);
             color: var(--primary-color);
             font-family: monospace;
             pointer-events: none;
-            white-space: nowrap;
+            text-align: left;
+            line-height: 1.35;
         }
 
         :root.red-mode .level-bubble.level-perfect {
@@ -1109,19 +1111,19 @@
                             </div>
                             <span id="compass_text">---°</span>
                         </div>
-                        <button onclick="toggleCompass()" id="btn_compass">나침반 시작 (권한요청)</button>
+                        <button onclick="toggleCompass()" id="btn_compass">나침반 시작</button>
                     </div>
 
                     <!-- Level View -->
-                    <div id="view_level" style="display:none;">
+                    <div id="view_level" style="display:none; position: relative;">
                         <div class="level-container" id="level_container">
                             <div class="level-circle-1"></div>
                             <div class="level-circle-2"></div>
                             <div class="level-crosshair-x"></div>
                             <div class="level-crosshair-y"></div>
                             <div class="level-bubble" id="level_bubble"></div>
-                            <span id="level_text">가로: ---° | 세로: ---°</span>
                         </div>
+                        <span id="level_text">가로: ---°<br>세로: ---°</span>
                         <button onclick="toggleLevel()" id="btn_level">수평계 시작</button>
                     </div>
                 </div>
@@ -4072,7 +4074,7 @@
                         bubble.style.transform = `translate(-50%, -50%)`;
                         bubble.classList.remove('level-perfect');
                     }
-                    document.getElementById('level_text').innerText = "가로: ---° | 세로: ---°";
+                    document.getElementById('level_text').innerHTML = "가로: ---°<br>세로: ---°";
                     return;
                 }
 
@@ -4184,7 +4186,7 @@
                 }
 
                 // 텍스트 출력
-                document.getElementById('level_text').innerText = `가로: ${Math.round(diffGamma)}° | 세로: ${Math.round(diffBeta)}°`;
+                document.getElementById('level_text').innerHTML = `가로: ${Math.round(diffGamma)}°<br>세로: ${Math.round(diffBeta)}°`;
             }
 
             // === 나침반 눈금 생성 및 수평계 동심원 눈금 생성 ===
