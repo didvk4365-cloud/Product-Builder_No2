@@ -219,7 +219,7 @@
             padding-right: 4px;
         }
 
-        input,
+        input:not([type="checkbox"]),
         select,
         textarea {
             width: 100%;
@@ -231,6 +231,58 @@
             box-sizing: border-box;
             font-size: 1rem;
             font-family: inherit;
+        }
+
+        input[type="checkbox"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid var(--text-secondary);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.15s, border-color 0.15s, opacity 0.15s;
+            margin: 0;
+            vertical-align: middle;
+            position: relative;
+            opacity: 0.7;
+        }
+
+        input[type="checkbox"]:hover {
+            opacity: 1;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            opacity: 1;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: "";
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            width: 4px;
+            height: 8px;
+            border: solid #ffffff;
+            border-width: 0 2px 2px 0;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        /* 반복 재생 (Loop) 체크박스는 미니멀한 UI 밸런스를 위해 주황/빨강 채우기를 배제하고 체크 마크만 테마색으로 세련되게 표현 */
+        #s_repeat:checked {
+            background-color: var(--bg-color) !important;
+            border-color: var(--text-secondary) !important;
+        }
+
+        #s_repeat:checked::after {
+            border-color: var(--primary-color) !important;
         }
 
         input::placeholder {
@@ -409,6 +461,15 @@
             opacity: 0;
             width: 0;
             height: 0;
+            border: none !important;
+            background: transparent !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+        }
+
+        .toggle-switch-wrapper input::after {
+            display: none !important;
+            content: none !important;
         }
 
         .switch-slider {
@@ -439,6 +500,15 @@
         .toggle-switch-wrapper input:checked+.switch-slider {
             background-color: rgba(255, 152, 0, 0.2);
             border-color: var(--primary-color);
+        }
+
+        :root.red-mode .switch-slider {
+            background-color: #150505;
+            border-color: var(--border-color);
+        }
+
+        :root.red-mode .switch-slider:before {
+            background-color: var(--text-secondary);
         }
 
         :root.red-mode .toggle-switch-wrapper input:checked+.switch-slider {
@@ -1419,7 +1489,7 @@
         <div id="tab-erp" class="tab-content">
             <div class="card">
                 <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"
-                    onclick="const d = document.getElementById('erp_dashboard'); const i = document.getElementById('erp_dash_icon'); if(d.style.display==='none'){d.style.display='flex'; i.innerHTML='접기 ▲';}else{d.style.display='none'; i.innerHTML='펼치기 ▼';}">
+                    onclick="const d = document.getElementById('erp_dashboard'); const i = document.getElementById('erp_dash_icon'); if(d.style.display==='none'){d.style.display='flex'; i.innerHTML='접기 ▲'; this.style.marginBottom='10px';}else{d.style.display='none'; i.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
                     <span style="margin:0;">📊 물자 현황 (Dashboard)</span>
                     <button class="secondary" id="erp_dash_icon"
                         style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">접기
@@ -1432,7 +1502,7 @@
 
             <div class="card">
                 <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;"
-                    onclick="const f = document.getElementById('erp_form_body'); const btn = document.getElementById('btn_erp_form_toggle'); if(f.style.display==='none'){f.style.display='block'; btn.innerHTML='접기 ▲';}else{f.style.display='none'; btn.innerHTML='펼치기 ▼';}">
+                    onclick="const f = document.getElementById('erp_form_body'); const btn = document.getElementById('btn_erp_form_toggle'); if(f.style.display==='none'){f.style.display='block'; btn.innerHTML='접기 ▲'; this.style.marginBottom='10px';}else{f.style.display='none'; btn.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
                     <span id="erp_form_title" style="margin:0;">📦 물품 등록</span>
                     <div style="display:flex; align-items:center; gap:5px;">
                         <button class="secondary"
