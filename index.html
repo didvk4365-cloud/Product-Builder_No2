@@ -4168,6 +4168,15 @@
                     // 필터 잔여값 및 캐시 완전 청소 (쏠림 오프셋 축적 원천 차단)
                     window.lastLevelGamma = undefined;
                     window.lastLevelBeta = undefined;
+                    window.lastLevelGx = undefined;
+                    window.lastLevelGy = undefined;
+
+                    const levelContainer = document.getElementById('level_container');
+                    const levelTubeH = document.getElementById('level_tube_h');
+                    const levelTubeV = document.getElementById('level_tube_v');
+                    if (levelContainer) levelContainer.classList.remove('inactive');
+                    if (levelTubeH) levelTubeH.classList.remove('inactive');
+                    if (levelTubeV) levelTubeV.classList.remove('inactive');
 
                     const bubble = document.getElementById('level_bubble');
                     const bubbleH = document.getElementById('bubble_h');
@@ -4219,33 +4228,42 @@
 
                 if (beta === null || gamma === null) return;
 
-                let diffBeta = 0;
-                let diffGamma = 0;
+                // 3D gravity vector projection components (rad)
+                const rad = Math.PI / 180;
+                const radBeta = beta * rad;
+                const radGamma = gamma * rad;
+                
+                // 가상의 중력 벡터 성분 계산 (Euler 각도 짐벌락 방지 및 부드러운 원형 이동용)
+                let gx = Math.sin(radGamma) * Math.cos(radBeta);
+                let gy = Math.sin(radBeta);
 
-                // 화면 원형 버블(Bullseye) 및 튜브 버블(H, V) 좌표용 변수
-                let xPos = 0;
-                let yPos = 0;
-                let txPos = 0;
-                let tyPos = 0;
+                // 저대역 필터(Low-Pass Filter)를 중력 성분에 적용하여 센서 노이즈 제거
+                if (window.lastLevelGx === undefined || isNaN(window.lastLevelGx)) {
+                    window.lastLevelGx = gx;
+                    window.lastLevelGy = gy;
+                }
+                const alphaFilter = 0.25; 
+                gx = window.lastLevelGx + (gx - window.lastLevelGx) * alphaFilter;
+                gy = window.lastLevelGy + (gy - window.lastLevelGy) * alphaFilter;
+                window.lastLevelGx = gx;
+                window.lastLevelGy = gy;
 
-                const maxTilt = 45;
-                const maxDist2D = 80;
-                const maxDist1D = 80;
-
-                // 기기 파지 방향 판별 (Flat, Portrait, Landscape)
-                const absBeta = Math.abs(beta);
-                const absGamma = Math.abs(gamma);
-
+                // 1. 기기 물리적 방향 판별 (중력 투영 벡터 크기 기반)
+                const tiltMagnitude = Math.sqrt(gx * gx + gy * gy);
+                
+                // tiltMagnitude < sin(28도) 이면 평면 모드로 판단
                 let mode = "flat";
-                if (absBeta < 40 && absGamma < 40) {
+                if (tiltMagnitude < 0.47) { 
                     mode = "flat";
-                } else if (absBeta >= absGamma) {
-                    mode = "portrait";
+                } else if (Math.abs(gy) >= Math.abs(gx)) {
+                    mode = "portrait"; // Y축 기울기가 우세하면 세로 세움
                 } else {
-                    mode = "landscape";
+                    mode = "landscape"; // X축 기울기가 우세하면 가로 세움
                 }
 
-                // 각 모드별로 독립적으로 센서 수식 할당
+                // 2. 화면 표시용 각도 계산
+                let diffGamma = 0;
+                let diffBeta = 0;
                 if (mode === "flat") {
                     diffGamma = gamma;
                     diffBeta = beta;
@@ -4257,41 +4275,64 @@
                     diffBeta = gamma > 0 ? gamma - 90 : gamma + 90;
                 }
 
-                // 저대역 필터(Low-Pass Filter) 및 스무딩 적용하여 하드웨어 미세 노이즈 및 급격한 튀기 방지
+                // 표시용 각도 스무딩 필터 적용
                 if (window.lastLevelGamma === undefined || isNaN(window.lastLevelGamma)) {
                     window.lastLevelGamma = diffGamma;
                     window.lastLevelBeta = diffBeta;
                 }
-
-                const alphaFilter = 0.2; // 필터링 계수 (0.2 = 반응속도와 부드러움의 최고 비율)
                 diffGamma = window.lastLevelGamma + (diffGamma - window.lastLevelGamma) * alphaFilter;
                 diffBeta = window.lastLevelBeta + (diffBeta - window.lastLevelBeta) * alphaFilter;
-
                 window.lastLevelGamma = diffGamma;
                 window.lastLevelBeta = diffBeta;
 
-                // 모드별로 좌표를 완전 별개로 맵핑하고 활성 수평계만 이동, 비활성 수평계는 중앙 초기화
+                // 3. 버블 변위(픽셀) 계산
+                const maxTilt = 45;
+                const sinMaxTilt = Math.sin(maxTilt * rad);
+                const maxDist2D = 80;
+                const maxDist1D = 80;
+
+                let xPos = 0;
+                let yPos = 0;
+                let txPos = 0;
+                let tyPos = 0;
+
                 if (mode === "flat") {
-                    let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
-                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
-                    yPos = -(b / maxTilt) * maxDist2D;
-                    xPos = -(g / maxTilt) * maxDist2D;
-                    txPos = 0; // H-tube 초기화
-                    tyPos = 0; // V-tube 초기화
+                    // 평면 모드: 2차원 원형 버블 작동
+                    let xVal = -(gx / sinMaxTilt) * maxDist2D;
+                    let yVal = -(gy / sinMaxTilt) * maxDist2D;
+                    
+                    // 사각형 클리핑이 아닌, 완벽한 원형 경계(Circular Boundary) 클램핑 적용
+                    let dist = Math.sqrt(xVal * xVal + yVal * yVal);
+                    if (dist > maxDist2D) {
+                        xPos = (xVal / dist) * maxDist2D;
+                        yPos = (yVal / dist) * maxDist2D;
+                    } else {
+                        xPos = xVal;
+                        yPos = yVal;
+                    }
+                    txPos = 0;
+                    tyPos = 0;
                 } else if (mode === "portrait") {
-                    let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
-                    yPos = 0; // 원형 초기화
+                    // 세로 세움 모드: 세로 튜브 수평계 작동
+                    let sinBetaDiff = Math.sin(diffBeta * rad);
+                    let tyVal = -(sinBetaDiff / sinMaxTilt) * maxDist1D;
+                    tyPos = Math.max(-maxDist1D, Math.min(maxDist1D, tyVal));
+                    
                     xPos = 0;
-                    txPos = 0; // H-tube 초기화
-                    tyPos = -(b / maxTilt) * maxDist1D; // 세로 세움 수직 측정 활성화
+                    yPos = 0;
+                    txPos = 0;
                 } else {
-                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
-                    yPos = 0; // 원형 초기화
+                    // 가로 세움 모드: 가로 튜브 수평계 작동
+                    let sinGammaDiff = Math.sin(diffGamma * rad);
+                    let txVal = -(sinGammaDiff / sinMaxTilt) * maxDist1D;
+                    txPos = Math.max(-maxDist1D, Math.min(maxDist1D, txVal));
+                    
                     xPos = 0;
-                    txPos = -(g / maxTilt) * maxDist1D; // 가로 눕힘 수평 측정 활성화
-                    tyPos = 0; // V-tube 초기화
+                    yPos = 0;
+                    tyPos = 0;
                 }
 
+                // 4. UI 렌더링 업데이트
                 const container = document.getElementById('level_container');
                 const tubeH = document.getElementById('level_tube_h');
                 const tubeV = document.getElementById('level_tube_v');
