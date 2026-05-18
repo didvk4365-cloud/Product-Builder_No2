@@ -4190,20 +4190,56 @@
 
                 if (beta === null || gamma === null) return;
 
-                // 스마트폰의 배치 방향(평면, 수직, 가로 등)에 관계없이 
-                // 현재 방향과 가장 가까운 90도 단위(0, 90, 180, -90)를 타겟으로 삼아 편차를 계산
-                let targetBeta = Math.round(beta / 90) * 90;
-                let targetGamma = Math.round(gamma / 90) * 90;
+                // degree 값을 라디안으로 변환
+                const bRad = beta * Math.PI / 180;
+                const gRad = gamma * Math.PI / 180;
 
-                let diffBeta = beta - targetBeta;
-                let diffGamma = gamma - targetGamma;
+                // 3차원 중력 투영 벡터 계산 (gimbal lock 현상을 완전히 해결하기 위해 3차원 삼각함수 프로젝션 적용)
+                // W3C 표준 디바이스 방향 센서(Tait-Bryan Z-X'-Y'' rotation) 좌표계 기준 중력 분해
+                const gx = Math.sin(gRad) * Math.cos(bRad);
+                const gy = Math.sin(bRad);
+                const gz = Math.cos(gRad) * Math.cos(bRad);
 
-                // 정규화 (-180 ~ 180)
-                if (diffBeta > 180) diffBeta -= 360;
-                if (diffBeta < -180) diffBeta += 360;
-                if (diffGamma > 180) diffGamma -= 360;
-                if (diffGamma < -180) diffGamma += 360;
+                let diffBeta = 0;
+                let diffGamma = 0;
 
+                // 3D 중력 벡터에서 절대값이 가장 큰 성분(축)을 기반으로 현재 기기의 파지 모드 판별
+                const absX = Math.abs(gx);
+                const absY = Math.abs(gy);
+                const absZ = Math.abs(gz);
+
+                if (absZ >= absX && absZ >= absY) {
+                    // 1. 평면 모드 (Flat - 책상, 바닥 수평 측정)
+                    diffGamma = Math.asin(gx) * 180 / Math.PI;
+                    diffBeta = Math.asin(gy) * 180 / Math.PI;
+                    // 화면이 뒤집혀 아래를 향할 경우 방향 반전 보정
+                    if (gz < 0) {
+                        diffGamma = -diffGamma;
+                        diffBeta = -diffBeta;
+                    }
+                } else if (absY >= absX && absY >= absZ) {
+                    // 2. 수직 세움 모드 (Portrait - 벽면이나 기둥의 세로 수직 측정)
+                    // 세로(Y)축이 중력 방향일 때, 좌우 기울기는 X축(gx), 앞뒤 기울기는 Z축(gz)에 대응
+                    diffGamma = Math.asin(gx) * 180 / Math.PI;
+                    diffBeta = Math.asin(gz) * 180 / Math.PI;
+                    // 뒤집어서 세운 경우 보정
+                    if (gy < 0) {
+                        diffGamma = -diffGamma;
+                        diffBeta = -diffBeta;
+                    }
+                } else {
+                    // 3. 가로 세움 모드 (Landscape - 선반이나 벽면의 가로 수평/기둥 측정)
+                    // 가로(X)축이 중력 방향일 때, 좌우 기울기는 Y축(gy), 앞뒤 기울기는 Z축(gz)에 대응
+                    diffGamma = Math.asin(gy) * 180 / Math.PI;
+                    diffBeta = Math.asin(gz) * 180 / Math.PI;
+                    // 기기 왼쪽이 아래로 기울어진 경우 방향 반전 보정
+                    if (gx < 0) {
+                        diffGamma = -diffGamma;
+                        diffBeta = -diffBeta;
+                    }
+                }
+
+                // 최대 물리적 틸트 한계값
                 const maxTilt = 45;
                 let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
                 let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
@@ -4211,17 +4247,18 @@
                 const maxDist2D = 80;
                 const maxDist1D = 80;
 
+                // 2D 및 1D 물금(버블) 좌표 계산
                 let yPos = (b / maxTilt) * maxDist2D;
                 let xPos = -(g / maxTilt) * maxDist2D;
 
-                // Bullseye 원형 제한
+                // Bullseye 원형 범위 제한
                 const distance = Math.sqrt(xPos * xPos + yPos * yPos);
                 if (distance > maxDist2D) {
                     xPos = (xPos / distance) * maxDist2D;
                     yPos = (yPos / distance) * maxDist2D;
                 }
 
-                // Tube 이동
+                // Tube 게이지바 물리적 이동량 설정
                 let txPos = -(g / maxTilt) * maxDist1D;
                 let tyPos = (b / maxTilt) * maxDist1D;
 
@@ -4234,8 +4271,9 @@
                     bubbleH.style.transform = `translate(calc(-50% + ${txPos}px), -50%)`;
                     bubbleV.style.transform = `translate(-50%, calc(-50% + ${tyPos}px))`;
 
-                    let isPerfectX = Math.abs(diffGamma) < 2;
-                    let isPerfectY = Math.abs(diffBeta) < 2;
+                    // 정밀하고 높은 신뢰성의 수평 감지 오차 판정 임계값 (2도 -> 1.5도로 업그레이드)
+                    let isPerfectX = Math.abs(diffGamma) < 1.5;
+                    let isPerfectY = Math.abs(diffBeta) < 1.5;
 
                     if (isPerfectX) bubbleH.classList.add('tube-bubble-perfect');
                     else bubbleH.classList.remove('tube-bubble-perfect');
@@ -4251,7 +4289,7 @@
                         }
                     } else {
                         bubble.classList.remove('level-perfect');
-                        if (Math.abs(diffBeta) > 5 || Math.abs(diffGamma) > 5) {
+                        if (Math.abs(diffBeta) > 4 || Math.abs(diffGamma) > 4) {
                             vibratedLevel = false;
                         }
                     }
