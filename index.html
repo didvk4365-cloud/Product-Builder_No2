@@ -4149,6 +4149,10 @@
                     btn.innerText = "수평계 시작";
                     btn.classList.remove('danger');
 
+                    // 필터 잔여값 및 캐시 완전 청소 (쏠림 오프셋 축적 원천 차단)
+                    window.lastLevelGamma = undefined;
+                    window.lastLevelBeta = undefined;
+
                     const bubble = document.getElementById('level_bubble');
                     const bubbleH = document.getElementById('bubble_h');
                     const bubbleV = document.getElementById('bubble_v');
@@ -4157,11 +4161,13 @@
                         bubble.classList.remove('level-perfect');
                     }
                     if (bubbleH) {
-                        bubbleH.style.transform = `translate(-50%, 0)`;
+                        // Y축 보정: -50%를 적용하여 물리적인 중심점에 정확하게 복귀시킵니다.
+                        bubbleH.style.transform = `translate(-50%, -50%)`;
                         bubbleH.classList.remove('tube-bubble-perfect');
                     }
                     if (bubbleV) {
-                        bubbleV.style.transform = `translate(0, -50%)`;
+                        // X축 보정: -50%를 적용하여 물리적인 중심점에 정확하게 복귀시킵니다.
+                        bubbleV.style.transform = `translate(-50%, -50%)`;
                         bubbleV.classList.remove('tube-bubble-perfect');
                     }
                     document.getElementById('level_text').innerText = "가로: ---° | 세로: ---°";
@@ -4197,21 +4203,8 @@
 
                 if (beta === null || gamma === null) return;
 
-                // degree 값을 라디안으로 변환
-                const bRad = beta * Math.PI / 180;
-                const gRad = gamma * Math.PI / 180;
-
-                // 3차원 중력 투영 벡터 계산 (W3C 표준 Tait-Bryan Z-X'-Y'' 좌표계 기준 물리 중력 공식 적용)
-                const gx = Math.sin(gRad) * Math.cos(bRad);
-                const gy = Math.sin(bRad);
-                const gz = Math.cos(gRad) * Math.cos(bRad);
-
                 let diffBeta = 0;
                 let diffGamma = 0;
-
-                const absX = Math.abs(gx);
-                const absY = Math.abs(gy);
-                const absZ = Math.abs(gz);
 
                 // 화면 원형 버블(Bullseye) 및 튜브 버블(H, V) 좌표용 변수
                 let xPos = 0;
@@ -4221,23 +4214,25 @@
                 const maxDist2D = 80;
                 const maxDist1D = 80;
 
-                if (absZ >= absX && absZ >= absY) {
+                // 기기 파지 방향 판별 (Flat, Portrait, Landscape)
+                const absBeta = Math.abs(beta);
+                const absGamma = Math.abs(gamma);
+
+                if (absBeta < 40 && absGamma < 40) {
                     // 1. 평면 모드 (Flat - 책상, 바닥 수평 측정)
-                    // 가로 틸트는 X-Z 평면, 세로 틸트는 Y-Z 평면 기준
-                    diffGamma = Math.atan2(gx, Math.abs(gz)) * 180 / Math.PI;
-                    diffBeta = Math.atan2(gy, Math.abs(gz)) * 180 / Math.PI;
+                    diffGamma = gamma;
+                    diffBeta = beta;
 
                     // 평면 모드에서는 2차원 버블 자유 이동 (X, Y 모두 활성화)
                     let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
                     let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
                     yPos = (b / maxTilt) * maxDist2D;
                     xPos = -(g / maxTilt) * maxDist2D;
-                } else if (absY >= absX && absY >= absZ) {
+                } else if (absBeta >= absGamma) {
                     // 2. 수직 세움 모드 (Portrait - 벽이나 기둥 세로 측정)
-                    // 좌우 기울기(Gamma 방향)는 X-Y 평면의 각도로 계산하여 짐벌 락(Gimbal Lock) 및 노이즈 원천 제거
-                    diffGamma = Math.atan2(gx, Math.abs(gy)) * 180 / Math.PI;
-                    // 앞뒤 기울기(Beta 방향)는 Z-축 기울기 사용
-                    diffBeta = Math.asin(gz) * 180 / Math.PI;
+                    // 세로로 세웠을 때, 좌우 기울기는 gamma, 앞뒤 기울기는 beta의 수직(90도) 편차
+                    diffGamma = gamma;
+                    diffBeta = beta > 0 ? beta - 90 : beta + 90;
 
                     // 세워 쓰기 모드: 원형 눈금을 가로(좌우)로만 움직임 (yPos = 0 제한)
                     let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
@@ -4245,35 +4240,33 @@
                     yPos = 0;
                 } else {
                     // 3. 가로 세움 모드 (Landscape - 벽이나 선반 가로 측정)
-                    // 좌우 기울기는 Y-X 평면의 각도로 계산
-                    diffGamma = Math.atan2(gy, Math.abs(gx)) * 180 / Math.PI;
-                    // 앞뒤 기울기는 Z-축 기울기 사용
-                    diffBeta = Math.asin(gz) * 180 / Math.PI;
+                    // 가로로 눕혔을 때, 좌우 기울기는 beta, 앞뒤 기울기는 gamma의 수직(90도) 편차
+                    diffGamma = beta;
+                    diffBeta = gamma > 0 ? gamma - 90 : gamma + 90;
 
                     // 눕혀 쓰기 모드: 원형 눈금을 세로(상하)로만 움직임 (xPos = 0 제한)
                     let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
                     xPos = 0;
-                    yPos = (g / maxTilt) * maxDist2D; // landscape에서는 좌우 틸트가 상하 물금에 맵핑
+                    yPos = (g / maxTilt) * maxDist2D; // landscape에서는 좌우 틸트가 세로 물금 축으로 맵핑
                 }
 
                 // 저대역 필터(Low-Pass Filter) 및 스무딩 적용하여 하드웨어 미세 노이즈 및 급격한 튀기 방지
-                if (window.lastLevelGamma === undefined) {
+                if (window.lastLevelGamma === undefined || isNaN(window.lastLevelGamma)) {
                     window.lastLevelGamma = diffGamma;
                     window.lastLevelBeta = diffBeta;
                 }
 
-                const alphaFilter = 0.15; // 노이즈 필터링 강도 (lerp 계수)
+                const alphaFilter = 0.2; // 필터링 계수 (0.2 = 반응속도와 부드러움의 최고 비율)
                 diffGamma = window.lastLevelGamma + (diffGamma - window.lastLevelGamma) * alphaFilter;
                 diffBeta = window.lastLevelBeta + (diffBeta - window.lastLevelBeta) * alphaFilter;
 
                 window.lastLevelGamma = diffGamma;
                 window.lastLevelBeta = diffBeta;
 
-                // 최대 물리적 틸트 제한 보정 (각도 계산 이후 스무스해진 값 기준)
+                // 필터링 적용된 각도 기반으로 1D 튜브 버블 이동량 계산
                 let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
                 let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
 
-                // Tube 게이지바 물리적 이동량 설정
                 let txPos = -(g / maxTilt) * maxDist1D;
                 let tyPos = (b / maxTilt) * maxDist1D;
 
