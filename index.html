@@ -817,15 +817,18 @@
 
         /* 수평계 스타일 */
         .level-container {
-            width: 200px;
-            height: 200px;
-            border: 4px solid var(--border-color);
+            width: 220px;
+            height: 220px;
+            border: 8px solid var(--border-color);
             border-radius: 50%;
-            margin: 20px auto;
+            margin: 30px auto;
             position: relative;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--surface-color);
             overflow: hidden;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .level-crosshair-x {
@@ -861,13 +864,13 @@
         }
 
         .level-circle-1 {
-            width: 60px;
-            height: 60px;
+            width: 66px;
+            height: 66px;
         }
 
         .level-circle-2 {
-            width: 130px;
-            height: 130px;
+            width: 143px;
+            height: 143px;
         }
 
         .level-bubble {
@@ -881,11 +884,27 @@
             transform: translate(-50%, -50%);
             transition: background 0.1s, transform 0.15s ease-out;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 2;
         }
 
         .level-bubble.level-perfect {
             background: #4caf50;
             box-shadow: 0 0 15px #4caf50;
+        }
+
+        #level_text {
+            position: absolute;
+            bottom: 25px;
+            z-index: 11;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            font-family: monospace;
+            pointer-events: none;
+            white-space: nowrap;
         }
 
         :root.red-mode .level-bubble.level-perfect {
@@ -1095,20 +1114,15 @@
 
                     <!-- Level View -->
                     <div id="view_level" style="display:none;">
-                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;">
-                            <!-- 원형 수평계 -->
-                            <div class="level-container" id="level_container" style="margin: 0;">
-                                <div class="level-circle-1"></div>
-                                <div class="level-circle-2"></div>
-                                <div class="level-crosshair-x"></div>
-                                <div class="level-crosshair-y"></div>
-                                <div class="level-bubble" id="level_bubble"></div>
-                            </div>
+                        <div class="level-container" id="level_container">
+                            <div class="level-circle-1"></div>
+                            <div class="level-circle-2"></div>
+                            <div class="level-crosshair-x"></div>
+                            <div class="level-crosshair-y"></div>
+                            <div class="level-bubble" id="level_bubble"></div>
+                            <span id="level_text">가로: ---° | 세로: ---°</span>
                         </div>
-                        <div id="level_text"
-                            style="text-align:center; margin-top:15px; font-family:monospace; color:var(--text-secondary);">
-                            가로: ---° | 세로: ---°</div>
-                        <button onclick="toggleLevel()" id="btn_level" style="margin-top:15px;">수평계 시작</button>
+                        <button onclick="toggleLevel()" id="btn_level">수평계 시작</button>
                     </div>
                 </div>
             </div>
@@ -4124,7 +4138,7 @@
                 // 버블 변위(픽셀) 계산
                 const maxTilt = 45;
                 const sinMaxTilt = Math.sin(maxTilt * rad);
-                const maxDist2D = 80;
+                const maxDist2D = 90;
 
                 let xPos = 0;
                 let yPos = 0;
