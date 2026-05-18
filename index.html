@@ -1,0 +1,4226 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>All-in-One Survival Web Tool</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --surface-color: #0c0c0c;
+            /* 훨씬 어두운 프리미엄 차콜 그레이 */
+            --primary-color: #ff9800;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --border-color: #222222;
+            /* 서피스 톤에 맞춘 차분하고 정갈한 보더 색상 */
+            --danger-color: #f44336;
+            --danger-text: #ffffff;
+        }
+
+        :root.red-mode {
+            --bg-color: #000000;
+            /* 완전한 블랙으로 배터리 절약 */
+            --surface-color: #0a0000;
+            /* 극도로 어두운 적색 배경 */
+            --primary-color: #c42020;
+            /* 눈부심을 줄인 차분한 붉은색 */
+            --text-primary: #d44040;
+            /* 가독성을 유지하되 자극적이지 않은 붉은색 */
+            --text-secondary: #8a2a2a;
+            /* 대비를 낮춘 보조 텍스트 */
+            --border-color: #3b0e0e;
+            --danger-color: #c42020;
+            --danger-text: #000000;
+        }
+
+        /* 토스트 알림 */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(255, 152, 0, 0.95);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 8px;
+            animation: toastIn 0.25s ease-out forwards;
+            box-shadow: 0 4px 20px rgba(255, 152, 0, 0.4);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding-bottom: 70px;
+            overflow-x: hidden;
+            transition: background-color 0.1s;
+        }
+
+        .flash-active {
+            background-color: #ffffff !important;
+        }
+
+        @keyframes timer-blink-anim {
+
+            0%,
+            100% {
+                color: #ffffff;
+            }
+
+            50% {
+                color: #000000;
+            }
+        }
+
+        .timer-blink {
+            animation: timer-blink-anim 0.3s infinite;
+        }
+
+        .strobe-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            z-index: 9999;
+            display: none;
+            cursor: pointer;
+        }
+
+        .strobe-overlay.active {
+            display: block;
+        }
+
+        .strobe-overlay.flash {
+            background-color: #ffffff;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-top: 0;
+        }
+
+        header {
+            background-color: var(--surface-color);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+
+        .header-clock {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-align: right;
+            padding-right: 4px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-color) !important;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary) !important;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        input::placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.6;
+        }
+
+        textarea::placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.6;
+        }
+
+        input::-webkit-input-placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.6;
+        }
+
+        textarea::-webkit-input-placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.6;
+        }
+
+        input::-moz-placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.6;
+        }
+
+        textarea::-moz-placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.6;
+        }
+
+        input:-ms-input-placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.6;
+        }
+
+        textarea:-ms-input-placeholder {
+            color: var(--text-secondary) !important;
+            opacity: 0.6;
+        }
+
+        :root.red-mode ::selection {
+            background-color: var(--primary-color) !important;
+            color: #000000 !important;
+        }
+
+        /* Autofill theme override */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-text-fill-color: var(--text-primary) !important;
+            -webkit-box-shadow: 0 0 0px 1000px var(--bg-color) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        input:read-only,
+        input:disabled {
+            color: var(--text-secondary) !important;
+            background-color: var(--surface-color) !important;
+            opacity: 0.8;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        #wiki-layer {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        #wiki-layer::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 숫자 입력 화살표 제거 */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        button {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1.5px solid var(--primary-color);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-sizing: border-box;
+            transition: background-color 0.15s, opacity 0.15s;
+        }
+
+        button:active {
+            background-color: rgba(255, 152, 0, 0.1);
+            opacity: 0.9;
+        }
+
+        :root.red-mode button:active {
+            background-color: rgba(196, 32, 32, 0.1);
+        }
+
+        button.danger {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1.5px solid var(--danger-color);
+        }
+
+        button.danger:active {
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+
+        :root.red-mode button.danger:active {
+            background-color: rgba(196, 32, 32, 0.15);
+        }
+
+        button.secondary {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1.5px solid var(--text-secondary);
+        }
+
+        button.secondary:active {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        :root.red-mode button.secondary:active {
+            background-color: rgba(255, 51, 51, 0.05);
+        }
+
+        /* Premium Toggle Switch Styling */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s;
+            gap: 8px;
+        }
+
+        .switch-container:hover {
+            opacity: 0.85;
+        }
+
+        .switch-container span {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .toggle-switch-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch-wrapper input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .3s;
+            border-radius: 24px;
+            border: 1px solid #444;
+        }
+
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #aaa;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch-wrapper input:checked+.switch-slider {
+            background-color: rgba(255, 152, 0, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        :root.red-mode .toggle-switch-wrapper input:checked+.switch-slider {
+            background-color: rgba(196, 32, 32, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .toggle-switch-wrapper input:checked+.switch-slider:before {
+            transform: translateX(20px);
+            background-color: var(--primary-color);
+        }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--surface-color);
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--border-color);
+            z-index: 100;
+            padding: 5px 0;
+            padding-bottom: env(safe-area-inset-bottom, 5px);
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flex-row>div {
+            flex: 1;
+        }
+
+        .compass-circle {
+            width: 220px;
+            height: 220px;
+            border: 8px solid var(--border-color);
+            border-radius: 50%;
+            margin: 30px auto;
+            position: relative;
+            background: var(--surface-color);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .compass-rose {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transition: transform 0.1s ease-out;
+            pointer-events: none;
+        }
+
+        .compass-rose::before {
+            content: "N";
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--danger-color);
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose::after {
+            content: "S";
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-primary);
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose .east {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-primary);
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        .compass-rose .west {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-primary);
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        /* 고정 바늘 (상단 가이드) */
+        .compass-needle {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 30px;
+            background: var(--primary-color);
+            z-index: 10;
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        #compass_text {
+            position: absolute;
+            z-index: 11;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
+        /* 데스크톱 보더 구분선 */
+        @media (min-width: 520px) {
+            body {
+                background-color: #111;
+            }
+
+            .container {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+                min-height: calc(100vh - 60px);
+                background-color: var(--bg-color);
+            }
+
+            .bottom-nav {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+            }
+
+            header {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+            }
+        }
+
+        /* 모바일 화면 최적화 (시계 및 헤더 한 줄 유지) */
+        @media (max-width: 480px) {
+            header {
+                padding: 10px 12px;
+            }
+
+            header h1 {
+                font-size: 0.95rem;
+            }
+
+            .header-clock {
+                font-size: 0.75rem;
+                padding: 4px 6px;
+                letter-spacing: 0px;
+                gap: 4px;
+            }
+        }
+
+        /* 데스크톱(마우스/정밀포인터 환경)에서는 모바일 앱처럼 480px 너비로 고정 */
+        @media (hover: hover) and (pointer: fine) {
+
+            header,
+            .container,
+            .bottom-nav,
+            #wiki-layer {
+                max-width: 480px !important;
+            }
+        }
+
+        /* 다중 알람 스타일 */
+        .alarm-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+            gap: 10px;
+        }
+
+        .alarm-item.dragging {
+            opacity: 0.5;
+            background: var(--surface-color);
+        }
+
+        .alarm-info {
+            flex: 1;
+            pointer-events: none;
+        }
+
+        .alarm-time {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .alarm-settings-summary {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            padding: 5px;
+            user-select: none;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .alarm-checkbox {
+            width: 20px !important;
+            height: 20px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* ERP 스타일 */
+        .erp-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .erp-item.warning {
+            border-color: var(--danger-color);
+            background: rgba(244, 67, 54, 0.1);
+        }
+
+        .erp-info {
+            flex: 1;
+        }
+
+        .erp-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .erp-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .erp-expiry {
+            font-size: 0.85rem;
+            font-weight: normal;
+        }
+
+        .erp-expiry.urgent {
+            color: var(--danger-color);
+        }
+
+        /* 수평계 스타일 */
+        .level-container {
+            width: 200px;
+            height: 200px;
+            border: 4px solid var(--border-color);
+            border-radius: 50%;
+            margin: 20px auto;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .level-crosshair-x {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%);
+        }
+
+        .level-crosshair-y {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            width: 2px;
+            height: 80%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-50%);
+        }
+
+        .level-circle-1,
+        .level-circle-2 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px dashed var(--border-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .level-circle-1 {
+            width: 60px;
+            height: 60px;
+        }
+
+        .level-circle-2 {
+            width: 130px;
+            height: 130px;
+        }
+
+        .level-bubble {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: background 0.1s, transform 0.15s ease-out;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .level-bubble.level-perfect {
+            background: #4caf50;
+            box-shadow: 0 0 15px #4caf50;
+        }
+
+        :root.red-mode .level-bubble.level-perfect {
+            background: var(--primary-color);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        :root.red-mode .level-bubble {
+            background: rgba(255, 51, 51, 0.4);
+        }
+
+        /* 막대형 수평계 (가로) */
+        .level-tube-h {
+            width: 200px;
+            height: 30px;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            margin-left: 40px;
+            /* 세로 수평계 여백(30+10) */
+        }
+
+        .tube-center-h {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 40px;
+            height: 100%;
+            border-left: 2px solid rgba(255, 255, 255, 0.4);
+            border-right: 2px solid rgba(255, 255, 255, 0.4);
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .tube-bubble-h {
+            position: absolute;
+            top: 50%;
+            width: 36px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 11px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: background 0.1s, transform 0.15s ease-out;
+        }
+
+        /* 막대형 수평계 (세로) */
+        .level-tube-v {
+            width: 30px;
+            height: 200px;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .tube-center-v {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            height: 40px;
+            width: 100%;
+            border-top: 2px solid rgba(255, 255, 255, 0.4);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+
+        .tube-bubble-v {
+            position: absolute;
+            left: 50%;
+            height: 36px;
+            width: 22px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 11px;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: background 0.1s, transform 0.15s ease-out;
+        }
+
+        .tube-bubble-perfect {
+            background: #4caf50;
+            box-shadow: 0 0 10px #4caf50;
+        }
+
+        :root.red-mode .tube-bubble-perfect {
+            background: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        :root.red-mode .tube-bubble-h,
+        :root.red-mode .tube-bubble-v {
+            background: rgba(255, 51, 51, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 스트로보 전체 화면 오버레이 -->
+    <div id="strobe_overlay" class="strobe-overlay" onclick="stopSignal()">
+        <div id="strobe_text"
+            style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;">
+        </div>
+        <div
+            style="position:absolute; top:60%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;">
+            화면을 터치하면 꺼집니다.
+        </div>
+    </div>
+
+    <header>
+        <div class="header-inner">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <h1 onclick="toggleRedMode()" style="cursor:pointer; user-select:none;" title="야간 테마 전환">Survival Tool
+                </h1>
+                <span onclick="openWikiLayer()" style="cursor:pointer; font-size:1.2rem; user-select:none;"
+                    title="메뉴얼">📖</span>
+            </div>
+            <div class="header-clock">
+                <span id="current_date"></span>
+                <span id="current_time">00:00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 1. 정화 & 용량 계산기 -->
+        <div id="tab-water" class="tab-content active">
+            <div class="card">
+                <h3>💧 수질정화 계산기</h3>
+
+                <!-- 용량 계산 섹션 -->
+                <div class="flex-row">
+                    <div class="form-group">
+                        <label>가로 (cm)</label>
+                        <input type="number" id="w_w" placeholder="0" oninput="saveAndCalcWater()">
+                    </div>
+                    <div class="form-group">
+                        <label>세로 (cm)</label>
+                        <input type="number" id="w_l" placeholder="0" oninput="saveAndCalcWater()">
+                    </div>
+                    <div class="form-group">
+                        <label>높이 (cm)</label>
+                        <input type="number" id="w_h" placeholder="0" oninput="saveAndCalcWater()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>또는 물의 양 직접 입력 (L)</label>
+                    <input type="number" id="w_v" placeholder="예: 1.5" oninput="saveAndCalcWater(true)">
+                </div>
+
+                <!-- 구분선 -->
+                <div style="border-top: 1px dashed var(--border-color); margin: 15px 0;"></div>
+
+                <!-- 수질 정화 설정 섹션 -->
+                <div class="form-group" style="margin-bottom: 6px;">
+                    <label>물 상태</label>
+                    <select id="w_s" onchange="saveAndCalcWater()" style="margin: 0;">
+                        <option value="1">맑은 물 (Clear)</option>
+                        <option value="2">탁한 물 (Cloudy)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>락스 농도 (%)</label>
+                    <select id="w_c" onchange="saveAndCalcWater()" style="margin: 0;">
+                        <option value="4">4% (일반 가정용)</option>
+                        <option value="5">5% (표준 가정용)</option>
+                        <option value="5.25" selected>5.25% (유한락스 등)</option>
+                        <option value="10">10%</option>
+                    </select>
+                </div>
+
+                <div class="result-box" id="water_result" style="margin-top: 15px;">
+                    물의 양을 입력하세요.
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 주의: 향료나 계면활성제가 없는 순수
+                    차아염소산나트륨(락스)만 사용. 반드시 30분 대기 후 냄새 확인.</p>
+            </div>
+        </div>
+
+        <!-- 2. 신호 및 통신 -->
+        <div id="tab-signal" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;">모스부호 (Morse Code)</h3>
+                    <label class="switch-container" style="margin: 0;">
+                        <span id="label_morse_flash">📱 플래쉬 off</span>
+                        <span class="toggle-switch-wrapper">
+                            <input type="checkbox" id="s_morse_flash_toggle"
+                                onchange="updateToggleLabels(); saveInputs()">
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label
+                            style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin: 0; padding: 0; border: none; background: none; font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap;">
+                            <input type="checkbox" id="s_repeat" onchange="saveInputs()"
+                                style="width: 16px; height: 16px; margin: 0;">
+                            반복 재생 (Loop)
+                        </label>
+                        <label style="margin: 0; padding: 0; text-align: right;">텍스트 입력 (영문/숫자)</label>
+                    </div>
+                    <input type="text" id="s_text" value="SOS" oninput="saveInputs()"
+                        onfocus="if(this.value==='SOS')this.value=''" style="text-transform: uppercase;">
+                </div>
+                <div class="result-box" id="s_morse_result"
+                    style="font-size: 1.5rem; letter-spacing: 2px; word-wrap: break-word;"></div>
+
+                <div class="flex-row">
+                    <button onclick="playMorse(false)">🎵 Sound</button>
+                    <button onclick="playMorse(true)">💡 Light</button>
+                </div>
+                <button class="secondary" onclick="stopSignal()">⏹ STOP</button>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;">긴급 스트로보 (Strobe)</h3>
+                    <label class="switch-container" style="margin: 0;">
+                        <span id="label_strobe_flash">📱 플래쉬 off</span>
+                        <span class="toggle-switch-wrapper">
+                            <input type="checkbox" id="s_strobe_flash_toggle"
+                                onchange="updateToggleLabels(); saveInputs()">
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                </div>
+                <button class="danger" onclick="toggleStrobe()" id="btn_strobe">🚨 SOS 스트로보 시작</button>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 경고: 광과민성 발작을 유발할 수 있습니다.
+                    (Wake Lock 작동)</p>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;">비콘 모드 (Beacon)</h3>
+                    <label class="switch-container" style="margin: 0;">
+                        <span id="label_beacon_flash">📱 플래쉬 off</span>
+                        <span class="toggle-switch-wrapper">
+                            <input type="checkbox" id="s_beacon_flash_toggle"
+                                onchange="updateToggleLabels(); saveInputs()">
+                            <span class="switch-slider"></span>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group">
+                        <label>간격 (초)</label>
+                        <input type="number" id="s_beacon_interval" value="3" min="1" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group">
+                        <label>횟수 (회)</label>
+                        <input type="number" id="s_beacon_count" value="1" min="1" oninput="saveInputs()">
+                    </div>
+                </div>
+                <button onclick="toggleBeacon()" id="btn_beacon">📡 Beacon Start</button>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 위치 표시를 위해 일정 간격으로 강력한 섬광을
+                    내보냅니다.</p>
+            </div>
+        </div>
+
+        <!-- 3. 천체 및 위치 -->
+        <div id="tab-nav" class="tab-content">
+            <div class="card">
+                <div
+                    style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); margin-bottom:15px; padding-bottom:10px;">
+                    <div id="tab_btn_compass" onclick="switchNavTool('compass')"
+                        style="flex:1; text-align:center; cursor:pointer; font-weight:bold; color:var(--primary-color);">
+                        🧭 나침반</div>
+                    <div id="tab_btn_level" onclick="switchNavTool('level')"
+                        style="flex:1; text-align:center; cursor:pointer; font-weight:bold; color:var(--text-secondary);">
+                        📐 수평계</div>
+                </div>
+
+                <div style="min-height: 380px; display: flex; flex-direction: column; justify-content: center;">
+                    <!-- Compass View -->
+                    <div id="view_compass">
+                        <div class="compass-circle">
+                            <div class="compass-needle"></div>
+                            <div class="compass-rose" id="compass_rose">
+                                <div class="east">E</div>
+                                <div class="west">W</div>
+                            </div>
+                            <span id="compass_text">---°</span>
+                        </div>
+                        <button onclick="toggleCompass()" id="btn_compass">나침반 시작 (권한요청)</button>
+                    </div>
+
+                    <!-- Level View -->
+                    <div id="view_level" style="display:none;">
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+                            <!-- 가로 수평계 -->
+                            <div class="level-tube-h" id="level_tube_h">
+                                <div class="tube-center-h"></div>
+                                <div class="tube-bubble-h" id="bubble_h"></div>
+                            </div>
+
+                            <div
+                                style="display:flex; gap:10px; width: 100%; justify-content: center; align-items: center;">
+                                <!-- 세로 수평계 -->
+                                <div class="level-tube-v" id="level_tube_v">
+                                    <div class="tube-center-v"></div>
+                                    <div class="tube-bubble-v" id="bubble_v"></div>
+                                </div>
+
+                                <!-- 원형 수평계 -->
+                                <div class="level-container" id="level_container" style="margin: 0;">
+                                    <div class="level-circle-1"></div>
+                                    <div class="level-circle-2"></div>
+                                    <div class="level-crosshair-x"></div>
+                                    <div class="level-crosshair-y"></div>
+                                    <div class="level-bubble" id="level_bubble"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="level_text"
+                            style="text-align:center; margin-top:15px; font-family:monospace; color:var(--text-secondary);">
+                            가로: ---° | 세로: ---°</div>
+                        <button onclick="toggleLevel()" id="btn_level" style="margin-top:15px;">수평계 시작</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>일출/일몰 & 월출/월몰</h3>
+                <div class="flex-row">
+                    <div class="form-group">
+                        <label>위도 (Latitude)</label>
+                        <input type="number" id="n_lat" placeholder="37.56" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group">
+                        <label>경도 (Longitude)</label>
+                        <input type="number" id="n_lng" placeholder="126.97" oninput="saveInputs()">
+                    </div>
+                </div>
+                <div class="flex-row">
+                    <button class="secondary" onclick="getLocation()" style="margin-top:0;">📍 현재 위치</button>
+                    <button onclick="calcSunMoon()" style="margin-top:0;">계산하기</button>
+                </div>
+
+                <div id="sun_alarm_section"
+                    style="display:none; margin-top:12px; border-top:1px dashed var(--border-color); padding-top:12px;">
+                    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:8px;">
+                        <span style="font-size:0.85rem; font-weight:bold; color:var(--primary-color);">🚨 생존 준비 알람
+                            (Margin Time)</span>
+                    </div>
+                    <div class="flex-row" style="align-items: center;">
+                        <div class="form-group" style="margin-bottom:0; flex:1.5;">
+                            <select id="sun_target_type" onchange="updateSunCountdown()">
+                                <option value="bmnt">🌅 BMNT(항해박명초) 전 준비</option>
+                                <option value="sunrise" selected>☀️ 일출 전 준비</option>
+                                <option value="sunset">🌙 일몰 전 준비</option>
+                                <option value="eent">🌆 EENT(항해박명종) 전 준비</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0; flex:1;">
+                            <input type="number" id="sun_margin_mins" value="30" min="0" oninput="updateSunCountdown()"
+                                placeholder="분">
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary); white-space:nowrap;">분 전</div>
+                    </div>
+                    <div id="sun_countdown_display" class="result-box"
+                        style="margin-top:10px; text-align:center; font-size:1.1rem; display:none;">
+                        준비까지 남은 시간: <strong id="sun_remain_time"
+                            style="font-variant-numeric: tabular-nums;">00:00:00</strong>
+                    </div>
+                    <button id="btn_add_sun_alarm" onclick="addSunAlarm()" style="font-size:0.85rem; padding:8px;">이 시간에
+                        알람 추가</button>
+                </div>
+
+                <div class="result-box" id="sun_result" style="margin-top:12px;">
+                    위치 정보를 입력하세요.
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 8px;">단위 변환기</h3>
+                <div class="form-group" style="margin-top: 0;">
+                    <select id="c_category" onchange="updateUnitOptions()">
+                        <option value="temp">온도 (Temperature)</option>
+                        <option value="length">거리 (Length)</option>
+                        <option value="weight">무게 (Weight)</option>
+                        <option value="volume">부피 (Volume)</option>
+                    </select>
+                </div>
+                <div class="flex-row" style="align-items: center;">
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <input type="number" id="c_val_from" placeholder="값" oninput="convertUnit()">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <select id="c_unit_from" onchange="convertUnit()"></select>
+                    </div>
+                </div>
+                <div style="text-align:center; padding: 10px 0; color:var(--primary-color);">▼</div>
+                <div class="flex-row" style="align-items: center;">
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <input type="text" id="c_val_to" placeholder="결과" readonly
+                            style="background-color:var(--surface-color);">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <select id="c_unit_to" onchange="convertUnit()"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 알림 시스템 -->
+        <div id="tab-alert" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin:0;">⏱ 타이머 (Timer)</h3>
+                    <label
+                        style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border: 1.5px solid var(--text-secondary); color: var(--text-secondary); padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; margin:0; text-align: left; height: 26px; box-sizing: border-box; font-weight: normal; background: transparent;">
+                        <input type="checkbox" id="a_repeat" onchange="saveInputs()" style="width:14px; height:14px; margin:0;">
+                        반복알람
+                    </label>
+                </div>
+
+                <div class="flex-row">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>시</label>
+                        <input type="number" id="a_h" value="0" min="0" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>분</label>
+                        <input type="number" id="a_m" value="0" min="0" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>초</label>
+                        <input type="number" id="a_s" value="0" min="0" oninput="saveInputs()">
+                    </div>
+                    <div class="form-group" style="flex: 1.5; margin-bottom: 0;">
+                        <label style="white-space: nowrap;">알람길이(초)</label>
+                        <input type="number" id="t_duration" value="2" min="1" oninput="saveInputs()">
+                    </div>
+                </div>
+
+                <div class="flex-row" style="margin-top: 4px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>활동 소리</label>
+                        <select id="t_sound" onchange="saveInputs()">
+                            <option value="none">음소거</option>
+                            <option value="siren" selected>사이렌</option>
+                            <option value="beep_fast">빠른 비프 A</option>
+                            <option value="beep_fast2">빠른 비프 B</option>
+                            <option value="beep_slow">느린 비프 A</option>
+                            <option value="beep_slow2">느린 비프 B</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>활동 진동</label>
+                        <select id="t_vibe" onchange="saveInputs()">
+                            <option value="none">진동 끄기</option>
+                            <option value="long" selected>긴 진동 A</option>
+                            <option value="long2">긴 진동 B</option>
+                            <option value="short">짧은 진동 A</option>
+                            <option value="short2">짧은 진동 B</option>
+                            <option value="sos">SOS 패턴</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin: 4px 0 0 0; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                    <label
+                        style="text-align: left; margin-bottom: 4px; font-weight: bold; color: var(--primary-color);">⏳
+                        휴식 / 인터벌 (Rest Interval)</label>
+                    <div class="flex-row">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>시</label>
+                            <input type="number" id="t_h" value="0" min="0" oninput="saveInputs()">
+                        </div>
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>분</label>
+                            <input type="number" id="t_m" value="0" min="0" oninput="saveInputs()">
+                        </div>
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>초</label>
+                            <input type="number" id="t_s" value="0" min="0" oninput="saveInputs()">
+                        </div>
+                        <div class="form-group" style="flex: 1.5; margin-bottom: 0;">
+                            <label style="white-space: nowrap;">알람길이(초)</label>
+                            <input type="number" id="ri_duration" value="2" min="1" oninput="saveInputs()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-row" style="margin-top: 4px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>휴식 종료 소리</label>
+                        <select id="ri_sound" onchange="saveInputs()">
+                            <option value="none">음소거</option>
+                            <option value="siren">사이렌</option>
+                            <option value="beep_fast" selected>빠른 비프 A</option>
+                            <option value="beep_fast2">빠른 비프 B</option>
+                            <option value="beep_slow">느린 비프 A</option>
+                            <option value="beep_slow2">느린 비프 B</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>휴식 종료 진동</label>
+                        <select id="ri_vibe" onchange="saveInputs()">
+                            <option value="none">진동 끄기</option>
+                            <option value="long">긴 진동 A</option>
+                            <option value="long2">긴 진동 B</option>
+                            <option value="short" selected>짧은 진동 A</option>
+                            <option value="short2">짧은 진동 B</option>
+                            <option value="sos">SOS 패턴</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="result-box" id="timer_display_box"
+                    style="font-size: 2rem; text-align: center; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <span id="timer_status"
+                        style="font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 1px;">READY</span>
+                    <span id="timer_display">00:00:00</span>
+                </div>
+                <div class="flex-row">
+                    <button onclick="startTimer()" id="btn_timer_start">시작</button>
+                    <button class="secondary" onclick="stopTimer()" style="white-space:nowrap;">정지/초기화</button>
+                    <button class="secondary" onclick="playAlarmSound('timer', true)"
+                        style="width:auto; flex:none; padding:12px 14px;">🔊</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⏰ 알람(Alarm)</h3>
+                <div class="flex-row">
+                    <div class="form-group" style="flex:2; margin-bottom: 0;">
+                        <label>시간 설정</label>
+                        <input type="time" id="a_time" oninput="saveInputs()" style="height: 45px;">
+                    </div>
+                    <div class="form-group" style="flex:1; margin-bottom: 0;">
+                        <label style="white-space: nowrap;">알람길이(초)</label>
+                        <input type="number" id="a_duration" value="2" min="1" oninput="saveInputs()"
+                            style="height: 45px;">
+                    </div>
+                </div>
+                <div class="flex-row" style="margin-top: 4px;">
+                    <div class="form-group" style="flex:1; margin-bottom: 0;">
+                        <label>소리</label>
+                        <select id="a_sound" onchange="saveInputs()">
+                            <option value="none">음소거</option>
+                            <option value="siren">사이렌</option>
+                            <option value="beep_fast" selected>빠른 비프 A</option>
+                            <option value="beep_fast2">빠른 비프 B</option>
+                            <option value="beep_slow">느린 비프 A</option>
+                            <option value="beep_slow2">느린 비프 B</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1; margin-bottom: 0;">
+                        <label>진동</label>
+                        <select id="a_vibe" onchange="saveInputs()">
+                            <option value="none">진동 끄기</option>
+                            <option value="long">긴 진동 A</option>
+                            <option value="long2">긴 진동 B</option>
+                            <option value="short" selected>짧은 진동 A</option>
+                            <option value="short2">짧은 진동 B</option>
+                            <option value="sos">SOS 패턴</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex-row">
+                    <button onclick="addAlarm()" style="flex:1;">➕ 추가</button>
+                    <button class="danger" onclick="deleteSelectedAlarms()" style="flex:1;">🗑 삭제</button>
+                    <button class="secondary" onclick="playAlarmSound('alarm', true)"
+                        style="width:auto; flex:none; padding:12px 14px;">🔊</button>
+                </div>
+                <div id="alarm_list" style="margin-top:15px;"></div>
+                <div class="result-box" id="alarm_status" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- 5. 설정 및 백업 -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <h3>데이터 백업 및 복구</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">인터넷 연결이 끊겼을 때를 대비해 설정과 위치 정보를 기기에 백업합니다.</p>
+                <button onclick="exportData()">💾 JSON 내보내기 (Export)</button>
+                <button class="secondary" onclick="document.getElementById('import_file').click()">📂 JSON 가져오기
+                    (Import)</button>
+                <input type="file" id="import_file" style="display: none;" accept=".json" onchange="importData(event)">
+            </div>
+
+            <div class="card">
+                <h3>초기화</h3>
+                <button class="danger" onclick="clearData()">⚠️ 로컬 데이터 삭제</button>
+            </div>
+
+            <div style="text-align:center; color:var(--text-secondary); font-size:0.8rem; margin-top:20px;">
+                Offline First Web Tool<br>No CDN, No External Requests.
+            </div>
+        </div>
+
+        <!-- 6. 물자 관리 (Mini ERP) -->
+        <div id="tab-erp" class="tab-content">
+            <div class="card">
+                <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"
+                    onclick="const d = document.getElementById('erp_dashboard'); const i = document.getElementById('erp_dash_icon'); if(d.style.display==='none'){d.style.display='flex'; i.innerHTML='접기 ▲';}else{d.style.display='none'; i.innerHTML='펼치기 ▼';}">
+                    <span style="margin:0;">📊 물자 현황 (Dashboard)</span>
+                    <button class="secondary" id="erp_dash_icon"
+                        style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">접기
+                        ▲</button>
+                </h3>
+                <div id="erp_dashboard" class="flex-row" style="flex-wrap: wrap; gap: 10px; font-size: 0.9rem;">
+                    <!-- JS로 렌더링 -->
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;"
+                    onclick="const f = document.getElementById('erp_form_body'); const btn = document.getElementById('btn_erp_form_toggle'); if(f.style.display==='none'){f.style.display='block'; btn.innerHTML='접기 ▲';}else{f.style.display='none'; btn.innerHTML='펼치기 ▼';}">
+                    <span id="erp_form_title" style="margin:0;">📦 물품 등록</span>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <button class="secondary"
+                            style="margin:0; padding:4px 10px 4px 7px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center;"
+                            onclick="event.stopPropagation(); toggleCatManager()">⚙️분류 관리</button>
+                        <button class="secondary" id="btn_erp_form_toggle"
+                            style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">접기
+                            ▲</button>
+                    </div>
+                </h3>
+
+                <div id="erp_form_body">
+
+                    <!-- 카테고리 관리 패널 (기본 숨김) -->
+                    <div id="cat_manager"
+                        style="display:none; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid var(--border-color);">
+                        <div style="font-weight:bold; margin-bottom:8px; color:var(--primary-color);">대분류 관리</div>
+                        <div style="display:flex; gap:5px; margin-bottom:10px;">
+                            <input type="text" id="cat_main_input" placeholder="새 대분류" style="flex:2; margin:0;">
+                            <button onclick="addMainCat()" style="flex:1; margin:0; padding:8px;">추가</button>
+                        </div>
+                        <div id="cat_main_list" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:15px;">
+                        </div>
+                        <div style="font-weight:bold; margin-bottom:8px; color:var(--primary-color);">중분류 관리 (선택된 대분류
+                            하위)
+                        </div>
+                        <div style="display:flex; gap:5px; margin-bottom:10px;">
+                            <select id="cat_mgr_main_select" onchange="renderMgrSubCats()"
+                                style="flex:1.5; margin:0; padding:8px;"></select>
+                            <input type="text" id="cat_sub_input" placeholder="새 중분류" style="flex:2; margin:0;">
+                            <button onclick="addSubCat()" style="flex:1; margin:0; padding:8px;">추가</button>
+                        </div>
+                        <div id="cat_sub_list" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;"></div>
+                        <button class="secondary" onclick="toggleCatManager()"
+                            style="width:100%; margin:0; padding:8px;">닫기</button>
+                    </div>
+
+                    <input type="hidden" id="erp_edit_id" value="">
+
+                    <div class="flex-row" style="margin-bottom: 10px;">
+                        <div class="form-group" style="flex:1; margin-bottom:0;">
+                            <label>대분류</label>
+                            <select id="erp_cat_main" onchange="updateSubCats()" style="margin:0;"></select>
+                        </div>
+                        <div class="form-group" style="flex:1; margin-bottom:0;">
+                            <label>중분류</label>
+                            <select id="erp_cat_sub" style="margin:0;"></select>
+                        </div>
+                    </div>
+                    <div class="flex-row" style="margin-bottom: 10px;">
+                        <div class="form-group" style="flex:2; margin-bottom:0;">
+                            <label>물품명</label>
+                            <input type="text" id="erp_name" placeholder="예: 참치" style="margin:0;">
+                        </div>
+                        <div class="form-group" style="flex:1; margin-bottom:0;">
+                            <label>수량</label>
+                            <input type="text" id="erp_quantity" placeholder="예: 3개" style="margin:0;">
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <div class="form-group" style="flex:1;">
+                            <label>유통기한</label>
+                            <input type="date" id="erp_expiry">
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <button onclick="addErpItem()" id="btn_erp_save" style="flex:2;">추가하기</button>
+                        <button class="secondary" onclick="cancelErpEdit()" id="btn_erp_cancel"
+                            style="flex:1; display:none;">취소</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <h3 style="margin:0; margin-left:8px;">리스트</h3>
+                        <div
+                            style="display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:10px; flex:1;">
+                            <div style="display:flex; align-items:center;">
+                                <select id="erp_sort" onchange="renderErpItems()"
+                                    style="padding:4px; font-size:0.75rem; border-radius:4px 0 0 4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color); border-right:none; margin:0;">
+                                    <option value="expiry">⏳ 유통기한</option>
+                                    <option value="name_kr">🔠 가나다</option>
+                                    <option value="name_en">🔤 ABC</option>
+                                </select>
+                                <button id="erp_sort_dir" class="secondary"
+                                    onclick="window.erpSortAsc = window.erpSortAsc === false ? true : false; this.textContent = window.erpSortAsc ? '🔼' : '🔽'; renderErpItems();"
+                                    style="padding:4px 8px; font-size:0.75rem; margin:0; border-radius:0 4px 4px 0; border:1px solid var(--border-color); width:auto;">🔼</button>
+                            </div>
+                            <div style="display:flex; gap:5px;">
+                                <select id="erp_filter_main" onchange="updateFilterSubCats()"
+                                    style="width:85px; padding:4px; font-size:0.8rem; border-radius:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color);">
+                                    <option value="전체">전체보기</option>
+                                </select>
+                                <select id="erp_filter_sub" onchange="renderErpItems()"
+                                    style="width:85px; padding:4px; font-size:0.8rem; border-radius:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color); opacity:0.5;"
+                                    disabled>
+                                    <option value="전체">전체보기</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="erp_list_container">
+                        <!-- JS로 렌더링 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 하단 탭 바 -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('tab-water', this)">
+                <span class="nav-icon">💧</span>
+                <span>정화</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('tab-signal', this)">
+                <span class="nav-icon">🔦</span>
+                <span>신호</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('tab-nav', this)">
+                <span class="nav-icon">🧭</span>
+                <span>위치</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('tab-erp', this)">
+                <span class="nav-icon">📦</span>
+                <span>물자</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('tab-alert', this)">
+                <span class="nav-icon">⏰</span>
+                <span>알람</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('tab-settings', this)">
+                <span class="nav-icon">⚙️</span>
+                <span>설정</span>
+            </button>
+        </nav>
+
+        <!-- 생존 백과사전 레이어 -->
+        <div id="wiki-layer"
+            style="display:none; position:fixed; top:0; left:50%; transform:translateX(-50%); width:100%; max-width:800px; height:100%; background:var(--bg-color); z-index:2000; overflow-y:auto; flex-direction:column; box-shadow:0 0 15px rgba(0,0,0,0.8);">
+            <div
+                style="padding:10px 20px; background:var(--surface-color); border-bottom:1px solid var(--border-color); position:sticky; top:0; display:flex; justify-content:space-between; align-items:center; z-index:10;">
+                <h3 style="margin:0; font-size:1.2rem; color:var(--primary-color);">📖 메뉴얼</h3>
+                <button class="secondary" onclick="closeWikiLayer()"
+                    style="margin:0; padding:4px 8px; font-size:0.8rem; width:auto;">닫기 ✖</button>
+            </div>
+            <div style="padding:20px; flex:1; width:100%; box-sizing:border-box;">
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="wiki_search" placeholder="매뉴얼 검색 (제목 또는 내용)..." onkeyup="renderWikiList()"
+                        style="flex:1; margin:0;">
+                    <button onclick="openWikiEditor()" style="width:auto; margin:0; padding:0 15px;">새 매뉴얼</button>
+                    <button class="secondary" onclick="toggleWikiCatManager()"
+                        style="width:auto; margin:0; padding:0 10px; font-size:0.8rem;">분류 관리</button>
+                </div>
+
+                <!-- 매뉴얼 분류 관리 레이어 -->
+                <div id="wiki_cat_manager"
+                    style="display:none; background:var(--surface-color); padding:15px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h4 style="margin:0; color:var(--primary-color);">매뉴얼 분류 관리</h4>
+                    </div>
+
+                    <div id="wiki_cat_list" style="display:flex; flex-direction:column; gap:5px; margin-bottom:15px;">
+                    </div>
+
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="wiki_cat_input" placeholder="새 분류 이름" style="flex:1;">
+                        <button onclick="addWikiCat()" style="width:auto; margin:0; padding:0 15px;">추가</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+                    <select id="wiki_filter_select" onchange="renderWikiList()"
+                        style="width:100%; padding:8px; border-radius:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color);">
+                        <!-- 동적 생성 -->
+                    </select>
+                </div>
+
+                <div id="wiki_list" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- JS로 렌더링 -->
+                </div>
+
+                <div id="wiki_editor"
+                    style="display:none; background:var(--surface-color); padding:15px; border-radius:12px; border:1px solid var(--border-color);">
+                    <h3 id="wiki_editor_title" style="margin-top:0;">새 매뉴얼 작성</h3>
+                    <input type="hidden" id="wiki_edit_id" value="">
+                    <div class="form-group">
+                        <label>카테고리</label>
+                        <select id="wiki_cat_select"></select>
+                    </div>
+                    <div class="form-group"
+                        style="display:flex; align-items:center; gap:10px; margin-top:15px; margin-bottom:15px;">
+                        <input type="checkbox" id="wiki_type_checkbox"
+                            style="width:auto; margin:0; padding:0; accent-color:var(--primary-color);">
+                        <label for="wiki_type_checkbox"
+                            style="margin:0; text-align:left; color:var(--text-primary);">[기본] 메뉴얼로 저장 (공식 가이드
+                            설정)</label>
+                    </div>
+                    <div class="form-group">
+                        <label>제목</label>
+                        <input type="text" id="wiki_title_input" placeholder="매뉴얼 제목을 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label>내용 (시나리오, 행동요령 등)</label>
+                        <textarea id="wiki_content_input" rows="12" placeholder="상세 내용을 입력하세요"
+                            style="resize:vertical;"></textarea>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="saveWikiEntry()" style="flex:2; margin:0; padding:8px;">저장하기</button>
+                        <button class="danger" id="wiki_btn_delete" onclick="deleteWikiEntry()"
+                            style="flex:1; margin:0; padding:8px; display:none;">삭제</button>
+                        <button class="secondary" onclick="closeWikiEditor()"
+                            style="flex:1; margin:0; padding:8px;">취소</button>
+                    </div>
+                </div>
+
+                <div id="wiki_reader"
+                    style="display:none; background:var(--surface-color); padding:15px; border-radius:12px; border:1px solid var(--border-color);">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:10px; margin-bottom:15px;">
+                        <h2 id="wiki_read_title" style="margin:0; font-size:1.2rem; color:var(--primary-color);"></h2>
+                        <div>
+                            <button id="wiki_btn_edit" class="secondary"
+                                style="margin:0; padding:4px 8px; font-size:0.75rem; width:auto;">✏️수정</button>
+                            <button class="secondary" style="margin:0; padding:4px 8px; font-size:0.75rem; width:auto;"
+                                onclick="closeWikiReader()">목록으로</button>
+                        </div>
+                    </div>
+                    <div id="wiki_read_content" style="white-space:pre-wrap; line-height:1.6; font-size:0.95rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 오디오 컨텍스트용 -->
+        <script>
+            // === 서비스 워커 등록 (PWA) ===
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+                });
+            }
+
+            // === 실시간 시계 & 날짜 (24H) ===
+            function updateClock() {
+                const now = new Date();
+
+                // 날짜 포맷팅 (YYYY.MM.DD.ddd)
+                const y = now.getFullYear();
+                const mo = String(now.getMonth() + 1).padStart(2, '0');
+                const d = String(now.getDate()).padStart(2, '0');
+                const days = ['일', '월', '화', '수', '목', '금', '토'];
+                const ddd = days[now.getDay()];
+                const dateStr = `${y}.${mo}.${d}.${ddd}`;
+
+                // 시간 포맷팅
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                const timeStr = h + ':' + m + ':' + s;
+
+                const dateEl = document.getElementById('current_date');
+                const clockEl = document.getElementById('current_time');
+                if (dateEl) dateEl.innerText = dateStr;
+                if (clockEl) clockEl.innerText = timeStr;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // === 상태 관리 (LocalStorage) ===
+            let appData = {};
+            const DATA_KEY = 'survival_data';
+
+            function loadData() {
+                const saved = localStorage.getItem(DATA_KEY);
+                if (saved) {
+                    try {
+                        appData = JSON.parse(saved);
+                        appData.alarms = appData.alarms || [];
+                        const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                        inputs.forEach(id => {
+                            if (appData[id] !== undefined) {
+                                const el = document.getElementById(id);
+                                if (el) el.value = appData[id];
+                            }
+                        });
+                        if (appData['a_repeat'] !== undefined) {
+                            document.getElementById('a_repeat').checked = appData['a_repeat'];
+                        }
+                        if (appData['s_repeat'] !== undefined) {
+                            document.getElementById('s_repeat').checked = appData['s_repeat'];
+                        }
+                        if (appData['s_morse_flash_toggle'] !== undefined) {
+                            document.getElementById('s_morse_flash_toggle').checked = appData['s_morse_flash_toggle'];
+                        }
+                        if (appData['s_strobe_flash_toggle'] !== undefined) {
+                            document.getElementById('s_strobe_flash_toggle').checked = appData['s_strobe_flash_toggle'];
+                        }
+                        if (appData['s_beacon_flash_toggle'] !== undefined) {
+                            document.getElementById('s_beacon_flash_toggle').checked = appData['s_beacon_flash_toggle'];
+                        }
+                        if (appData['c_category']) {
+                            updateUnitOptions(true);
+                            if (appData['c_unit_from']) document.getElementById('c_unit_from').value = appData['c_unit_from'];
+                            if (appData['c_unit_to']) document.getElementById('c_unit_to').value = appData['c_unit_to'];
+                            convertUnit();
+                        }
+                        saveAndCalcWater();
+                        updateMorseText();
+                        renderAlarms();
+                        renderErpItems();
+                    } catch (e) { }
+                }
+                updateToggleLabels();
+            }
+
+            function updateToggleLabels() {
+                const morseToggle = document.getElementById('s_morse_flash_toggle');
+                const strobeToggle = document.getElementById('s_strobe_flash_toggle');
+                const beaconToggle = document.getElementById('s_beacon_flash_toggle');
+
+                if (morseToggle) {
+                    document.getElementById('label_morse_flash').innerHTML = morseToggle.checked
+                        ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
+                        : '📱 플래쉬 off';
+                }
+                if (strobeToggle) {
+                    document.getElementById('label_strobe_flash').innerHTML = strobeToggle.checked
+                        ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
+                        : '📱 플래쉬 off';
+                }
+                if (beaconToggle) {
+                    document.getElementById('label_beacon_flash').innerHTML = beaconToggle.checked
+                        ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
+                        : '📱 플래쉬 off';
+                }
+            }
+
+            function saveInputs() {
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                inputs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) appData[id] = el.value;
+                });
+                appData['a_repeat'] = document.getElementById('a_repeat').checked;
+                appData['s_repeat'] = document.getElementById('s_repeat').checked;
+                appData['s_morse_flash_toggle'] = document.getElementById('s_morse_flash_toggle').checked;
+                appData['s_strobe_flash_toggle'] = document.getElementById('s_strobe_flash_toggle').checked;
+                appData['s_beacon_flash_toggle'] = document.getElementById('s_beacon_flash_toggle').checked;
+                appData['alarms'] = appData['alarms'] || [];
+                localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+            }
+
+            // === 탭 전환 로직 ===
+            function switchTab(tabId, btn) {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                btn.classList.add('active');
+            }
+
+            // === A. 정화 (Water) 로직 ===
+            function saveAndCalcWater(directVolume = false) {
+                saveInputs();
+                const w = parseFloat(appData.w_w) || 0;
+                const l = parseFloat(appData.w_l) || 0;
+                const h = parseFloat(appData.w_h) || 0;
+                let v = parseFloat(appData.w_v) || 0;
+
+                if (!directVolume && w && l && h) {
+                    v = (w * l * h) / 1000;
+                    document.getElementById('w_v').value = v.toFixed(2);
+                    appData.w_v = v;
+                    localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+                }
+
+                if (v <= 0) {
+                    document.getElementById('water_result').innerHTML = "물의 양을 입력하세요.";
+                    return;
+                }
+
+                const conc = parseFloat(appData.w_c) || 5.25;
+                const cloudy = parseInt(appData.w_s) === 2;
+
+                // 타겟 PPM: 맑은물 4ppm, 탁한물 8ppm
+                const targetPPM = cloudy ? 8 : 4;
+
+                // 계산: 필요 락스 양(ml) = (V * targetPPM) / (conc * 10)
+                const mlNeeded = (v * targetPPM) / (conc * 10);
+                const dropsNeeded = mlNeeded * 20; // 1ml ≒ 20 drops
+
+                document.getElementById('water_result').innerHTML =
+                    '<strong>총 물의 양:</strong> ' + v.toFixed(2) + ' L<br>' +
+                    '<strong>필요 락스 양:</strong> 약 ' + dropsNeeded.toFixed(1) + ' 방울 (' + mlNeeded.toFixed(2) + ' ml)';
+            }
+
+            // === B. 신호 (Signal) 로직 ===
+            const MORSE_MAP = {
+                'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---',
+                'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+                'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+                '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', '0': '-----',
+                ' ': ' '
+            };
+
+            document.getElementById('s_text').addEventListener('input', function () {
+                saveInputs();
+                updateMorseText();
+            });
+
+            function updateMorseText() {
+                const txt = (document.getElementById('s_text').value || "").toUpperCase();
+                let morse = '';
+                for (let c of txt) {
+                    if (MORSE_MAP[c]) morse += MORSE_MAP[c] + ' ';
+                    else if (c === ' ') morse += '  '; // 단어 띄어쓰기 표시
+                }
+                document.getElementById('s_morse_result').innerText = morse;
+            }
+
+            let signalTimeout;
+            let wakeLock = null;
+            let isSignaling = false;
+            let strobeActive = false;
+
+            // Web Audio Context
+            let audioCtx = null;
+
+            async function requestWakeLock() {
+                if ('wakeLock' in navigator) {
+                    try {
+                        wakeLock = await navigator.wakeLock.request('screen');
+                    } catch (err) { console.log('WakeLock Error:', err); }
+                }
+            }
+
+            function releaseWakeLock() {
+                if (wakeLock !== null) {
+                    wakeLock.release().then(() => wakeLock = null);
+                }
+            }
+
+            function initAudio() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+
+            function beep(duration) {
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.value = 800; // 800Hz Hz beep
+
+                // 부드러운 시작/종료로 팝(Pop) 노이즈 방지
+                const t = audioCtx.currentTime;
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(1, t + 0.01);
+                gain.gain.setValueAtTime(1, t + (duration / 1000) - 0.01);
+                gain.gain.linearRampToValueAtTime(0, t + (duration / 1000));
+
+                osc.start(t);
+                osc.stop(t + (duration / 1000));
+            }
+
+            function flashBg(duration) {
+                const timerEl = document.getElementById('timer_display');
+                if (timerEl) timerEl.classList.add('timer-blink');
+
+                setTimeout(() => {
+                    if (timerEl) timerEl.classList.remove('timer-blink');
+                }, duration);
+            }
+
+            // Camera Flashlight (Torch) Control
+            let activeVideoStream = null;
+            let activeVideoTrack = null;
+
+            async function initCameraTorch() {
+                if (activeVideoTrack) return;
+                try {
+                    activeVideoStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: { ideal: "environment" } }
+                    });
+                    if (activeVideoStream) {
+                        activeVideoTrack = activeVideoStream.getVideoTracks()[0];
+                        const capabilities = activeVideoTrack.getCapabilities ? activeVideoTrack.getCapabilities() : {};
+                        if (!capabilities.torch) {
+                            showToast("⚠️ 이 기기나 브라우저는 후면 플래시 제어를 지원하지 않아 전면 화면 신호로 대체합니다.");
+                            document.getElementById('s_morse_flash_toggle').checked = false;
+                            document.getElementById('s_strobe_flash_toggle').checked = false;
+                            document.getElementById('s_beacon_flash_toggle').checked = false;
+                            updateToggleLabels();
+                            saveInputs();
+                            stopCameraStream();
+                        }
+                    }
+                } catch (err) {
+                    console.error("Camera flash initialization failed:", err);
+                    showToast("⚠️ 카메라 플래시 시작 실패. 카메라 권한 승인이 필요하여 전면 화면 신호로 대체합니다.");
+                    document.getElementById('s_morse_flash_toggle').checked = false;
+                    document.getElementById('s_strobe_flash_toggle').checked = false;
+                    document.getElementById('s_beacon_flash_toggle').checked = false;
+                    updateToggleLabels();
+                    saveInputs();
+                }
+            }
+
+            async function setTorchState(on) {
+                if (!activeVideoTrack) return;
+                try {
+                    const caps = activeVideoTrack.getCapabilities ? activeVideoTrack.getCapabilities() : {};
+                    await activeVideoTrack.applyConstraints({
+                        advanced: [{ torch: !!on }]
+                    });
+                } catch (err) {
+                    console.warn("Torch applyConstraints failed:", err);
+                }
+            }
+
+            function stopCameraStream() {
+                try {
+                    if (activeVideoTrack) {
+                        activeVideoTrack.applyConstraints({ advanced: [{ torch: false }] }).catch(() => { });
+                        activeVideoTrack.stop();
+                        activeVideoTrack = null;
+                    }
+                    if (activeVideoStream) {
+                        activeVideoStream.getTracks().forEach(track => track.stop());
+                        activeVideoStream = null;
+                    }
+                } catch (err) {
+                    console.error("Failed to stop camera stream:", err);
+                }
+            }
+
+            function stopSignal() {
+                isSignaling = false;
+                strobeActive = false;
+                beaconActive = false;
+                clearTimeout(signalTimeout);
+                document.body.classList.remove('flash-active');
+                releaseWakeLock();
+                stopCameraStream(); // 플래시 해제 및 스트림 완전 종료
+                document.getElementById('btn_strobe').innerText = "🚨 SOS 스트로보 시작";
+                document.getElementById('btn_beacon').innerText = "📡 비콘 모드 시작";
+                const overlay = document.getElementById('strobe_overlay');
+                if (overlay) overlay.classList.remove('active', 'flash');
+            }
+
+            async function playMorse(useFlash) {
+                stopSignal();
+
+                const txt = (document.getElementById('s_text').value || "").toUpperCase();
+                if (!txt) return;
+
+                const morseFlashChecked = document.getElementById('s_morse_flash_toggle').checked;
+
+                // Wake Lock 및 Audio Context 초기화
+                if (useFlash || morseFlashChecked) {
+                    requestWakeLock();
+                }
+                if (!useFlash || morseFlashChecked) {
+                    initAudio();
+                }
+
+                // 플래시(카메라 토치) 사용 여부 및 권한 획득
+                const useTorch = morseFlashChecked;
+                if (useTorch) {
+                    await initCameraTorch();
+                }
+
+                isSignaling = true;
+                const unitTime = 120; // 1단위 (ms) - 국제 표준 WPM에 가깝게 조절
+                let sequence = [];
+
+                for (let i = 0; i < txt.length; i++) {
+                    const c = txt[i];
+                    if (c === ' ') {
+                        sequence.push({ on: false, dur: unitTime * 7 }); // 단어 사이 7단위 공백
+                        continue;
+                    }
+                    const m = MORSE_MAP[c];
+                    if (!m) continue;
+
+                    for (let j = 0; j < m.length; j++) {
+                        const symbol = m[j];
+                        if (symbol === '.') sequence.push({ on: true, dur: unitTime });
+                        if (symbol === '-') sequence.push({ on: true, dur: unitTime * 3 });
+
+                        // 같은 글자 내의 기호 사이: 1단위 공백
+                        if (j < m.length - 1) {
+                            sequence.push({ on: false, dur: unitTime });
+                        }
+                    }
+                    // 글자와 글자 사이: 3단위 공백
+                    if (i < txt.length - 1 && txt[i + 1] !== ' ') {
+                        sequence.push({ on: false, dur: unitTime * 3 });
+                    }
+                }
+
+                let idx = 0;
+                const overlay = document.getElementById('strobe_overlay');
+
+                // 오버레이 노출 조건: Light 버튼을 눌렀거나, Flash 토글이 켜진 경우
+                const showOverlay = useFlash || morseFlashChecked;
+                if (showOverlay) {
+                    document.getElementById('strobe_text').innerText = txt;
+                    overlay.classList.add('active');
+                    overlay.classList.remove('flash');
+                }
+
+                function runSeq() {
+                    if (!isSignaling) {
+                        if (showOverlay) overlay.classList.remove('active', 'flash');
+                        return;
+                    }
+                    if (idx >= sequence.length) {
+                        if (document.getElementById('s_repeat').checked) {
+                            idx = 0;
+                            signalTimeout = setTimeout(runSeq, unitTime * 7); // 반복 시 단어 간 공백만큼 대기
+                            return;
+                        }
+                        stopSignal();
+                        return;
+                    }
+                    const s = sequence[idx];
+                    if (s.on) {
+                        // 1. 소리 출력 조건: Sound 버튼 클릭 (useFlash === false) 시 재생
+                        if (!useFlash) {
+                            beep(s.dur);
+                        }
+
+                        // 2. 카메라 플래시 출력 조건: 플래시 토글이 켜진 경우
+                        if (useTorch) {
+                            setTorchState(true);
+                            setTimeout(() => setTorchState(false), s.dur);
+                        }
+
+                        // 3. 화면 번쩍임(White Flash) 출력 조건: 플래시 토글이 꺼져있으면서 Light 버튼을 클릭한 경우
+                        if (useFlash && !morseFlashChecked) {
+                            overlay.classList.add('flash');
+                            setTimeout(() => overlay.classList.remove('flash'), s.dur);
+                        }
+                    }
+                    idx++;
+                    signalTimeout = setTimeout(runSeq, s.dur);
+                }
+                runSeq();
+            }
+
+            // Strobe Logic
+            async function toggleStrobe() {
+                const btn = document.getElementById('btn_strobe');
+                const overlay = document.getElementById('strobe_overlay');
+                if (isSignaling && strobeActive) {
+                    stopSignal();
+                    strobeActive = false;
+                    overlay.classList.remove('active');
+                    btn.innerText = "🚨 SOS 스트로보 시작";
+                } else {
+                    stopSignal();
+
+                    const lightType = document.getElementById('s_strobe_flash_toggle').checked ? 'flash' : 'screen';
+                    if (lightType === 'flash') {
+                        await initCameraTorch();
+                    }
+
+                    requestWakeLock();
+                    isSignaling = true;
+                    strobeActive = true;
+                    document.getElementById('strobe_text').innerText = "SOS STROBE";
+                    overlay.classList.add('active');
+                    btn.innerText = "🚨 스트로보 정지";
+
+                    let isFlashOn = false;
+                    async function runStrobe() {
+                        if (!isSignaling || !strobeActive) {
+                            overlay.classList.remove('active', 'flash');
+                            return;
+                        }
+                        isFlashOn = !isFlashOn;
+                        if (lightType === 'flash') {
+                            await setTorchState(isFlashOn);
+                            overlay.classList.remove('flash');
+                        } else {
+                            if (isFlashOn) {
+                                overlay.classList.add('flash');
+                            } else {
+                                overlay.classList.remove('flash');
+                            }
+                        }
+                        signalTimeout = setTimeout(runStrobe, 50);
+                    }
+                    runStrobe();
+                }
+            }
+
+            let beaconActive = false;
+            async function toggleBeacon() {
+                const btn = document.getElementById('btn_beacon');
+                const overlay = document.getElementById('strobe_overlay');
+
+                if (isSignaling && beaconActive) {
+                    stopSignal();
+                } else {
+                    stopSignal();
+
+                    const lightType = document.getElementById('s_beacon_flash_toggle').checked ? 'flash' : 'screen';
+                    if (lightType === 'flash') {
+                        await initCameraTorch();
+                    }
+
+                    requestWakeLock();
+                    isSignaling = true;
+                    beaconActive = true;
+                    document.getElementById('strobe_text').innerText = "BEACON MODE";
+                    overlay.classList.add('active');
+                    btn.innerText = "⏹ 비콘 중지";
+
+                    function runBeacon() {
+                        if (!isSignaling || !beaconActive) {
+                            overlay.classList.remove('active');
+                            return;
+                        }
+
+                        const count = parseInt(appData.s_beacon_count) || 1;
+                        let currentFlash = 0;
+
+                        function doBurst() {
+                            if (!isSignaling || !beaconActive) return;
+
+                            if (lightType === 'flash') {
+                                setTorchState(true);
+                            } else {
+                                overlay.classList.add('flash');
+                            }
+
+                            setTimeout(() => {
+                                if (lightType === 'flash') {
+                                    setTorchState(false);
+                                } else {
+                                    overlay.classList.remove('flash');
+                                }
+                                currentFlash++;
+                                if (currentFlash < count) {
+                                    // 섬광 사이 짧은 간격 (0.15초)
+                                    signalTimeout = setTimeout(doBurst, 150);
+                                } else {
+                                    // 버스트 완료 후 설정된 간격만큼 대기
+                                    const interval = (parseInt(appData.s_beacon_interval) || 3) * 1000;
+                                    signalTimeout = setTimeout(runBeacon, interval);
+                                }
+                            }, 100); // 섬광 지속 시간 0.1초
+                        }
+                        doBurst();
+                    }
+                    runBeacon();
+                }
+            }
+
+            // === C. 위치 및 천체 (Nav) 로직 ===
+            // Compass
+            let compassWatchId = null;
+            let currentRotation = 0;
+            let lastHeading = null;
+            let isCompassActive = false;
+            let vibratedNorth = false;
+            let vibratedSouth = false;
+            const lerpFactor = 0.15; // 부드러움 정도 (0.1 ~ 0.2 추천)
+
+            function toggleCompass() {
+                const btn = document.getElementById('btn_compass');
+
+                if (isCompassActive) {
+                    // 나침반 중지
+                    window.removeEventListener('deviceorientation', handleOrientation);
+                    window.removeEventListener('deviceorientationabsolute', handleOrientation);
+                    isCompassActive = false;
+                    vibratedNorth = false;
+                    vibratedSouth = false;
+                    btn.innerText = "나침반 시작";
+                    btn.classList.remove('danger');
+                    document.getElementById('compass_text').innerText = "---°";
+                    return;
+                }
+
+                // 나침반 시작
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    // iOS
+                    DeviceOrientationEvent.requestPermission()
+                        .then(response => {
+                            if (response == 'granted') {
+                                window.removeEventListener('deviceorientation', handleOrientation);
+                                window.addEventListener('deviceorientation', handleOrientation);
+                                isCompassActive = true;
+                                btn.innerText = "나침반 중지";
+                                btn.classList.add('danger');
+                            }
+                        }).catch(console.error);
+                } else {
+                    // Android 등
+                    window.removeEventListener('deviceorientationabsolute', handleOrientation);
+                    window.removeEventListener('deviceorientation', handleOrientation);
+
+                    if ('ondeviceorientationabsolute' in window) {
+                        window.addEventListener('deviceorientationabsolute', handleOrientation);
+                    } else {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                    }
+                    isCompassActive = true;
+                    btn.innerText = "나침반 중지";
+                    btn.classList.add('danger');
+                }
+            }
+
+            function handleOrientation(e) {
+                let heading = e.webkitCompassHeading;
+
+                // Android용 절대 방위각 처리 (e.alpha는 반시계방향이므로 360에서 뺌)
+                if (heading === undefined) {
+                    if (e.absolute === false) return; // 절대값이 아니면 무시 (일부 기기)
+                    heading = (360 - e.alpha) % 360;
+                }
+
+                if (heading != null) {
+                    if (lastHeading === null) {
+                        lastHeading = heading;
+                        currentRotation = heading;
+                    }
+
+                    // 진동 피드백 로직 (정북/정남 ±1도 이내일 때)
+                    const rounded = Math.round(heading);
+                    if (rounded === 0 || rounded === 360) {
+                        if (!vibratedNorth) {
+                            if ('vibrate' in navigator) navigator.vibrate([50, 50, 50]);
+                            vibratedNorth = true;
+                        }
+                    } else if (rounded === 180) {
+                        if (!vibratedSouth) {
+                            if ('vibrate' in navigator) navigator.vibrate([50, 50, 50]);
+                            vibratedSouth = true;
+                        }
+                    } else {
+                        // 범위를 벗어나면 다시 진동할 수 있도록 초기화
+                        if (rounded > 5 && rounded < 355) vibratedNorth = false;
+                        if (rounded < 175 || rounded > 185) vibratedSouth = false;
+                    }
+
+                    // 최단 경로 회전 로직 (359 -> 0도 시 반대 회전 방지)
+                    let diff = heading - lastHeading;
+                    if (diff > 180) diff -= 360;
+                    else if (diff < -180) diff += 360;
+
+                    // 스무딩(Lerp) 적용
+                    currentRotation += diff * lerpFactor;
+                    lastHeading = (lastHeading + diff * lerpFactor) % 360;
+
+                    const rose = document.getElementById('compass_rose');
+                    if (rose) rose.style.transform = 'rotate(' + (-currentRotation) + 'deg)';
+                    document.getElementById('compass_text').innerText = Math.round(heading) + '°';
+                }
+            }
+
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        document.getElementById('n_lat').value = pos.coords.latitude.toFixed(4);
+                        document.getElementById('n_lng').value = pos.coords.longitude.toFixed(4);
+                        saveInputs();
+                        calcSunMoon();
+                    }, (err) => {
+                        alert("위치 정보를 가져올 수 없습니다.");
+                    }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+                }
+            }
+
+            let sunData = null;
+            let sunCountdownInterval = null;
+
+            function calcSunMoon() {
+                saveInputs();
+                const lat = parseFloat(appData.n_lat);
+                const lng = parseFloat(appData.n_lng);
+                if (isNaN(lat) || isNaN(lng)) return;
+
+                const res = calculateSunTimes(new Date(), lat, lng);
+                const moon = getMoonPhaseAndTimes(new Date());
+                sunData = res; // 전역 저장
+
+                const formatDur = (hrs) => {
+                    const h = Math.floor(hrs);
+                    const m = Math.floor((hrs - h) * 60);
+                    return h + '시간 ' + m + '분';
+                };
+
+                const formatTime = (dateObj) => {
+                    if (!dateObj) return 'N/A';
+                    return dateObj.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+                };
+
+                let sunText = '';
+                if (res.status === "POLAR_NIGHT") {
+                    sunText = '❄️ <strong>극야:</strong> 하루 종일 해가 뜨지 않음<br>';
+                } else if (res.status === "MIDNIGHT_SUN") {
+                    sunText = '☀️ <strong>백야:</strong> 하루 종일 해가 지지 않음<br>';
+                } else {
+                    sunText =
+                        '☀️ <strong>일출:</strong> <span style="color: var(--primary-color); font-weight: bold;">' + formatTime(res.sunrise) + '</span>&nbsp;&nbsp;<span style="color:var(--text-secondary)">(☀️ 주간 : ' + formatDur(res.dayLength) + ')</span><br>' +
+                        '🌙 <strong>일몰:</strong> <span style="color: var(--primary-color); font-weight: bold;">' + formatTime(res.sunset) + '</span>&nbsp;&nbsp;<span style="color:var(--text-secondary)">(🌙 야간 : ' + formatDur(24 - res.dayLength) + ')</span><br>';
+                }
+
+                let bmntEentText = '';
+                if (res.status === "NORMAL" && (res.bmnt || res.eent)) {
+                    // divider 1
+                    bmntEentText += '<div style="border-top: 1px dashed var(--border-color); margin: 8px 0;"></div>';
+                    if (res.bmnt) {
+                        bmntEentText += '🌅 <strong>BMNT</strong> (항해박명초): ' + formatTime(res.bmnt) + '<br>';
+                    }
+                    if (res.eent) {
+                        bmntEentText += '🌆 <strong>EENT</strong>&nbsp;&nbsp;&nbsp;(항해박명종): ' + formatTime(res.eent) + '<br>';
+                    }
+                }
+
+                // divider 2
+                let dividerHtml = '<div style="border-top: 1px dashed var(--border-color); margin: 8px 0;"></div>';
+
+                let moonText =
+                    '<strong>월령</strong>(위상): ' + moon.phaseName + '<br>' +
+                    '<strong>월출:</strong> ' + moon.rise.split(' ')[0] + '&nbsp;&nbsp;<span style="color:var(--text-secondary)">(오차 ±2시간)</span><br>' +
+                    '<strong>월몰:</strong> ' + moon.set.split(' ')[0] + '&nbsp;&nbsp;<span style="color:var(--text-secondary)">(오차 ±2시간)</span>';
+
+                document.getElementById('sun_result').innerHTML =
+                    '<div style="line-height: 1.6; font-size: 0.95rem;">' +
+                    sunText +
+                    bmntEentText +
+                    dividerHtml +
+                    moonText +
+                    '</div>';
+
+                // 일출/일몰 알람 섹션 활성화
+                document.getElementById('sun_alarm_section').style.display = 'block';
+                updateSunCountdown();
+            }
+
+            function updateSunCountdown() {
+                if (!sunData) return;
+                if (sunCountdownInterval) clearInterval(sunCountdownInterval);
+
+                const targetType = document.getElementById('sun_target_type').value;
+                const marginMins = parseInt(document.getElementById('sun_margin_mins').value) || 0;
+
+                let targetDate = null;
+                let typeText = '';
+                if (targetType === 'sunrise' && sunData.sunrise) {
+                    targetDate = new Date(sunData.sunrise);
+                    typeText = '일출';
+                } else if (targetType === 'sunset' && sunData.sunset) {
+                    targetDate = new Date(sunData.sunset);
+                    typeText = '일몰';
+                } else if (targetType === 'bmnt' && sunData.bmnt) {
+                    targetDate = new Date(sunData.bmnt);
+                    typeText = 'BMNT';
+                } else if (targetType === 'eent' && sunData.eent) {
+                    targetDate = new Date(sunData.eent);
+                    typeText = 'EENT';
+                }
+
+                if (!targetDate) {
+                    document.getElementById('sun_countdown_display').style.display = 'none';
+                    return;
+                }
+
+                // 마진(준비 시간) 차감
+                targetDate.setMinutes(targetDate.getMinutes() - marginMins);
+
+                const display = document.getElementById('sun_countdown_display');
+                display.style.display = 'block';
+
+                function refresh() {
+                    const now = new Date();
+                    let diff = targetDate - now;
+
+                    // 이미 지난 시간이라면 내일 날짜로 계산 (생존 준비를 위해)
+                    if (diff < 0) {
+                        targetDate.setDate(targetDate.getDate() + 1);
+                        diff = targetDate - now;
+                    }
+
+                    const hrs = Math.floor(diff / 3600000);
+                    const mins = Math.floor((diff % 3600000) / 60000);
+                    const secs = Math.floor((diff % 60000) / 1000);
+
+                    document.getElementById('sun_remain_time').innerText =
+                        String(hrs).padStart(2, '0') + ':' +
+                        String(mins).padStart(2, '0') + ':' +
+                        String(secs).padStart(2, '0');
+
+                    const displayTimeStr = targetDate.getHours().toString().padStart(2, '0') + ':' + targetDate.getMinutes().toString().padStart(2, '0');
+                    document.getElementById('btn_add_sun_alarm').innerText = `${displayTimeStr} (${typeText} ${marginMins}분 전) 알람 추가`;
+                }
+
+                refresh();
+                sunCountdownInterval = setInterval(refresh, 1000);
+            }
+
+            function addSunAlarm() {
+                if (!sunData) return;
+                const targetType = document.getElementById('sun_target_type').value;
+                const marginMins = parseInt(document.getElementById('sun_margin_mins').value) || 0;
+
+                let targetDate = null;
+                let typeText = '';
+                if (targetType === 'sunrise' && sunData.sunrise) {
+                    targetDate = new Date(sunData.sunrise);
+                    typeText = '일출준비';
+                } else if (targetType === 'sunset' && sunData.sunset) {
+                    targetDate = new Date(sunData.sunset);
+                    typeText = '일몰준비';
+                } else if (targetType === 'bmnt' && sunData.bmnt) {
+                    targetDate = new Date(sunData.bmnt);
+                    typeText = 'BMNT준비';
+                } else if (targetType === 'eent' && sunData.eent) {
+                    targetDate = new Date(sunData.eent);
+                    typeText = 'EENT준비';
+                }
+
+                if (!targetDate) return;
+                targetDate.setMinutes(targetDate.getMinutes() - marginMins);
+
+                const alarmTime = targetDate.getHours().toString().padStart(2, '0') + ':' +
+                    targetDate.getMinutes().toString().padStart(2, '0');
+
+                const newAlarm = {
+                    id: Date.now(),
+                    time: alarmTime,
+                    sound: 'siren',
+                    vibe: 'sos',
+                    duration: 5,
+                    triggered: false,
+                    note: typeText
+                };
+
+                if (!appData.alarms) appData.alarms = [];
+                appData.alarms.push(newAlarm);
+                saveInputs();
+                renderAlarms();
+                showToast(`${typeText} 알람(${alarmTime})이 추가되었습니다.`);
+
+                // 알람 탭으로 이동 안내
+                if (confirm("알람이 추가되었습니다. 알람 탭에서 확인하시겠습니까?")) {
+                    const navItems = document.querySelectorAll('.nav-item');
+                    switchTab('tab-alert', navItems[3]);
+                }
+            }
+
+            // 정밀 일출·일몰 및 BMNT·EENT 통합 계산 함수 (대기 굴절 및 태양 반지름 보정 반영)
+            function calculateSunTimes(date, lat, lng) {
+                const rad = Math.PI / 180;
+                const start = new Date(date.getFullYear(), 0, 0);
+                const diff = date - start;
+                const oneDay = 1000 * 60 * 60 * 24;
+                const dayOfYear = Math.floor(diff / oneDay);
+
+                const declination = 23.45 * Math.sin(rad * (360 / 365) * (dayOfYear - 81));
+                const deltaRad = declination * rad;
+                const latRad = lat * rad;
+
+                const B = rad * (360 / 365) * (dayOfYear - 81);
+                const eqTime = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+
+                const solarNoonUtc = 12 - (lng / 15) - (eqTime / 60);
+
+                function getHourAngle(targetAltitudeDegrees) {
+                    const altRad = targetAltitudeDegrees * rad;
+                    const cosHA = (Math.sin(altRad) - Math.sin(latRad) * Math.sin(deltaRad)) / (Math.cos(latRad) * Math.cos(deltaRad));
+
+                    if (cosHA > 1) return null;  // 극야 등
+                    if (cosHA < -1) return 'ALWAYS_ABOVE'; // 백야 등
+
+                    return Math.acos(cosHA) / rad;
+                }
+
+                const haSunriseSunset = getHourAngle(-0.833);
+                const haNauticalTwilight = getHourAngle(-12.0);
+
+                function utcHoursToLocalDate(utcHours) {
+                    if (utcHours === null || utcHours === undefined) return null;
+                    const resultDate = new Date(date);
+
+                    const hours = Math.floor(utcHours);
+                    const minutesDecimal = (utcHours - hours) * 60;
+                    const minutes = Math.floor(minutesDecimal);
+                    const seconds = Math.floor((minutesDecimal - minutes) * 60);
+
+                    resultDate.setUTCHours(hours, minutes, seconds, 0);
+                    return resultDate;
+                }
+
+                const results = {
+                    sunrise: null,
+                    sunset: null,
+                    bmnt: null,
+                    eent: null,
+                    dayLength: 0,
+                    status: "NORMAL"
+                };
+
+                if (haSunriseSunset === null) {
+                    results.status = "POLAR_NIGHT";
+                } else if (haSunriseSunset === 'ALWAYS_ABOVE') {
+                    results.status = "MIDNIGHT_SUN";
+                    results.dayLength = 24;
+                } else {
+                    const sunriseUtc = solarNoonUtc - (haSunriseSunset / 15);
+                    const sunsetUtc = solarNoonUtc + (haSunriseSunset / 15);
+
+                    results.sunrise = utcHoursToLocalDate(sunriseUtc);
+                    results.sunset = utcHoursToLocalDate(sunsetUtc);
+                    results.dayLength = (2 * haSunriseSunset) / 15;
+                }
+
+                if (haNauticalTwilight && haNauticalTwilight !== 'ALWAYS_ABOVE') {
+                    const bmntUtc = solarNoonUtc - (haNauticalTwilight / 15);
+                    const eentUtc = solarNoonUtc + (haNauticalTwilight / 15);
+
+                    results.bmnt = utcHoursToLocalDate(bmntUtc);
+                    results.eent = utcHoursToLocalDate(eentUtc);
+                }
+
+                return results;
+            }
+
+            // Approximate Moon Phase and Rise/Set
+            function getMoonPhaseAndTimes(date) {
+                const d = new Date(date);
+                const knownNewMoon = new Date(Date.UTC(2024, 0, 11, 11, 57));
+                const diff = d - knownNewMoon;
+                const lunarCycle = 29.53058867 * 86400000;
+                let phase = (diff % lunarCycle) / lunarCycle;
+                if (phase < 0) phase += 1;
+
+                let phaseName = "";
+                if (phase < 0.05 || phase > 0.95) phaseName = "🌑 삭 (밤새 관측 불가)";
+                else if (phase < 0.2) phaseName = "🌒 초승달";
+                else if (phase < 0.3) phaseName = "🌓 상현달";
+                else if (phase < 0.45) phaseName = "🌔 상현망간";
+                else if (phase < 0.55) phaseName = "🌕 보름달 (밤새 관측)";
+                else if (phase < 0.7) phaseName = "🌖 하현망간";
+                else if (phase < 0.8) phaseName = "🌗 하현달";
+                else phaseName = "🌘 그믐달";
+
+                let transitHour = (12 + 24 * phase) % 24;
+                let riseHour = (transitHour - 6 + 24) % 24;
+                let setHour = (transitHour + 6) % 24;
+
+                const formatTime = (h) => {
+                    const hh = Math.floor(h);
+                    const mm = Math.floor((h - hh) * 60);
+                    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0') + ' (오차 ±2시간)';
+                };
+
+                return { phaseName: phaseName, rise: formatTime(riseHour), set: formatTime(setHour) };
+            }
+
+            // Unit Converter
+            const UNIT_DATA = {
+                temp: [
+                    { id: 'C', name: 'Celsius (°C)' },
+                    { id: 'F', name: 'Fahrenheit (°F)' },
+                    { id: 'K', name: 'Kelvin (K)' }
+                ],
+                length: [
+                    { id: 'km', name: 'Kilometer (km)', factor: 1000 },
+                    { id: 'm', name: 'Meter (m)', factor: 1 },
+                    { id: 'cm', name: 'Centimeter (cm)', factor: 0.01 },
+                    { id: 'mm', name: 'Millimeter (mm)', factor: 0.001 },
+                    { id: 'mile', name: 'Mile (mi)', factor: 1609.344 },
+                    { id: 'yard', name: 'Yard (yd)', factor: 0.9144 },
+                    { id: 'foot', name: 'Foot (ft)', factor: 0.3048 },
+                    { id: 'inch', name: 'Inch (in)', factor: 0.0254 }
+                ],
+                weight: [
+                    { id: 'kg', name: 'Kilogram (kg)', factor: 1000 },
+                    { id: 'g', name: 'Gram (g)', factor: 1 },
+                    { id: 'mg', name: 'Milligram (mg)', factor: 0.001 },
+                    { id: 'lb', name: 'Pound (lb)', factor: 453.59237 },
+                    { id: 'oz', name: 'Ounce (oz)', factor: 28.34952 }
+                ],
+                volume: [
+                    { id: 'L', name: 'Liter (L)', factor: 1 },
+                    { id: 'ml', name: 'Milliliter (ml)', factor: 0.001 },
+                    { id: 'cc', name: 'Cubic Centimeter (cc)', factor: 0.001 },
+                    { id: 'gal', name: 'US Gallon (gal)', factor: 3.78541 },
+                    { id: 'floz', name: 'US Fl.Ounce (fl oz)', factor: 0.0295735 }
+                ]
+            };
+
+            function updateUnitOptions(isRestore = false) {
+                const cat = document.getElementById('c_category').value;
+                const fromSelect = document.getElementById('c_unit_from');
+                const toSelect = document.getElementById('c_unit_to');
+
+                let optionsHTML = '';
+                UNIT_DATA[cat].forEach(u => {
+                    optionsHTML += '<option value="' + u.id + '">' + u.name + '</option>';
+                });
+
+                fromSelect.innerHTML = optionsHTML;
+                toSelect.innerHTML = optionsHTML;
+
+                if (!isRestore) {
+                    if (UNIT_DATA[cat].length > 1) toSelect.selectedIndex = 1;
+                    convertUnit();
+                }
+            }
+
+            function convertUnit() {
+                saveInputs();
+                const valFrom = parseFloat(document.getElementById('c_val_from').value);
+                if (isNaN(valFrom)) {
+                    document.getElementById('c_val_to').value = '';
+                    return;
+                }
+
+                const cat = document.getElementById('c_category').value;
+                const unitFrom = document.getElementById('c_unit_from').value;
+                const unitTo = document.getElementById('c_unit_to').value;
+
+                let result = 0;
+
+                if (cat === 'temp') {
+                    let tempInC = valFrom;
+                    if (unitFrom === 'F') tempInC = (valFrom - 32) * 5 / 9;
+                    else if (unitFrom === 'K') tempInC = valFrom - 273.15;
+
+                    if (unitTo === 'C') result = tempInC;
+                    else if (unitTo === 'F') result = (tempInC * 9 / 5) + 32;
+                    else if (unitTo === 'K') result = tempInC + 273.15;
+                } else {
+                    const units = UNIT_DATA[cat];
+                    const factorFrom = units.find(u => u.id === unitFrom).factor;
+                    const factorTo = units.find(u => u.id === unitTo).factor;
+
+                    const baseValue = valFrom * factorFrom;
+                    result = baseValue / factorTo;
+                }
+
+                let resStr = parseFloat(result.toFixed(6)).toString();
+                document.getElementById('c_val_to').value = resStr;
+            }
+
+            // === D. 알림 시스템 (Alert) ===
+            let timerInterval;
+            let totalSeconds = 0;
+            let isResting = false;
+
+            function startTimer() {
+                stopTimer();
+                initAudio();
+                saveInputs();
+                isResting = false;
+                runTimerStep();
+            }
+
+            function runTimerStep() {
+                clearInterval(timerInterval);
+
+                if (!isResting) {
+                    const h = parseInt(appData.a_h) || 0;
+                    const m = parseInt(appData.a_m) || 0;
+                    const s = parseInt(appData.a_s) || 0;
+                    totalSeconds = (h * 3600) + (m * 60) + s;
+                    document.getElementById('timer_status').innerText = "WORK";
+                    document.getElementById('timer_status').style.color = "var(--primary-color)";
+                    showToast("활동(WORK) 시작!", 2000);
+                } else {
+                    const h = parseInt(appData.t_h) || 0;
+                    const m = parseInt(appData.t_m) || 0;
+                    const s = parseInt(appData.t_s) || 0;
+                    totalSeconds = (h * 3600) + (m * 60) + s;
+                    document.getElementById('timer_status').innerText = "REST";
+                    document.getElementById('timer_status').style.color = "#2196F3";
+                    showToast("휴식(REST) 시작!", 5000);
+                }
+
+                if (totalSeconds <= 0 && !isResting) {
+                    stopTimer();
+                    return;
+                }
+
+                document.getElementById('btn_timer_start').innerText = "작동중...";
+                document.getElementById('btn_timer_start').disabled = true;
+
+                timerInterval = setInterval(() => {
+                    totalSeconds--;
+                    updateTimerDisplay();
+                    if (totalSeconds <= 0) {
+                        clearInterval(timerInterval);
+
+                        if (!isResting) {
+                            playAlarmSound('timer');
+
+                            const ih = parseInt(appData.t_h) || 0;
+                            const im = parseInt(appData.t_m) || 0;
+                            const is = parseInt(appData.t_s) || 0;
+                            const totalInterval = (ih * 3600) + (im * 60) + is;
+
+                            if (appData.a_repeat && totalInterval > 0) {
+                                isResting = true;
+                                runTimerStep();
+                            } else if (appData.a_repeat) {
+                                runTimerStep();
+                            } else {
+                                stopTimer();
+                            }
+                        } else {
+                            isResting = false;
+                            playAlarmSound('rest');
+                            if (appData.a_repeat) {
+                                runTimerStep();
+                            } else {
+                                stopTimer();
+                            }
+                        }
+                    }
+                }, 1000);
+                updateTimerDisplay();
+            }
+
+            function stopTimer() {
+                clearInterval(timerInterval);
+                isResting = false;
+                document.getElementById('btn_timer_start').innerText = "시작";
+                document.getElementById('btn_timer_start').disabled = false;
+                document.getElementById('timer_status').innerText = "READY";
+                document.getElementById('timer_status').style.color = "var(--text-secondary)";
+                document.getElementById('timer_display').innerText = "00:00:00";
+            }
+
+            function updateTimerDisplay() {
+                const h = Math.floor(totalSeconds / 3600);
+                const m = Math.floor((totalSeconds % 3600) / 60);
+                const s = totalSeconds % 60;
+                const pad = num => String(num).padStart(2, '0');
+                document.getElementById('timer_display').innerText = pad(h) + ':' + pad(m) + ':' + pad(s);
+            }
+
+            // Multi-Alarm Management
+            function addAlarm() {
+                saveInputs();
+                const timeStr = document.getElementById('a_time').value;
+                if (!timeStr) {
+                    showToast("시간을 설정해주세요.");
+                    return;
+                }
+                const sound = document.getElementById('a_sound').value;
+                const vibe = document.getElementById('a_vibe').value;
+                const dur = parseInt(document.getElementById('a_duration').value) || 2;
+
+                const newAlarm = {
+                    id: Date.now(),
+                    time: timeStr,
+                    sound: sound,
+                    vibe: vibe,
+                    duration: dur,
+                    triggered: false
+                };
+
+                appData.alarms.push(newAlarm);
+                saveInputs();
+                renderAlarms();
+                showToast("알람이 추가되었습니다.");
+            }
+
+            function deleteSelectedAlarms() {
+                const checkboxes = document.querySelectorAll('.alarm-checkbox:checked');
+                if (checkboxes.length === 0) {
+                    showToast("삭제할 알람을 선택해주세요.");
+                    return;
+                }
+                const idsToDelete = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+                appData.alarms = appData.alarms.filter(a => !idsToDelete.includes(a.id));
+                saveInputs();
+                renderAlarms();
+                showToast(idsToDelete.length + '개의 알람이 삭제되었습니다.');
+            }
+
+            function renderAlarms() {
+                const container = document.getElementById('alarm_list');
+                if (!container) return;
+                container.innerHTML = '';
+
+                appData.alarms.forEach(alarm => {
+                    const item = document.createElement('div');
+                    item.className = 'alarm-item';
+                    item.draggable = true;
+                    item.dataset.id = alarm.id;
+
+                    const soundName = { 'none': '음소거', 'siren': '사이렌', 'beep_fast': '빠른비프A', 'beep_fast2': '빠른비프B', 'beep_slow': '느린비프A', 'beep_slow2': '느린비프B' }[alarm.sound] || '알수없음';
+                    const vibeName = { 'none': '진동끔', 'long': '긴진동A', 'long2': '긴진동B', 'short': '짧은진동A', 'short2': '짧은진동B', 'sos': 'SOS' }[alarm.vibe] || '알수없음';
+
+                    item.innerHTML =
+                        '<div class="drag-handle">☰</div>' +
+                        '<input type="checkbox" class="alarm-checkbox" data-id="' + alarm.id + '">' +
+                        '<div class="alarm-info">' +
+                        '<div class="alarm-time">' + alarm.time + '</div>' +
+                        '<div class="alarm-settings-summary">' + soundName + ' / ' + vibeName + ' / ' + alarm.duration + '초</div>' +
+                        '</div>';
+
+                    // Drag and Drop Events
+                    item.addEventListener('dragstart', handleDragStart);
+                    item.addEventListener('dragover', handleDragOver);
+                    item.addEventListener('drop', handleDrop);
+                    item.addEventListener('dragend', handleDragEnd);
+
+                    container.appendChild(item);
+                });
+            }
+
+            let dragSrcEl = null;
+            function handleDragStart(e) {
+                dragSrcEl = this;
+                e.dataTransfer.effectAllowed = 'move';
+                this.classList.add('dragging');
+            }
+            function handleDragOver(e) {
+                e.preventDefault();
+                return false;
+            }
+            function handleDrop(e) {
+                e.stopPropagation();
+                if (dragSrcEl !== this) {
+                    const list = appData.alarms;
+                    const fromId = parseInt(dragSrcEl.dataset.id);
+                    const toId = parseInt(this.dataset.id);
+                    const fromIdx = list.findIndex(a => a.id === fromId);
+                    const toIdx = list.findIndex(a => a.id === toId);
+
+                    const temp = list[fromIdx];
+                    list.splice(fromIdx, 1);
+                    list.splice(toIdx, 0, temp);
+
+                    saveInputs();
+                    renderAlarms();
+                }
+                return false;
+            }
+            function handleDragEnd() {
+                this.classList.remove('dragging');
+            }
+
+            // Main Alarm Check Loop
+            setInterval(() => {
+                const now = new Date();
+                const curTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                const curSec = now.getSeconds();
+
+                if (appData.alarms) {
+                    appData.alarms.forEach(alarm => {
+                        // 초가 0일 때 (정각 분)에 한 번만 실행되도록
+                        if (alarm.time === curTime && curSec === 0 && !alarm.triggered) {
+                            playAlarmSound('alarm', false, alarm);
+                            alarm.triggered = true;
+                        }
+                        // 분이 바뀌면 트리거 초기화
+                        if (alarm.time !== curTime) {
+                            alarm.triggered = false;
+                        }
+                    });
+                }
+            }, 1000);
+
+            function playAlarmSound(source = 'timer', isTest = false, alarmData = null) {
+                let sound, vibe, duration;
+
+                if (alarmData) {
+                    // 실제 알람 발생 시
+                    sound = alarmData.sound;
+                    vibe = alarmData.vibe;
+                    duration = alarmData.duration;
+                } else if (source === 'timer') {
+                    sound = document.getElementById('t_sound').value;
+                    vibe = document.getElementById('t_vibe').value;
+                    duration = parseInt(document.getElementById('t_duration').value) || 2;
+                } else if (source === 'rest') {
+                    sound = document.getElementById('ri_sound').value;
+                    vibe = document.getElementById('ri_vibe').value;
+                    duration = parseInt(document.getElementById('ri_duration').value) || 2;
+                } else {
+                    // 알람 테스트 시
+                    sound = document.getElementById('a_sound').value;
+                    vibe = document.getElementById('a_vibe').value;
+                    duration = parseInt(document.getElementById('a_duration').value) || 2;
+                }
+
+                // 진동 처리
+                if (vibe !== 'none' && 'vibrate' in navigator) {
+                    const durMs = duration * 1000;
+                    if (vibe === 'long' || vibe === 'long1') {
+                        navigator.vibrate([durMs]);
+                    }
+                    else if (vibe === 'long2') {
+                        let pattern = [];
+                        for (let i = 0; i < duration; i++) {
+                            pattern.push(800, 200);
+                        }
+                        navigator.vibrate(pattern);
+                    }
+                    else if (vibe === 'short' || vibe === 'short1') {
+                        let pattern = [];
+                        for (let i = 0; i < duration * 5; i++) pattern.push(100, 100);
+                        navigator.vibrate(pattern);
+                    }
+                    else if (vibe === 'short2') {
+                        let pattern = [];
+                        for (let i = 0; i < duration * 10; i++) pattern.push(50, 50);
+                        navigator.vibrate(pattern);
+                    }
+                    else if (vibe === 'sos') {
+                        let pattern = [100, 100, 100, 100, 100, 300, 300, 100, 300, 100, 300, 300, 100, 100, 100, 100, 100, 500];
+                        let fullPattern = [];
+                        while (fullPattern.reduce((a, b) => a + b, 0) < durMs) fullPattern = fullPattern.concat(pattern);
+                        navigator.vibrate(fullPattern);
+                    }
+                }
+
+                // 소리 처리
+                if (sound !== 'none') {
+                    if (!audioCtx) initAudio();
+                    if (audioCtx) {
+                        let startTime = audioCtx.currentTime;
+
+                        if (sound === 'siren') {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.type = 'square';
+                            osc.frequency.setValueAtTime(400, startTime);
+                            for (let t = 0; t < duration; t += 2) {
+                                osc.frequency.linearRampToValueAtTime(800, startTime + t + 1.0);
+                                osc.frequency.linearRampToValueAtTime(400, startTime + t + 2.0);
+                            }
+                            gain.gain.setValueAtTime(0.8, startTime);
+                            gain.gain.linearRampToValueAtTime(0, startTime + duration - 0.05);
+                            osc.start(startTime);
+                            osc.stop(startTime + duration);
+                        } else if (sound === 'beep_fast' || sound === 'beep_fast1') {
+                            for (let i = 0; i < duration * 5; i++) {
+                                const osc = audioCtx.createOscillator();
+                                const gain = audioCtx.createGain();
+                                osc.connect(gain);
+                                gain.connect(audioCtx.destination);
+                                osc.type = 'sine';
+                                osc.frequency.value = 1000;
+                                gain.gain.setValueAtTime(0.8, startTime + i * 0.2);
+                                gain.gain.linearRampToValueAtTime(0, startTime + i * 0.2 + 0.09);
+                                osc.start(startTime + i * 0.2);
+                                osc.stop(startTime + i * 0.2 + 0.1);
+                            }
+                        } else if (sound === 'beep_fast2') {
+                            for (let i = 0; i < duration * 8; i++) {
+                                const osc = audioCtx.createOscillator();
+                                const gain = audioCtx.createGain();
+                                osc.connect(gain);
+                                gain.connect(audioCtx.destination);
+                                osc.type = 'sine';
+                                osc.frequency.value = (i % 2 === 0) ? 1300 : 1100;
+                                gain.gain.setValueAtTime(0.8, startTime + i * 0.125);
+                                gain.gain.linearRampToValueAtTime(0, startTime + i * 0.125 + 0.06);
+                                osc.start(startTime + i * 0.125);
+                                osc.stop(startTime + i * 0.125 + 0.07);
+                            }
+                        } else if (sound === 'beep_slow' || sound === 'beep_slow1') {
+                            for (let i = 0; i < duration; i++) {
+                                const osc = audioCtx.createOscillator();
+                                const gain = audioCtx.createGain();
+                                osc.connect(gain);
+                                gain.connect(audioCtx.destination);
+                                osc.type = 'sine';
+                                osc.frequency.value = 800;
+                                gain.gain.setValueAtTime(0.8, startTime + i * 1.0);
+                                gain.gain.linearRampToValueAtTime(0, startTime + i * 1.0 + 0.45);
+                                osc.start(startTime + i * 1.0);
+                                osc.stop(startTime + i * 1.0 + 0.5);
+                            }
+                        } else if (sound === 'beep_slow2') {
+                            for (let i = 0; i < duration; i++) {
+                                const osc1 = audioCtx.createOscillator();
+                                const gain1 = audioCtx.createGain();
+                                osc1.connect(gain1);
+                                gain1.connect(audioCtx.destination);
+                                osc1.type = 'sine';
+                                osc1.frequency.value = 600;
+                                gain1.gain.setValueAtTime(0.8, startTime + i * 1.0);
+                                gain1.gain.linearRampToValueAtTime(0, startTime + i * 1.0 + 0.15);
+                                osc1.start(startTime + i * 1.0);
+                                osc1.stop(startTime + i * 1.0 + 0.2);
+
+                                const osc2 = audioCtx.createOscillator();
+                                const gain2 = audioCtx.createGain();
+                                osc2.connect(gain2);
+                                gain2.connect(audioCtx.destination);
+                                osc2.type = 'sine';
+                                osc2.frequency.value = 600;
+                                gain2.gain.setValueAtTime(0.8, startTime + i * 1.0 + 0.25);
+                                gain2.gain.linearRampToValueAtTime(0, startTime + i * 1.0 + 0.4);
+                                osc2.start(startTime + i * 1.0 + 0.25);
+                                osc2.stop(startTime + i * 1.0 + 0.45);
+                            }
+                        }
+                    }
+                }
+
+                if (source === 'timer' || source === 'rest') {
+                    flashBg(duration * 1000);
+                }
+
+                if (!isTest) {
+                    let msg = '⏱ 타이머 완료!';
+                    if (alarmData) {
+                        msg = '⏰ 알람 (' + alarmData.time + ')!';
+                    } else if (source === 'rest') {
+                        msg = '🧘 휴식 완료! 활동 시작!';
+                    }
+                    showToast(msg);
+                }
+            }
+
+            function showToast(msg, duration = 2100) {
+                let container = document.getElementById('toast_container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast_container';
+                    container.className = 'toast-container';
+                    document.body.appendChild(container);
+                }
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = msg;
+
+                const removeToast = () => {
+                    if (toast.parentNode) {
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(-20px)';
+                        setTimeout(() => {
+                            if (toast.parentNode) toast.parentNode.removeChild(toast);
+                        }, 300);
+                    }
+                };
+
+                toast.onclick = removeToast;
+                container.appendChild(toast);
+                setTimeout(removeToast, duration);
+            }
+
+            // === E. 설정 및 백업 (Settings) ===
+            function exportData() {
+                saveInputs();
+                const dataStr = localStorage.getItem(DATA_KEY);
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                const dateStr = new Date().toISOString().slice(0, 10);
+                a.download = 'survival_backup_' + dateStr + '.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function importData(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const content = e.target.result;
+                        JSON.parse(content); // validate json
+                        localStorage.setItem(DATA_KEY, content);
+                        alert("데이터가 성공적으로 복원되었습니다.");
+                        loadData();
+                    } catch (err) {
+                        alert("올바르지 않은 백업 파일입니다.");
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            function clearData() {
+                if (confirm("모든 로컬 저장 데이터를 삭제하시겠습니까?")) {
+                    localStorage.removeItem(DATA_KEY);
+                    location.reload();
+                }
+            }
+
+            // === F. 테마 (Red Mode) ===
+            function toggleRedMode() {
+                const isRed = document.documentElement.classList.toggle('red-mode');
+                localStorage.setItem('theme', isRed ? 'red' : 'dark');
+                const btn = document.getElementById('btn_theme');
+                if (btn) btn.textContent = isRed ? '⚪' : '🔴';
+            }
+
+            // Initialize
+            loadData();
+            if (!document.getElementById('c_unit_from').options.length) {
+                updateUnitOptions();
+            }
+
+            // Initialize Theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'red') {
+                document.documentElement.classList.add('red-mode');
+                const btn = document.getElementById('btn_theme');
+                if (btn) btn.textContent = '⚪';
+            }
+
+            // Init Wiki
+            initWiki();
+
+            // Init Categories
+            initCategories();
+            updateCatDropdowns();
+
+            // === G. 물자 관리 (Mini ERP) ===
+            function initCategories() {
+                if (!appData.categories) {
+                    appData.categories = {
+                        "식량": ["통조림", "즉석밥", "건조식품", "기타"],
+                        "식수": ["생수", "정수필터", "정수알약", "기타"],
+                        "의약품": ["구급상자", "소독제", "처방약", "기타"],
+                        "장비": ["나이프", "조명", "불피우기", "기타"],
+                        "위생": ["휴지", "물티슈", "쓰레기봉투", "기타"]
+                    };
+                    saveInputs();
+                }
+            }
+
+            function toggleCatManager() {
+                const mgr = document.getElementById('cat_manager');
+                if (mgr.style.display === 'none') {
+                    mgr.style.display = 'block';
+                    renderCatManager();
+                } else {
+                    mgr.style.display = 'none';
+                }
+            }
+
+            function renderCatManager() {
+                const mainSel = document.getElementById('cat_mgr_main_select');
+                const mainListDiv = document.getElementById('cat_main_list');
+                const oldSelVal = mainSel.value;
+                mainSel.innerHTML = '';
+                if (mainListDiv) mainListDiv.innerHTML = '';
+
+                const keys = Object.keys(appData.categories);
+                keys.forEach((cat, index) => {
+                    let opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.innerText = cat;
+                    mainSel.appendChild(opt);
+
+                    if (mainListDiv) {
+                        let badge = document.createElement('span');
+                        badge.style.cssText = "background: var(--surface-color); padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; display:flex; align-items:center; gap:5px;";
+
+                        let arrows = '';
+                        if (index > 0) arrows += `<span style="cursor:pointer; color:var(--text-secondary);" onclick="moveMainCat(${index}, -1)">◀</span>`;
+                        if (index < keys.length - 1) arrows += `<span style="cursor:pointer; color:var(--text-secondary);" onclick="moveMainCat(${index}, 1)">▶</span>`;
+
+                        badge.innerHTML = `${arrows} <span style="cursor:pointer;" onclick="editMainCat('${cat}')" title="이름 수정">${cat}</span> <span style="cursor:pointer; color:var(--danger-text); margin-left:4px;" onclick="deleteMainCat('${cat}')">✖</span>`;
+                        mainListDiv.appendChild(badge);
+                    }
+                });
+
+                if (keys.includes(oldSelVal)) mainSel.value = oldSelVal;
+                renderMgrSubCats();
+            }
+
+            function renderMgrSubCats() {
+                const mainCat = document.getElementById('cat_mgr_main_select').value;
+                const subListDiv = document.getElementById('cat_sub_list');
+                subListDiv.innerHTML = '';
+                if (mainCat && appData.categories[mainCat]) {
+                    appData.categories[mainCat].forEach((sub, index) => {
+                        let badge = document.createElement('span');
+                        badge.style.cssText = "background: var(--surface-color); padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; display:flex; align-items:center; gap:5px;";
+
+                        let arrows = '';
+                        if (index > 0) arrows += `<span style="cursor:pointer; color:var(--text-secondary);" onclick="moveSubCat('${mainCat}', ${index}, -1)">◀</span>`;
+                        if (index < appData.categories[mainCat].length - 1) arrows += `<span style="cursor:pointer; color:var(--text-secondary);" onclick="moveSubCat('${mainCat}', ${index}, 1)">▶</span>`;
+
+                        badge.innerHTML = `${arrows} <span style="cursor:pointer;" onclick="editSubCat('${mainCat}', '${sub}')" title="이름 수정">${sub}</span> <span style="cursor:pointer; color:var(--danger-text); margin-left:4px;" onclick="deleteSubCat('${mainCat}', '${sub}')">✖</span>`;
+                        subListDiv.appendChild(badge);
+                    });
+                }
+            }
+
+            function moveSubCat(mainCat, index, direction) {
+                const arr = appData.categories[mainCat];
+                if (!arr) return;
+                const targetIndex = index + direction;
+                if (targetIndex < 0 || targetIndex >= arr.length) return;
+
+                const temp = arr[index];
+                arr[index] = arr[targetIndex];
+                arr[targetIndex] = temp;
+
+                saveInputs();
+                renderMgrSubCats();
+                updateSubCats(mainCat);
+            }
+
+            function editSubCat(mainCat, oldSub) {
+                const newSub = prompt(`'${oldSub}'의 새 이름을 입력하세요:`, oldSub);
+                if (newSub && newSub.trim() !== '' && newSub !== oldSub) {
+                    const cleanName = newSub.trim();
+                    const arr = appData.categories[mainCat];
+                    if (arr.includes(cleanName)) {
+                        alert('이미 존재하는 중분류 이름입니다.');
+                        return;
+                    }
+                    const idx = arr.indexOf(oldSub);
+                    if (idx !== -1) arr[idx] = cleanName;
+
+                    appData.erp = appData.erp || [];
+                    appData.erp.forEach(item => {
+                        if (item.category === mainCat && item.category_sub === oldSub) {
+                            item.category_sub = cleanName;
+                        }
+                    });
+
+                    saveInputs();
+                    renderMgrSubCats();
+                    updateCatDropdowns();
+                    renderErpItems();
+                }
+            }
+
+            function addMainCat() {
+                const input = document.getElementById('cat_main_input');
+                const val = input.value.trim();
+                if (val && !appData.categories[val]) {
+                    appData.categories[val] = ["기타"];
+                    input.value = '';
+                    saveInputs();
+                    renderCatManager();
+                    updateCatDropdowns();
+                    renderErpItems();
+                }
+            }
+
+            function editMainCat(oldCat) {
+                const newCat = prompt(`'${oldCat}'의 새 이름을 입력하세요:`, oldCat);
+                if (newCat && newCat.trim() !== '' && newCat !== oldCat) {
+                    const cleanName = newCat.trim();
+                    if (appData.categories[cleanName]) {
+                        alert('이미 존재하는 대분류 이름입니다.');
+                        return;
+                    }
+
+                    const keys = Object.keys(appData.categories);
+                    const newCategories = {};
+                    keys.forEach(k => {
+                        if (k === oldCat) {
+                            newCategories[cleanName] = appData.categories[k];
+                        } else {
+                            newCategories[k] = appData.categories[k];
+                        }
+                    });
+                    appData.categories = newCategories;
+
+                    appData.erp = appData.erp || [];
+                    appData.erp.forEach(item => {
+                        if (item.category === oldCat) item.category = cleanName;
+                    });
+
+                    saveInputs();
+                    renderCatManager();
+                    updateCatDropdowns();
+                    renderErpItems();
+                }
+            }
+
+            function moveMainCat(index, direction) {
+                const keys = Object.keys(appData.categories);
+                const targetIndex = index + direction;
+                if (targetIndex < 0 || targetIndex >= keys.length) return;
+
+                const temp = keys[index];
+                keys[index] = keys[targetIndex];
+                keys[targetIndex] = temp;
+
+                const newCategories = {};
+                keys.forEach(k => {
+                    newCategories[k] = appData.categories[k];
+                });
+                appData.categories = newCategories;
+
+                saveInputs();
+                renderCatManager();
+                updateCatDropdowns();
+                renderErpItems();
+            }
+
+            function deleteMainCat(val) {
+                if (val && confirm(`'${val}' 대분류를 정말 삭제하시겠습니까?`)) {
+                    delete appData.categories[val];
+                    saveInputs();
+                    renderCatManager();
+                    updateCatDropdowns();
+                    renderErpItems();
+                }
+            }
+
+            function addSubCat() {
+                const mainCat = document.getElementById('cat_mgr_main_select').value;
+                const input = document.getElementById('cat_sub_input');
+                const val = input.value.trim();
+                if (mainCat && val && !appData.categories[mainCat].includes(val)) {
+                    appData.categories[mainCat].push(val);
+                    input.value = '';
+                    saveInputs();
+                    renderMgrSubCats();
+                    updateSubCats(mainCat);
+                }
+            }
+
+            function deleteSubCat(main, sub) {
+                if (confirm(`'${sub}' 중분류를 삭제하시겠습니까?`)) {
+                    appData.categories[main] = appData.categories[main].filter(s => s !== sub);
+                    saveInputs();
+                    renderMgrSubCats();
+                    updateSubCats(main);
+                }
+            }
+
+            function updateCatDropdowns() {
+                const mainSel = document.getElementById('erp_cat_main');
+                const filterMainSel = document.getElementById('erp_filter_main');
+
+                if (mainSel) {
+                    const oldVal = mainSel.value;
+                    mainSel.innerHTML = '';
+                    Object.keys(appData.categories).forEach(cat => {
+                        let opt = document.createElement('option');
+                        opt.value = cat;
+                        opt.innerText = cat;
+                        mainSel.appendChild(opt);
+                    });
+                    if (Object.keys(appData.categories).includes(oldVal)) mainSel.value = oldVal;
+                }
+
+                if (filterMainSel) {
+                    const oldFilterMain = filterMainSel.value;
+                    filterMainSel.innerHTML = '<option value="전체">전체보기</option>';
+                    Object.keys(appData.categories).forEach(cat => {
+                        let opt = document.createElement('option');
+                        opt.value = cat;
+                        opt.innerText = cat;
+                        filterMainSel.appendChild(opt);
+                    });
+                    if (Object.keys(appData.categories).includes(oldFilterMain)) filterMainSel.value = oldFilterMain;
+                }
+
+                updateSubCats();
+                updateFilterSubCats(true);
+            }
+
+            function updateFilterSubCats(skipRender = false) {
+                const mainSel = document.getElementById('erp_filter_main');
+                const subSel = document.getElementById('erp_filter_sub');
+                if (!mainSel || !subSel) return;
+
+                const mainCat = mainSel.value;
+                if (mainCat === '전체') {
+                    subSel.disabled = true;
+                    subSel.style.opacity = '0.5';
+                    subSel.innerHTML = '<option value="전체">전체보기</option>';
+                } else {
+                    subSel.disabled = false;
+                    subSel.style.opacity = '1';
+                    const oldSub = subSel.value;
+                    subSel.innerHTML = '<option value="전체">전체보기</option>';
+                    if (appData.categories[mainCat]) {
+                        appData.categories[mainCat].forEach(sub => {
+                            let opt = document.createElement('option');
+                            opt.value = sub;
+                            opt.innerText = sub;
+                            subSel.appendChild(opt);
+                        });
+                        if (appData.categories[mainCat].includes(oldSub)) subSel.value = oldSub;
+                    }
+                }
+                if (!skipRender) renderErpItems();
+            }
+
+            function updateSubCats(forceMainCat = null) {
+                const mainSel = document.getElementById('erp_cat_main');
+                const subSel = document.getElementById('erp_cat_sub');
+                if (!mainSel || !subSel) return;
+                const mainCat = forceMainCat || mainSel.value;
+
+                const oldSub = subSel.value;
+                subSel.innerHTML = '';
+                if (mainCat && appData.categories[mainCat]) {
+                    appData.categories[mainCat].forEach(sub => {
+                        let opt = document.createElement('option');
+                        opt.value = sub;
+                        opt.innerText = sub;
+                        subSel.appendChild(opt);
+                    });
+                    if (appData.categories[mainCat].includes(oldSub)) subSel.value = oldSub;
+                }
+            }
+
+            function renderErpItems() {
+                const container = document.getElementById('erp_list_container');
+                const dashboard = document.getElementById('erp_dashboard');
+                if (!container) return;
+
+                let erpList = appData.erp || [];
+
+                // Dashboard Data
+                let catCount = {};
+                let subCatCount = {};
+                let totalCount = erpList.length;
+
+                Object.keys(appData.categories).forEach(cat => {
+                    catCount[cat] = 0;
+                    subCatCount[cat] = {};
+                    appData.categories[cat].forEach(sub => subCatCount[cat][sub] = 0);
+                });
+
+                erpList.forEach(item => {
+                    const c = item.category || '기타';
+                    const sc = item.category_sub || '기타';
+                    if (catCount[c] === undefined) {
+                        catCount[c] = 0;
+                        subCatCount[c] = {};
+                    }
+                    if (subCatCount[c][sc] === undefined) subCatCount[c][sc] = 0;
+
+                    catCount[c]++;
+                    subCatCount[c][sc]++;
+                });
+
+                if (dashboard) {
+                    const catKeys = Object.keys(catCount);
+                    const isEven = (catKeys.length % 2 === 0);
+                    const totalFlex = isEven ? 'flex:1 1 100%;' : 'flex:1 1 30%;';
+
+                    let html = `
+                    <div style="${totalFlex} min-width:80px; background:var(--surface-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color);">
+                        <div style="color:var(--text-secondary); font-size:0.75rem;">총 물품</div>
+                        <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">${totalCount}개</div>
+                    </div>
+                `;
+                    for (let cat in catCount) {
+                        let subHtml = `<div id="sub_dash_${cat}" style="display:none; margin-top:8px; border-top:1px solid var(--border-color); padding-top:8px; font-size:0.75rem; color:var(--text-secondary); text-align:left;">`;
+                        let hasSub = false;
+                        for (let sub in subCatCount[cat]) {
+                            if (subCatCount[cat][sub] > 0) {
+                                subHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${sub}</span><span style="color:var(--text-primary);">${subCatCount[cat][sub]}</span></div>`;
+                                hasSub = true;
+                            }
+                        }
+                        if (!hasSub) subHtml += `<div>항목 없음</div>`;
+                        subHtml += `</div>`;
+
+                        html += `
+                    <div onclick="const e=document.getElementById('sub_dash_${cat}'); if(e) e.style.display = e.style.display === 'none' ? 'block' : 'none';" style="flex:1 1 30%; min-width:80px; background:var(--surface-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color); cursor:pointer; user-select:none;">
+                        <div style="color:var(--text-secondary); font-size:0.75rem;">${cat} <span style="font-size:0.6rem;">▼</span></div>
+                        <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">${catCount[cat]}</div>
+                        ${subHtml}
+                    </div>`;
+                    }
+                    dashboard.innerHTML = html;
+                }
+
+                // Filter
+                const filterMainEl = document.getElementById('erp_filter_main');
+                const filterSubEl = document.getElementById('erp_filter_sub');
+
+                const filterMainVal = filterMainEl ? filterMainEl.value : '전체';
+                const filterSubVal = filterSubEl && !filterSubEl.disabled ? filterSubEl.value : '전체';
+
+                let filteredList = erpList;
+                if (filterMainVal !== '전체') {
+                    filteredList = filteredList.filter(item => item.category === filterMainVal);
+                    if (filterSubVal !== '전체') {
+                        filteredList = filteredList.filter(item => item.category_sub === filterSubVal);
+                    }
+                }
+
+                // 정렬
+                const sortEl = document.getElementById('erp_sort');
+                const sortVal = sortEl ? sortEl.value : 'expiry';
+                const sortAsc = window.erpSortAsc !== false;
+                const sortDir = sortAsc ? 1 : -1;
+
+                filteredList.sort((a, b) => {
+                    if (sortVal === 'name_kr' || sortVal === 'name_en') {
+                        const getType = (name) => {
+                            const firstChar = name.replace(/[^가-힣a-zA-Z0-9]/g, '')[0] || '';
+                            if (/[가-힣]/.test(firstChar)) return 'kr';
+                            if (/[a-zA-Z]/.test(firstChar)) return 'en';
+                            return 'num';
+                        };
+                        const typeA = getType(a.name);
+                        const typeB = getType(b.name);
+
+                        if (typeA !== typeB) {
+                            const orderKr = { 'kr': 1, 'en': 2, 'num': 3 };
+                            const orderEn = { 'en': 1, 'kr': 2, 'num': 3 };
+                            const order = sortVal === 'name_kr' ? orderKr : orderEn;
+                            return order[typeA] - order[typeB];
+                        } else {
+                            return a.name.localeCompare(b.name, 'ko-KR') * sortDir;
+                        }
+                    } else {
+                        // expiry
+                        if (!a.expiry_date && b.expiry_date) return 1; // 기한 없는건 항상 뒤로
+                        if (a.expiry_date && !b.expiry_date) return -1;
+                        if (!a.expiry_date && !b.expiry_date) return 0;
+                        const cmp = new Date(a.expiry_date) - new Date(b.expiry_date);
+                        return cmp * sortDir;
+                    }
+                });
+
+                if (filteredList.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary);">표시할 물품이 없습니다.</div>';
+                    return;
+                }
+
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+                let html = '';
+                let warningCount = 0;
+
+                filteredList.forEach((item) => {
+                    let isUrgent = false;
+                    let daysLeft = null;
+
+                    if (item.expiry_date) {
+                        const expiryDate = new Date(item.expiry_date).getTime();
+                        const diffTime = expiryDate - today;
+                        daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (daysLeft <= 30) {
+                            isUrgent = true;
+                            warningCount++;
+                        }
+                    }
+
+                    let expiryStr = item.expiry_date ? item.expiry_date : '기한 없음';
+                    let urgentClass = isUrgent ? 'urgent' : '';
+                    let warningClass = isUrgent ? 'warning' : '';
+
+                    let daysLeftStr = '';
+                    if (daysLeft !== null) {
+                        if (daysLeft < 0) daysLeftStr = ` (D+${Math.abs(daysLeft)})`;
+                        else if (daysLeft === 0) daysLeftStr = ' (D-Day)';
+                        else daysLeftStr = ` (D-${daysLeft})`;
+                    }
+
+                    html += `
+                <div class="erp-item ${warningClass}">
+                    <div class="erp-info" style="display:flex; flex-direction:column; gap:4px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div class="erp-name" style="margin-bottom:0;">${item.name}</div>
+                            <span style="font-size:0.75rem; color:var(--text-secondary); background:var(--surface-color); padding:2px 6px; border-radius:4px; margin-left:10px; white-space:nowrap;">${item.category} &gt; ${item.category_sub || '기타'}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div class="erp-meta">수량: <strong style="color:var(--text-primary); font-size:0.9rem;">${item.quantity}</strong></div>
+                            <div class="erp-expiry ${urgentClass}" style="margin-bottom:0;">${expiryStr}${daysLeftStr}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:5px; margin-left:10px;">
+                        <button class="secondary" style="margin:0; padding:6px 10px; font-size:0.75rem; width:auto;" onclick="editErpItem(${item.id})">✏️수정</button>
+                        <button class="danger" style="margin:0; padding:6px 10px; font-size:0.75rem; width:auto;" onclick="deleteErpItem(${item.id})">🗑삭제</button>
+                    </div>
+                </div>`;
+                });
+                container.innerHTML = html;
+
+                // 경고 알림 (전체 보기일 때만 실제 전체 카운트를 기반으로 경고)
+                if (filterVal === '전체' && warningCount > 0 && warningCount !== appData.lastWarningCount) {
+                    appData.lastWarningCount = warningCount;
+                    showToast(`⚠️ 유통기한 임박(30일 이내) 물품이 ${warningCount}개 있습니다.`);
+                    saveInputs();
+                }
+            }
+
+            function editErpItem(id) {
+                const item = appData.erp.find(i => i.id === id);
+                if (!item) return;
+
+                document.getElementById('erp_edit_id').value = id;
+                document.getElementById('erp_cat_main').value = item.category || '기타';
+                updateSubCats(item.category);
+                document.getElementById('erp_cat_sub').value = item.category_sub || '기타';
+                document.getElementById('erp_name').value = item.name;
+                document.getElementById('erp_quantity').value = item.quantity;
+                document.getElementById('erp_expiry').value = item.expiry_date || '';
+
+                document.getElementById('erp_form_title').innerText = "✏️ 물품 정보 수정";
+                document.getElementById('btn_erp_save').innerText = "수정완료";
+                document.getElementById('btn_erp_cancel').style.display = "block";
+
+                document.getElementById('tab-erp').scrollTop = 0;
+                window.scrollTo(0, 0);
+            }
+
+            function cancelErpEdit() {
+                document.getElementById('erp_edit_id').value = "";
+                document.getElementById('erp_name').value = "";
+                document.getElementById('erp_quantity').value = "";
+                document.getElementById('erp_expiry').value = "";
+
+                document.getElementById('erp_form_title').innerText = "📦 물품 등록";
+                document.getElementById('btn_erp_save').innerText = "추가하기";
+                document.getElementById('btn_erp_cancel').style.display = "none";
+            }
+
+            function addErpItem() {
+                const editId = document.getElementById('erp_edit_id').value;
+                const nameEl = document.getElementById('erp_name');
+                const catMainEl = document.getElementById('erp_cat_main');
+                const catSubEl = document.getElementById('erp_cat_sub');
+                const qtyEl = document.getElementById('erp_quantity');
+                const expEl = document.getElementById('erp_expiry');
+
+                if (!nameEl.value.trim()) {
+                    alert("물품명을 입력해주세요.");
+                    return;
+                }
+
+                appData.erp = appData.erp || [];
+
+                if (editId) {
+                    // 수정 모드
+                    const item = appData.erp.find(i => i.id === parseInt(editId));
+                    if (item) {
+                        item.name = nameEl.value.trim();
+                        item.category = catMainEl.value;
+                        item.category_sub = catSubEl.value;
+                        item.quantity = qtyEl.value.trim() || '1';
+                        item.expiry_date = expEl.value;
+                    }
+                    showToast("물품이 수정되었습니다.");
+                    cancelErpEdit(); // 폼 초기화
+                } else {
+                    // 신규 등록
+                    const newItem = {
+                        id: Date.now(),
+                        name: nameEl.value.trim(),
+                        category: catMainEl.value,
+                        category_sub: catSubEl.value,
+                        quantity: qtyEl.value.trim() || '1',
+                        expiry_date: expEl.value
+                    };
+                    appData.erp.push(newItem);
+                    showToast("새 물품이 추가되었습니다.");
+
+                    nameEl.value = '';
+                    qtyEl.value = '';
+                    expEl.value = '';
+                }
+
+                saveInputs();
+                renderErpItems();
+            }
+
+            function deleteErpItem(id) {
+                if (confirm("해당 물품을 삭제하시겠습니까?")) {
+                    appData.erp = appData.erp.filter(item => item.id !== id);
+                    saveInputs();
+                    renderErpItems();
+                }
+            }
+
+            // === H. 생존 백과사전 (Survival Wiki) ===
+            function initWiki() {
+                if (!appData.wikiCategories) {
+                    appData.wikiCategories = ['응급처치', '식수 및 식량', '생존 기술', '장비 사용법', '기타'];
+                    saveInputs();
+                }
+                if (!appData.wiki) {
+                    appData.wiki = [
+                        { id: Date.now() + 1, title: '식수 정화 기본 (락스)', category: '식수 및 식량', content: '1. 불순물이 많다면 천으로 한 번 거른다.\n2. 물 1L당 락스 4방울(5~6% 농도)을 섞는다.\n3. 30분간 방치 후 소독약 냄새가 연하게 나면 마신다.\n※ 냄새가 나지 않으면 락스를 조금 더 넣고 15분 대기.', type: 'default', date: Date.now() },
+                        { id: Date.now() + 2, title: '불 피우기 요령', category: '생존 기술', content: '1. 부싯깃(마른 나뭇잎, 종이, 솜 등)을 바닥에 놓는다.\n2. 잔가지로 피라미드 모양을 만든다.\n3. 파이어스틸 또는 성냥으로 부싯깃에 불을 붙인다.\n4. 불이 붙으면 서서히 큰 장작을 추가한다.', type: 'default', date: Date.now() },
+                        { id: Date.now() + 3, title: '응급처치: 화상', category: '응급처치', content: '1. 즉시 흐르는 시원한 물에 10~20분간 환부를 댄다.\n2. 얼음을 직접 대지 않는다.\n3. 수포(물집)가 생겨도 터뜨리지 않는다.\n4. 깨끗한 마른 거즈로 느슨하게 덮어 보호한다.', type: 'default', date: Date.now() },
+                        { id: Date.now() + 4, title: '비상 배낭(생존가방) 꾸리기', category: '기타', content: '1. 물과 식량(3일치)\n2. 응급처치 키트\n3. 라디오, 손전등, 여분 배터리\n4. 멀티툴, 나이프\n5. 보온담요, 비옷, 여분 옷가지\n6. 신분증 사본 및 약간의 현금', type: 'default', date: Date.now() }
+                    ];
+                    saveInputs();
+                }
+
+                // 마이그레이션: 기존 데이터에 카테고리가 없다면 '기타'로 채워줌
+                let changed = false;
+                appData.wiki.forEach(item => {
+                    if (!item.category) {
+                        item.category = '기타';
+                        changed = true;
+                    }
+                });
+                if (changed) saveInputs();
+
+                updateWikiCatDropdowns();
+            }
+
+            function updateWikiCatDropdowns() {
+                const filterSel = document.getElementById('wiki_filter_select');
+                if (filterSel) {
+                    const oldFilter = filterSel.value;
+                    filterSel.innerHTML = `
+                        <option value="all">전체보기</option>
+                        <option value="default">▶ 기본 매뉴얼</option>
+                        <option value="custom">▶ 내 메뉴얼</option>
+                    `;
+                    appData.wikiCategories.forEach(cat => {
+                        filterSel.innerHTML += `<option value="cat_${cat}">${cat}</option>`;
+                    });
+                    if (oldFilter && [...filterSel.options].some(o => o.value === oldFilter)) {
+                        filterSel.value = oldFilter;
+                    }
+                }
+
+                const editSel = document.getElementById('wiki_cat_select');
+                if (editSel) {
+                    const oldEdit = editSel.value;
+                    editSel.innerHTML = '';
+                    appData.wikiCategories.forEach(cat => {
+                        editSel.innerHTML += `<option value="${cat}">${cat}</option>`;
+                    });
+                    if (oldEdit && appData.wikiCategories.includes(oldEdit)) {
+                        editSel.value = oldEdit;
+                    }
+                }
+            }
+
+            function toggleWikiCatManager() {
+                const mgr = document.getElementById('wiki_cat_manager');
+                if (mgr.style.display === 'none') {
+                    mgr.style.display = 'block';
+                    renderWikiCatManager();
+                } else {
+                    mgr.style.display = 'none';
+                }
+            }
+
+            function renderWikiCatManager() {
+                const listDiv = document.getElementById('wiki_cat_list');
+                listDiv.innerHTML = '';
+
+                appData.wikiCategories.forEach((cat, index) => {
+                    let itemDiv = document.createElement('div');
+                    itemDiv.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:var(--surface-color); padding:4px 8px; border-radius:4px; margin-bottom:5px; border:1px solid var(--border-color);";
+
+                    let leftDiv = document.createElement('div');
+                    leftDiv.style.cssText = "display:flex; align-items:center; gap:5px;";
+                    leftDiv.innerHTML = `
+                        <button class="secondary" onclick="moveWikiCat(${index}, -1)" style="padding:2px 5px; margin:0; font-size:0.7rem; width:auto;">▲</button>
+                        <button class="secondary" onclick="moveWikiCat(${index}, 1)" style="padding:2px 5px; margin:0; font-size:0.7rem; width:auto;">▼</button>
+                        <span style="font-size:0.9rem; cursor:pointer;" onclick="editWikiCat('${cat}')" title="이름 수정">${cat} ✏️</span>
+                    `;
+
+                    let delBtn = document.createElement('button');
+                    delBtn.className = "danger";
+                    delBtn.style.cssText = "padding:2px 6px; margin:0; font-size:0.7rem; width:auto;";
+                    delBtn.innerText = "X";
+                    delBtn.onclick = () => deleteWikiCat(cat);
+
+                    itemDiv.appendChild(leftDiv);
+                    itemDiv.appendChild(delBtn);
+                    listDiv.appendChild(itemDiv);
+                });
+            }
+
+            function addWikiCat() {
+                const input = document.getElementById('wiki_cat_input');
+                const val = input.value.trim();
+                if (val && !appData.wikiCategories.includes(val)) {
+                    appData.wikiCategories.push(val);
+                    input.value = '';
+                    saveInputs();
+                    renderWikiCatManager();
+                    updateWikiCatDropdowns();
+                }
+            }
+
+            function deleteWikiCat(cat) {
+                if (confirm(`'${cat}' 분류를 삭제하시겠습니까?\n이 분류를 사용하던 매뉴얼은 '기타'로 자동 변경됩니다.`)) {
+                    appData.wikiCategories = appData.wikiCategories.filter(c => c !== cat);
+                    if (!appData.wikiCategories.includes('기타')) {
+                        appData.wikiCategories.push('기타');
+                    }
+                    appData.wiki.forEach(item => {
+                        if (item.category === cat) item.category = '기타';
+                    });
+                    saveInputs();
+                    renderWikiCatManager();
+                    updateWikiCatDropdowns();
+                    renderWikiList();
+                }
+            }
+
+            function editWikiCat(oldCat) {
+                const newName = prompt(`'${oldCat}'의 새 이름을 입력하세요:`, oldCat);
+                if (newName && newName.trim() !== '' && newName !== oldCat) {
+                    const cleanName = newName.trim();
+                    if (appData.wikiCategories.includes(cleanName)) {
+                        alert('이미 존재하는 분류 이름입니다.');
+                        return;
+                    }
+
+                    const idx = appData.wikiCategories.indexOf(oldCat);
+                    if (idx !== -1) appData.wikiCategories[idx] = cleanName;
+
+                    appData.wiki.forEach(item => {
+                        if (item.category === oldCat) item.category = cleanName;
+                    });
+
+                    saveInputs();
+                    renderWikiCatManager();
+                    updateWikiCatDropdowns();
+                    renderWikiList();
+                }
+            }
+
+            function moveWikiCat(index, direction) {
+                const arr = appData.wikiCategories;
+                const targetIndex = index + direction;
+                if (targetIndex < 0 || targetIndex >= arr.length) return;
+
+                const temp = arr[index];
+                arr[index] = arr[targetIndex];
+                arr[targetIndex] = temp;
+
+                saveInputs();
+                renderWikiCatManager();
+                updateWikiCatDropdowns();
+            }
+
+            function openWikiLayer() {
+                document.getElementById('wiki-layer').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                renderWikiList();
+            }
+
+            function closeWikiLayer() {
+                document.getElementById('wiki-layer').style.display = 'none';
+                document.body.style.overflow = '';
+            }
+
+            function renderWikiList() {
+                const listDiv = document.getElementById('wiki_list');
+                const search = document.getElementById('wiki_search').value.toLowerCase();
+                const filter = document.getElementById('wiki_filter_select').value;
+
+                listDiv.style.display = 'flex';
+                document.getElementById('wiki_editor').style.display = 'none';
+                document.getElementById('wiki_reader').style.display = 'none';
+
+                listDiv.innerHTML = '';
+
+                const filtered = appData.wiki.filter(item => {
+                    const matchSearch = item.title.toLowerCase().includes(search) || item.content.toLowerCase().includes(search);
+                    let matchFilter = true;
+                    if (filter === 'default') matchFilter = (item.type === 'default');
+                    else if (filter === 'custom') matchFilter = (item.type === 'custom');
+                    else if (filter.startsWith('cat_')) {
+                        matchFilter = (item.category === filter.replace('cat_', ''));
+                    }
+                    return matchSearch && matchFilter;
+                });
+
+                if (filtered.length === 0) {
+                    listDiv.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">검색 결과가 없습니다.</div>';
+                    return;
+                }
+
+                filtered.sort((a, b) => b.date - a.date);
+
+                filtered.forEach(item => {
+                    let typeBadge = item.type === 'default' ? '<span style="color:var(--primary-color);">[기본]</span>' : '<span style="color:var(--text-secondary);">[내 메뉴얼]</span>';
+                    let catBadge = `<span style="background:var(--surface-color); border:1px solid var(--border-color); padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:bold; margin-right:5px;">${item.category || '기타'}</span>`;
+
+                    let html = `
+                    <div style="background:var(--surface-color); border:1px solid var(--border-color); padding:12px; border-radius:8px; cursor:pointer;" onclick="readWiki(${item.id})">
+                        <div style="font-weight:bold; margin-bottom:5px;">${catBadge} <span style="font-size:0.85rem;">${typeBadge}</span> ${item.title}</div>
+                        <div style="font-size:0.85rem; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:5px;">${item.content.replace(/\n/g, ' ')}</div>
+                    </div>`;
+                    listDiv.innerHTML += html;
+                });
+            }
+
+            function readWiki(id) {
+                const item = appData.wiki.find(i => i.id === id);
+                if (!item) return;
+
+                document.getElementById('wiki_list').style.display = 'none';
+                document.getElementById('wiki_reader').style.display = 'block';
+
+                document.getElementById('wiki_read_title').innerText = item.title;
+                document.getElementById('wiki_read_content').innerText = item.content;
+                document.getElementById('wiki_btn_edit').setAttribute('onclick', `editCurrentWiki(${id})`);
+            }
+
+            function closeWikiReader() {
+                renderWikiList();
+            }
+
+            function openWikiEditor() {
+                document.getElementById('wiki_list').style.display = 'none';
+                document.getElementById('wiki_reader').style.display = 'none';
+                document.getElementById('wiki_editor').style.display = 'block';
+
+                document.getElementById('wiki_editor_title').innerText = '새 매뉴얼 작성';
+                document.getElementById('wiki_edit_id').value = '';
+                document.getElementById('wiki_cat_select').value = appData.wikiCategories.length > 0 ? appData.wikiCategories[0] : '';
+                document.getElementById('wiki_type_checkbox').checked = false;
+                document.getElementById('wiki_title_input').value = '';
+                document.getElementById('wiki_content_input').value = '';
+                document.getElementById('wiki_btn_delete').style.display = 'none';
+            }
+
+            function editCurrentWiki(id) {
+                const item = appData.wiki.find(i => i.id === id);
+                if (!item) return;
+
+                document.getElementById('wiki_list').style.display = 'none';
+                document.getElementById('wiki_reader').style.display = 'none';
+                document.getElementById('wiki_editor').style.display = 'block';
+
+                document.getElementById('wiki_editor_title').innerText = '매뉴얼 수정';
+                document.getElementById('wiki_edit_id').value = item.id;
+                document.getElementById('wiki_cat_select').value = item.category || '기타';
+                document.getElementById('wiki_type_checkbox').checked = (item.type === 'default');
+                document.getElementById('wiki_title_input').value = item.title;
+                document.getElementById('wiki_content_input').value = item.content;
+                document.getElementById('wiki_btn_delete').style.display = 'block';
+            }
+
+            function closeWikiEditor() {
+                renderWikiList();
+            }
+
+            function deleteWikiEntry() {
+                const id = parseInt(document.getElementById('wiki_edit_id').value);
+                if (confirm('이 매뉴얼을 정말 삭제하시겠습니까?')) {
+                    appData.wiki = appData.wiki.filter(i => i.id !== id);
+                    saveInputs();
+                    renderWikiList();
+                    showToast('매뉴얼이 삭제되었습니다.');
+                }
+            }
+
+            function saveWikiEntry() {
+                const id = document.getElementById('wiki_edit_id').value;
+                const cat = document.getElementById('wiki_cat_select').value;
+                const title = document.getElementById('wiki_title_input').value.trim();
+                const content = document.getElementById('wiki_content_input').value.trim();
+                const isDefault = document.getElementById('wiki_type_checkbox').checked;
+                const entryType = isDefault ? 'default' : 'custom';
+
+                if (!title || !content) {
+                    alert('제목과 내용을 모두 입력해주세요.');
+                    return;
+                }
+
+                if (id) {
+                    const item = appData.wiki.find(i => i.id == id);
+                    if (item) {
+                        item.category = cat;
+                        item.title = title;
+                        item.content = content;
+                        item.type = entryType;
+                        item.date = Date.now();
+                    }
+                } else {
+                    appData.wiki.push({
+                        id: Date.now(),
+                        category: cat,
+                        title: title,
+                        content: content,
+                        type: entryType,
+                        date: Date.now()
+                    });
+                }
+
+                saveInputs();
+                renderWikiList();
+                showToast('매뉴얼이 저장되었습니다.');
+            }
+
+            // === I. 수평계 (Bubble Level) ===
+            function switchNavTool(tool) {
+                const btnCompass = document.getElementById('tab_btn_compass');
+                const btnLevel = document.getElementById('tab_btn_level');
+                const viewCompass = document.getElementById('view_compass');
+                const viewLevel = document.getElementById('view_level');
+
+                if (tool === 'compass') {
+                    btnCompass.style.color = 'var(--primary-color)';
+                    btnLevel.style.color = 'var(--text-secondary)';
+                    viewCompass.style.display = 'block';
+                    viewLevel.style.display = 'none';
+                } else {
+                    btnCompass.style.color = 'var(--text-secondary)';
+                    btnLevel.style.color = 'var(--primary-color)';
+                    viewCompass.style.display = 'none';
+                    viewLevel.style.display = 'block';
+                }
+            }
+
+            let isLevelActive = false;
+            let vibratedLevel = false;
+
+            function toggleLevel() {
+                const btn = document.getElementById('btn_level');
+
+                if (isLevelActive) {
+                    window.removeEventListener('deviceorientation', handleLevelOrientation);
+                    isLevelActive = false;
+                    btn.innerText = "수평계 시작";
+                    btn.classList.remove('danger');
+
+                    const bubble = document.getElementById('level_bubble');
+                    const bubbleH = document.getElementById('bubble_h');
+                    const bubbleV = document.getElementById('bubble_v');
+                    if (bubble) {
+                        bubble.style.transform = `translate(-50%, -50%)`;
+                        bubble.classList.remove('level-perfect');
+                    }
+                    if (bubbleH) {
+                        bubbleH.style.transform = `translate(-50%, 0)`;
+                        bubbleH.classList.remove('tube-bubble-perfect');
+                    }
+                    if (bubbleV) {
+                        bubbleV.style.transform = `translate(0, -50%)`;
+                        bubbleV.classList.remove('tube-bubble-perfect');
+                    }
+                    document.getElementById('level_text').innerText = "가로: ---° | 세로: ---°";
+                    return;
+                }
+
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(response => {
+                            if (response == 'granted') {
+                                window.addEventListener('deviceorientation', handleLevelOrientation);
+                                startLevelUI(btn);
+                            }
+                        }).catch(console.error);
+                } else {
+                    window.addEventListener('deviceorientation', handleLevelOrientation);
+                    startLevelUI(btn);
+                }
+            }
+
+            function startLevelUI(btn) {
+                isLevelActive = true;
+                btn.innerText = "수평계 중지";
+                btn.classList.add('danger');
+                vibratedLevel = false;
+            }
+
+            function handleLevelOrientation(e) {
+                if (!isLevelActive) return;
+
+                let beta = e.beta;
+                let gamma = e.gamma;
+
+                if (beta === null || gamma === null) return;
+
+                // 스마트폰의 배치 방향(평면, 수직, 가로 등)에 관계없이 
+                // 현재 방향과 가장 가까운 90도 단위(0, 90, 180, -90)를 타겟으로 삼아 편차를 계산
+                let targetBeta = Math.round(beta / 90) * 90;
+                let targetGamma = Math.round(gamma / 90) * 90;
+
+                let diffBeta = beta - targetBeta;
+                let diffGamma = gamma - targetGamma;
+
+                // 정규화 (-180 ~ 180)
+                if (diffBeta > 180) diffBeta -= 360;
+                if (diffBeta < -180) diffBeta += 360;
+                if (diffGamma > 180) diffGamma -= 360;
+                if (diffGamma < -180) diffGamma += 360;
+
+                const maxTilt = 45;
+                let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
+                let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
+
+                const maxDist2D = 80;
+                const maxDist1D = 80;
+
+                let yPos = (b / maxTilt) * maxDist2D;
+                let xPos = -(g / maxTilt) * maxDist2D;
+
+                // Bullseye 원형 제한
+                const distance = Math.sqrt(xPos * xPos + yPos * yPos);
+                if (distance > maxDist2D) {
+                    xPos = (xPos / distance) * maxDist2D;
+                    yPos = (yPos / distance) * maxDist2D;
+                }
+
+                // Tube 이동
+                let txPos = -(g / maxTilt) * maxDist1D;
+                let tyPos = (b / maxTilt) * maxDist1D;
+
+                const bubble = document.getElementById('level_bubble');
+                const bubbleH = document.getElementById('bubble_h');
+                const bubbleV = document.getElementById('bubble_v');
+
+                if (bubble && bubbleH && bubbleV) {
+                    bubble.style.transform = `translate(calc(-50% + ${xPos}px), calc(-50% + ${yPos}px))`;
+                    bubbleH.style.transform = `translate(calc(-50% + ${txPos}px), -50%)`;
+                    bubbleV.style.transform = `translate(-50%, calc(-50% + ${tyPos}px))`;
+
+                    let isPerfectX = Math.abs(diffGamma) < 2;
+                    let isPerfectY = Math.abs(diffBeta) < 2;
+
+                    if (isPerfectX) bubbleH.classList.add('tube-bubble-perfect');
+                    else bubbleH.classList.remove('tube-bubble-perfect');
+
+                    if (isPerfectY) bubbleV.classList.add('tube-bubble-perfect');
+                    else bubbleV.classList.remove('tube-bubble-perfect');
+
+                    if (isPerfectX && isPerfectY) {
+                        bubble.classList.add('level-perfect');
+                        if (!vibratedLevel && 'vibrate' in navigator) {
+                            navigator.vibrate([50]);
+                            vibratedLevel = true;
+                        }
+                    } else {
+                        bubble.classList.remove('level-perfect');
+                        if (Math.abs(diffBeta) > 5 || Math.abs(diffGamma) > 5) {
+                            vibratedLevel = false;
+                        }
+                    }
+                }
+
+                document.getElementById('level_text').innerText = `가로: ${Math.round(diffGamma)}° | 세로: ${Math.round(diffBeta)}°`;
+            }
+
+            // === 나침반 눈금 생성 및 수평계 동심원 눈금 생성 ===
+            document.addEventListener('DOMContentLoaded', () => {
+                const rose = document.getElementById('compass_rose');
+                if (rose) {
+                    for (let i = 0; i < 36; i++) {
+                        const angle = i * 10;
+                        if (angle === 0 || angle === 90 || angle === 180 || angle === 270) continue;
+                        const tick = document.createElement('div');
+                        const isMajor = (i % 3 === 0);
+                        const height = isMajor ? '8px' : '5px';
+                        const width = isMajor ? '1.5px' : '1px';
+                        const color = 'var(--text-secondary)';
+                        const opacity = isMajor ? '1' : '0.4';
+                        tick.style.cssText = `
+                            position: absolute;
+                            top: 0;
+                            left: 50%;
+                            width: ${width};
+                            height: ${height};
+                            background: ${color};
+                            opacity: ${opacity};
+                            transform: translateX(-50%) rotate(${angle}deg);
+                            transform-origin: 50% 110px;
+                            pointer-events: none;
+                        `;
+                        rose.appendChild(tick);
+                    }
+                }
+            });
+
+        </script>
+</body>
+
+</html>
