@@ -4226,7 +4226,7 @@
                     // 평면 모드에서는 2차원 버블 자유 이동 (X, Y 모두 활성화)
                     let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
                     let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
-                    yPos = (b / maxTilt) * maxDist2D;
+                    yPos = -(b / maxTilt) * maxDist2D; // Y축 방향 반전 보정 (물리적 버블 원리 반영)
                     xPos = -(g / maxTilt) * maxDist2D;
                 } else if (absBeta >= absGamma) {
                     // 2. 수직 세움 모드 (Portrait - 벽이나 기둥 세로 측정)
@@ -4247,7 +4247,7 @@
                     // 눕혀 쓰기 모드: 원형 눈금을 세로(상하)로만 움직임 (xPos = 0 제한)
                     let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
                     xPos = 0;
-                    yPos = (g / maxTilt) * maxDist2D; // landscape에서는 좌우 틸트가 세로 물금 축으로 맵핑
+                    yPos = -(g / maxTilt) * maxDist2D; // Y축 방향 반전 보정 (물리적 버블 원리 반영)
                 }
 
                 // 저대역 필터(Low-Pass Filter) 및 스무딩 적용하여 하드웨어 미세 노이즈 및 급격한 튀기 방지
@@ -4268,7 +4268,7 @@
                 let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
 
                 let txPos = -(g / maxTilt) * maxDist1D;
-                let tyPos = (b / maxTilt) * maxDist1D;
+                let tyPos = -(b / maxTilt) * maxDist1D; // Y축 방향 반전 보정 (물리적 버블 원리 반영)
 
                 const bubble = document.getElementById('level_bubble');
                 const bubbleH = document.getElementById('bubble_h');
