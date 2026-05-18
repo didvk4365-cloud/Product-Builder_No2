@@ -596,7 +596,8 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            transition: transform 0.1s ease-out;
+            /* transition 제거: JS Lerp와의 보간 충돌 및 경계선 튐 차단 */
+            transition: none;
             pointer-events: none;
         }
 
@@ -2289,6 +2290,7 @@
                     window.removeEventListener('deviceorientation', handleOrientation);
                     window.removeEventListener('deviceorientationabsolute', handleOrientation);
                     isCompassActive = false;
+                    lastHeading = null; // 대기 상태 진입 시 이전 방위각 초기화 (다음 기동 시 급격한 쏠림 방지)
                     vibratedNorth = false;
                     vibratedSouth = false;
                     btn.innerText = "나침반 시작";
@@ -2336,6 +2338,7 @@
                 }
 
                 if (heading != null) {
+                    // 첫 동작 시 현재 방위각으로 즉시 연동 (0도부터 휠클릭 튀는 현상 제거)
                     if (lastHeading === null) {
                         lastHeading = heading;
                         currentRotation = heading;
@@ -2360,13 +2363,17 @@
                     }
 
                     // 최단 경로 회전 로직 (359 -> 0도 시 반대 회전 방지)
-                    let diff = heading - lastHeading;
+                    // 현재 currentRotation을 [0, 360) 범위로 정규화
+                    let normalizedCurrent = currentRotation % 360;
+                    if (normalizedCurrent < 0) normalizedCurrent += 360;
+
+                    let diff = heading - normalizedCurrent;
                     if (diff > 180) diff -= 360;
                     else if (diff < -180) diff += 360;
 
-                    // 스무딩(Lerp) 적용
+                    // 스무딩(Lerp) 적용하여 부드러운 회전 지속
                     currentRotation += diff * lerpFactor;
-                    lastHeading = (lastHeading + diff * lerpFactor) % 360;
+                    lastHeading = heading; // 현재 실측 방위각 저장
 
                     const rose = document.getElementById('compass_rose');
                     if (rose) rose.style.transform = 'rotate(' + (-currentRotation) + 'deg)';
@@ -4194,8 +4201,7 @@
                 const bRad = beta * Math.PI / 180;
                 const gRad = gamma * Math.PI / 180;
 
-                // 3차원 중력 투영 벡터 계산 (gimbal lock 현상을 완전히 해결하기 위해 3차원 삼각함수 프로젝션 적용)
-                // W3C 표준 디바이스 방향 센서(Tait-Bryan Z-X'-Y'' rotation) 좌표계 기준 중력 분해
+                // 3차원 중력 투영 벡터 계산 (W3C 표준 Tait-Bryan Z-X'-Y'' 좌표계 기준 물리 중력 공식 적용)
                 const gx = Math.sin(gRad) * Math.cos(bRad);
                 const gy = Math.sin(bRad);
                 const gz = Math.cos(gRad) * Math.cos(bRad);
@@ -4203,60 +4209,69 @@
                 let diffBeta = 0;
                 let diffGamma = 0;
 
-                // 3D 중력 벡터에서 절대값이 가장 큰 성분(축)을 기반으로 현재 기기의 파지 모드 판별
                 const absX = Math.abs(gx);
                 const absY = Math.abs(gy);
                 const absZ = Math.abs(gz);
 
-                if (absZ >= absX && absZ >= absY) {
-                    // 1. 평면 모드 (Flat - 책상, 바닥 수평 측정)
-                    diffGamma = Math.asin(gx) * 180 / Math.PI;
-                    diffBeta = Math.asin(gy) * 180 / Math.PI;
-                    // 화면이 뒤집혀 아래를 향할 경우 방향 반전 보정
-                    if (gz < 0) {
-                        diffGamma = -diffGamma;
-                        diffBeta = -diffBeta;
-                    }
-                } else if (absY >= absX && absY >= absZ) {
-                    // 2. 수직 세움 모드 (Portrait - 벽면이나 기둥의 세로 수직 측정)
-                    // 세로(Y)축이 중력 방향일 때, 좌우 기울기는 X축(gx), 앞뒤 기울기는 Z축(gz)에 대응
-                    diffGamma = Math.asin(gx) * 180 / Math.PI;
-                    diffBeta = Math.asin(gz) * 180 / Math.PI;
-                    // 뒤집어서 세운 경우 보정
-                    if (gy < 0) {
-                        diffGamma = -diffGamma;
-                        diffBeta = -diffBeta;
-                    }
-                } else {
-                    // 3. 가로 세움 모드 (Landscape - 선반이나 벽면의 가로 수평/기둥 측정)
-                    // 가로(X)축이 중력 방향일 때, 좌우 기울기는 Y축(gy), 앞뒤 기울기는 Z축(gz)에 대응
-                    diffGamma = Math.asin(gy) * 180 / Math.PI;
-                    diffBeta = Math.asin(gz) * 180 / Math.PI;
-                    // 기기 왼쪽이 아래로 기울어진 경우 방향 반전 보정
-                    if (gx < 0) {
-                        diffGamma = -diffGamma;
-                        diffBeta = -diffBeta;
-                    }
-                }
+                // 화면 원형 버블(Bullseye) 및 튜브 버블(H, V) 좌표용 변수
+                let xPos = 0;
+                let yPos = 0;
 
-                // 최대 물리적 틸트 한계값
                 const maxTilt = 45;
-                let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
-                let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
-
                 const maxDist2D = 80;
                 const maxDist1D = 80;
 
-                // 2D 및 1D 물금(버블) 좌표 계산
-                let yPos = (b / maxTilt) * maxDist2D;
-                let xPos = -(g / maxTilt) * maxDist2D;
+                if (absZ >= absX && absZ >= absY) {
+                    // 1. 평면 모드 (Flat - 책상, 바닥 수평 측정)
+                    // 가로 틸트는 X-Z 평면, 세로 틸트는 Y-Z 평면 기준
+                    diffGamma = Math.atan2(gx, Math.abs(gz)) * 180 / Math.PI;
+                    diffBeta = Math.atan2(gy, Math.abs(gz)) * 180 / Math.PI;
 
-                // Bullseye 원형 범위 제한
-                const distance = Math.sqrt(xPos * xPos + yPos * yPos);
-                if (distance > maxDist2D) {
-                    xPos = (xPos / distance) * maxDist2D;
-                    yPos = (yPos / distance) * maxDist2D;
+                    // 평면 모드에서는 2차원 버블 자유 이동 (X, Y 모두 활성화)
+                    let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
+                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
+                    yPos = (b / maxTilt) * maxDist2D;
+                    xPos = -(g / maxTilt) * maxDist2D;
+                } else if (absY >= absX && absY >= absZ) {
+                    // 2. 수직 세움 모드 (Portrait - 벽이나 기둥 세로 측정)
+                    // 좌우 기울기(Gamma 방향)는 X-Y 평면의 각도로 계산하여 짐벌 락(Gimbal Lock) 및 노이즈 원천 제거
+                    diffGamma = Math.atan2(gx, Math.abs(gy)) * 180 / Math.PI;
+                    // 앞뒤 기울기(Beta 방향)는 Z-축 기울기 사용
+                    diffBeta = Math.asin(gz) * 180 / Math.PI;
+
+                    // 세워 쓰기 모드: 원형 눈금을 가로(좌우)로만 움직임 (yPos = 0 제한)
+                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
+                    xPos = -(g / maxTilt) * maxDist2D;
+                    yPos = 0;
+                } else {
+                    // 3. 가로 세움 모드 (Landscape - 벽이나 선반 가로 측정)
+                    // 좌우 기울기는 Y-X 평면의 각도로 계산
+                    diffGamma = Math.atan2(gy, Math.abs(gx)) * 180 / Math.PI;
+                    // 앞뒤 기울기는 Z-축 기울기 사용
+                    diffBeta = Math.asin(gz) * 180 / Math.PI;
+
+                    // 눕혀 쓰기 모드: 원형 눈금을 세로(상하)로만 움직임 (xPos = 0 제한)
+                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
+                    xPos = 0;
+                    yPos = (g / maxTilt) * maxDist2D; // landscape에서는 좌우 틸트가 상하 물금에 맵핑
                 }
+
+                // 저대역 필터(Low-Pass Filter) 및 스무딩 적용하여 하드웨어 미세 노이즈 및 급격한 튀기 방지
+                if (window.lastLevelGamma === undefined) {
+                    window.lastLevelGamma = diffGamma;
+                    window.lastLevelBeta = diffBeta;
+                }
+
+                const alphaFilter = 0.15; // 노이즈 필터링 강도 (lerp 계수)
+                diffGamma = window.lastLevelGamma + (diffGamma - window.lastLevelGamma) * alphaFilter;
+                diffBeta = window.lastLevelBeta + (diffBeta - window.lastLevelBeta) * alphaFilter;
+
+                window.lastLevelGamma = diffGamma;
+                window.lastLevelBeta = diffBeta;
+
+                // 최대 물리적 틸트 제한 보정 (각도 계산 이후 스무스해진 값 기준)
+                let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
+                let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
 
                 // Tube 게이지바 물리적 이동량 설정
                 let txPos = -(g / maxTilt) * maxDist1D;
@@ -4271,7 +4286,7 @@
                     bubbleH.style.transform = `translate(calc(-50% + ${txPos}px), -50%)`;
                     bubbleV.style.transform = `translate(-50%, calc(-50% + ${tyPos}px))`;
 
-                    // 정밀하고 높은 신뢰성의 수평 감지 오차 판정 임계값 (2도 -> 1.5도로 업그레이드)
+                    // 정밀하고 높은 신뢰성의 수평 감지 오차 판정 임계값 (1.5도)
                     let isPerfectX = Math.abs(diffGamma) < 1.5;
                     let isPerfectY = Math.abs(diffBeta) < 1.5;
 
