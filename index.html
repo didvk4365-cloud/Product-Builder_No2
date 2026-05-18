@@ -985,6 +985,22 @@
         :root.red-mode .tube-bubble-v {
             background: rgba(255, 51, 51, 0.4);
         }
+
+        /* 수평계 개별 작동 활성/비활성 스타일 정의 */
+        .level-container,
+        .level-tube-h,
+        .level-tube-v {
+            transition: opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .level-container.inactive,
+        .level-tube-h.inactive,
+        .level-tube-v.inactive {
+            opacity: 0.12 !important;
+            filter: grayscale(80%);
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            box-shadow: none !important;
+        }
     </style>
 </head>
 
@@ -4209,6 +4225,8 @@
                 // 화면 원형 버블(Bullseye) 및 튜브 버블(H, V) 좌표용 변수
                 let xPos = 0;
                 let yPos = 0;
+                let txPos = 0;
+                let tyPos = 0;
 
                 const maxTilt = 45;
                 const maxDist2D = 80;
@@ -4218,36 +4236,25 @@
                 const absBeta = Math.abs(beta);
                 const absGamma = Math.abs(gamma);
 
+                let mode = "flat";
                 if (absBeta < 40 && absGamma < 40) {
-                    // 1. 평면 모드 (Flat - 책상, 바닥 수평 측정)
+                    mode = "flat";
+                } else if (absBeta >= absGamma) {
+                    mode = "portrait";
+                } else {
+                    mode = "landscape";
+                }
+
+                // 각 모드별로 독립적으로 센서 수식 할당
+                if (mode === "flat") {
                     diffGamma = gamma;
                     diffBeta = beta;
-
-                    // 평면 모드에서는 2차원 버블 자유 이동 (X, Y 모두 활성화)
-                    let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
-                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
-                    yPos = -(b / maxTilt) * maxDist2D; // Y축 방향 반전 보정 (물리적 버블 원리 반영)
-                    xPos = -(g / maxTilt) * maxDist2D;
-                } else if (absBeta >= absGamma) {
-                    // 2. 수직 세움 모드 (Portrait - 벽이나 기둥 세로 측정)
-                    // 세로로 세웠을 때, 좌우 기울기는 gamma, 앞뒤 기울기는 beta의 수직(90도) 편차
+                } else if (mode === "portrait") {
                     diffGamma = gamma;
                     diffBeta = beta > 0 ? beta - 90 : beta + 90;
-
-                    // 세워 쓰기 모드: 원형 눈금을 가로(좌우)로만 움직임 (yPos = 0 제한)
-                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
-                    xPos = -(g / maxTilt) * maxDist2D;
-                    yPos = 0;
                 } else {
-                    // 3. 가로 세움 모드 (Landscape - 벽이나 선반 가로 측정)
-                    // 가로로 눕혔을 때, 좌우 기울기는 beta, 앞뒤 기울기는 gamma의 수직(90도) 편차
                     diffGamma = beta;
                     diffBeta = gamma > 0 ? gamma - 90 : gamma + 90;
-
-                    // 눕혀 쓰기 모드: 원형 눈금을 세로(상하)로만 움직임 (xPos = 0 제한)
-                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
-                    xPos = 0;
-                    yPos = -(g / maxTilt) * maxDist2D; // Y축 방향 반전 보정 (물리적 버블 원리 반영)
                 }
 
                 // 저대역 필터(Low-Pass Filter) 및 스무딩 적용하여 하드웨어 미세 노이즈 및 급격한 튀기 방지
@@ -4263,47 +4270,110 @@
                 window.lastLevelGamma = diffGamma;
                 window.lastLevelBeta = diffBeta;
 
-                // 필터링 적용된 각도 기반으로 1D 튜브 버블 이동량 계산
-                let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
-                let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
+                // 모드별로 좌표를 완전 별개로 맵핑하고 활성 수평계만 이동, 비활성 수평계는 중앙 초기화
+                if (mode === "flat") {
+                    let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
+                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
+                    yPos = -(b / maxTilt) * maxDist2D;
+                    xPos = -(g / maxTilt) * maxDist2D;
+                    txPos = 0; // H-tube 초기화
+                    tyPos = 0; // V-tube 초기화
+                } else if (mode === "portrait") {
+                    let b = Math.max(-maxTilt, Math.min(maxTilt, diffBeta));
+                    yPos = 0; // 원형 초기화
+                    xPos = 0;
+                    txPos = 0; // H-tube 초기화
+                    tyPos = -(b / maxTilt) * maxDist1D; // 세로 세움 수직 측정 활성화
+                } else {
+                    let g = Math.max(-maxTilt, Math.min(maxTilt, diffGamma));
+                    yPos = 0; // 원형 초기화
+                    xPos = 0;
+                    txPos = -(g / maxTilt) * maxDist1D; // 가로 눕힘 수평 측정 활성화
+                    tyPos = 0; // V-tube 초기화
+                }
 
-                let txPos = -(g / maxTilt) * maxDist1D;
-                let tyPos = -(b / maxTilt) * maxDist1D; // Y축 방향 반전 보정 (물리적 버블 원리 반영)
+                const container = document.getElementById('level_container');
+                const tubeH = document.getElementById('level_tube_h');
+                const tubeV = document.getElementById('level_tube_v');
 
                 const bubble = document.getElementById('level_bubble');
                 const bubbleH = document.getElementById('bubble_h');
                 const bubbleV = document.getElementById('bubble_v');
 
-                if (bubble && bubbleH && bubbleV) {
+                if (bubble && bubbleH && bubbleV && container && tubeH && tubeV) {
+                    // 비활성 수평계 클래스 동적 제어
+                    if (mode === "flat") {
+                        container.classList.remove('inactive');
+                        tubeH.classList.add('inactive');
+                        tubeV.classList.add('inactive');
+                    } else if (mode === "portrait") {
+                        container.classList.add('inactive');
+                        tubeH.classList.add('inactive');
+                        tubeV.classList.remove('inactive');
+                    } else {
+                        container.classList.add('inactive');
+                        tubeH.classList.remove('inactive');
+                        tubeV.classList.add('inactive');
+                    }
+
+                    // 버블 좌표 변환 적용
                     bubble.style.transform = `translate(calc(-50% + ${xPos}px), calc(-50% + ${yPos}px))`;
                     bubbleH.style.transform = `translate(calc(-50% + ${txPos}px), -50%)`;
                     bubbleV.style.transform = `translate(-50%, calc(-50% + ${tyPos}px))`;
 
-                    // 정밀하고 높은 신뢰성의 수평 감지 오차 판정 임계값 (1.5도)
-                    let isPerfectX = Math.abs(diffGamma) < 1.5;
-                    let isPerfectY = Math.abs(diffBeta) < 1.5;
+                    // 수평 감지 임계값 (1.5도) 및 완벽 정렬 시 진동 피드백 (각 수평계가 완전 독립적으로 작동)
+                    let isPerfect = false;
+                    if (mode === "flat") {
+                        isPerfect = (Math.abs(diffGamma) < 1.5 && Math.abs(diffBeta) < 1.5);
+                    } else if (mode === "portrait") {
+                        isPerfect = (Math.abs(diffBeta) < 1.5);
+                    } else if (mode === "landscape") {
+                        isPerfect = (Math.abs(diffGamma) < 1.5);
+                    }
 
-                    if (isPerfectX) bubbleH.classList.add('tube-bubble-perfect');
-                    else bubbleH.classList.remove('tube-bubble-perfect');
+                    if (isPerfect) {
+                        if (mode === "flat") {
+                            bubble.classList.add('level-perfect');
+                            bubbleH.classList.remove('tube-bubble-perfect');
+                            bubbleV.classList.remove('tube-bubble-perfect');
+                        } else if (mode === "portrait") {
+                            bubble.classList.remove('level-perfect');
+                            bubbleH.classList.remove('tube-bubble-perfect');
+                            bubbleV.classList.add('tube-bubble-perfect');
+                        } else if (mode === "landscape") {
+                            bubble.classList.remove('level-perfect');
+                            bubbleH.classList.add('tube-bubble-perfect');
+                            bubbleV.classList.remove('tube-bubble-perfect');
+                        }
 
-                    if (isPerfectY) bubbleV.classList.add('tube-bubble-perfect');
-                    else bubbleV.classList.remove('tube-bubble-perfect');
-
-                    if (isPerfectX && isPerfectY) {
-                        bubble.classList.add('level-perfect');
                         if (!vibratedLevel && 'vibrate' in navigator) {
                             navigator.vibrate([50]);
                             vibratedLevel = true;
                         }
                     } else {
                         bubble.classList.remove('level-perfect');
-                        if (Math.abs(diffBeta) > 4 || Math.abs(diffGamma) > 4) {
-                            vibratedLevel = false;
+                        bubbleH.classList.remove('tube-bubble-perfect');
+                        bubbleV.classList.remove('tube-bubble-perfect');
+
+                        // 미세 기울어짐 시 진동 락 해제
+                        if (mode === "flat") {
+                            if (Math.abs(diffGamma) > 4 || Math.abs(diffBeta) > 4) vibratedLevel = false;
+                        } else if (mode === "portrait") {
+                            if (Math.abs(diffBeta) > 4) vibratedLevel = false;
+                        } else if (mode === "landscape") {
+                            if (Math.abs(diffGamma) > 4) vibratedLevel = false;
                         }
                     }
                 }
 
-                document.getElementById('level_text').innerText = `가로: ${Math.round(diffGamma)}° | 세로: ${Math.round(diffBeta)}°`;
+                // 텍스트 출력도 활성화된 모드에 맞춰 직관적으로 변경
+                if (mode === "flat") {
+                    document.getElementById('level_text').innerText = `평면 가로: ${Math.round(diffGamma)}° | 세로: ${Math.round(diffBeta)}°`;
+                } else if (mode === "portrait") {
+                    document.getElementById('level_text').innerText = `세로 수직 기울기: ${Math.round(diffBeta)}°`;
+                } else {
+                    document.getElementById('level_text').innerText = `가로 수평 기울기: ${Math.round(diffGamma)}°`;
+                }
             }
 
             // === 나침반 눈금 생성 및 수평계 동심원 눈금 생성 ===
