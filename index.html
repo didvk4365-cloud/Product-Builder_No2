@@ -1298,7 +1298,8 @@
                     <h3 style="margin:0;">⏱ 타이머 (Timer)</h3>
                     <label
                         style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border: 1.5px solid var(--text-secondary); color: var(--text-secondary); padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; margin:0; text-align: left; height: 26px; box-sizing: border-box; font-weight: normal; background: transparent;">
-                        <input type="checkbox" id="a_repeat" onchange="saveInputs()" style="width:14px; height:14px; margin:0;">
+                        <input type="checkbox" id="a_repeat" onchange="saveInputs()"
+                            style="width:14px; height:14px; margin:0;">
                         반복알람
                     </label>
                 </div>
@@ -1572,15 +1573,18 @@
 
             <div class="card">
                 <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                        <h3 style="margin:0; margin-left:4px; font-size:1.1rem; font-weight:bold; color:var(--text-primary);">📦 물자 리스트</h3>
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                        <h3
+                            style="margin:0; margin-left:4px; font-size:1.1rem; font-weight:bold; color:var(--text-primary);">
+                            📦 물자 리스트</h3>
                     </div>
                     <div class="erp-toolbar">
                         <div class="erp-toolbar-sort">
                             <select id="erp_sort" class="erp-sort-select" onchange="renderErpItems()">
                                 <option value="expiry">⏳ 유통기한</option>
                                 <option value="name_kr">🔠 가나다</option>
-                                <option value="name_en">🔤 ABC</option>
+                                <option value="name_en">🔤 ABCD</option>
                                 <option value="name_num">🔢 0123</option>
                             </select>
                             <button id="erp_sort_dir" class="erp-sort-btn"
@@ -4185,7 +4189,7 @@
                 const rad = Math.PI / 180;
                 const radBeta = beta * rad;
                 const radGamma = gamma * rad;
-                
+
                 // 가상의 중력 벡터 성분 계산 (Euler 각도 짐벌락 방지 및 부드러운 원형 이동용)
                 let gx = Math.sin(radGamma) * Math.cos(radBeta);
                 let gy = Math.sin(radBeta);
@@ -4195,7 +4199,7 @@
                     window.lastLevelGx = gx;
                     window.lastLevelGy = gy;
                 }
-                const alphaFilter = 0.25; 
+                const alphaFilter = 0.25;
                 gx = window.lastLevelGx + (gx - window.lastLevelGx) * alphaFilter;
                 gy = window.lastLevelGy + (gy - window.lastLevelGy) * alphaFilter;
                 window.lastLevelGx = gx;
@@ -4221,7 +4225,7 @@
 
                 let xVal = -(gx / sinMaxTilt) * maxDist2D;
                 let yVal = -(gy / sinMaxTilt) * maxDist2D;
-                
+
                 // 완벽한 원형 경계(Circular Boundary) 클램핑 적용
                 let dist = Math.sqrt(xVal * xVal + yVal * yVal);
                 if (dist > maxDist2D) {
