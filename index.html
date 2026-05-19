@@ -1581,6 +1581,7 @@
                                 <option value="expiry">⏳ 유통기한</option>
                                 <option value="name_kr">🔠 가나다</option>
                                 <option value="name_en">🔤 ABC</option>
+                                <option value="name_num">🔢 0123</option>
                             </select>
                             <button id="erp_sort_dir" class="erp-sort-btn"
                                 onclick="window.erpSortAsc = window.erpSortAsc === false ? true : false; this.textContent = window.erpSortAsc ? '🔼' : '🔽'; renderErpItems();">🔼</button>
@@ -3608,7 +3609,7 @@
                 const sortDir = sortAsc ? 1 : -1;
 
                 filteredList.sort((a, b) => {
-                    if (sortVal === 'name_kr' || sortVal === 'name_en') {
+                    if (sortVal === 'name_kr' || sortVal === 'name_en' || sortVal === 'name_num') {
                         const getType = (name) => {
                             const firstChar = name.replace(/[^가-힣a-zA-Z0-9]/g, '')[0] || '';
                             if (/[가-힣]/.test(firstChar)) return 'kr';
@@ -3621,10 +3622,11 @@
                         if (typeA !== typeB) {
                             const orderKr = { 'kr': 1, 'en': 2, 'num': 3 };
                             const orderEn = { 'en': 1, 'kr': 2, 'num': 3 };
-                            const order = sortVal === 'name_kr' ? orderKr : orderEn;
+                            const orderNum = { 'num': 1, 'kr': 2, 'en': 3 };
+                            const order = sortVal === 'name_kr' ? orderKr : (sortVal === 'name_en' ? orderEn : orderNum);
                             return order[typeA] - order[typeB];
                         } else {
-                            return a.name.localeCompare(b.name, 'ko-KR') * sortDir;
+                            return a.name.localeCompare(b.name, 'ko-KR', { numeric: true }) * sortDir;
                         }
                     } else {
                         // expiry
