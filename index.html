@@ -919,6 +919,85 @@
         }
 
 
+        /* 물품 리스트 필터/정렬 툴바 스타일 */
+        .erp-toolbar {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            align-items: center;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+
+        .erp-toolbar-sort {
+            display: flex;
+            align-items: center;
+            flex: 1.2;
+            min-width: 0;
+        }
+
+        .erp-toolbar-filter {
+            display: flex;
+            gap: 6px;
+            flex: 2;
+            min-width: 0;
+        }
+
+        .erp-toolbar select {
+            height: 32px !important;
+            padding: 0 8px !important;
+            font-size: 0.8rem !important;
+            border: 1px solid var(--border-color) !important;
+            background-color: var(--bg-color) !important;
+            color: var(--text-primary) !important;
+            border-radius: 6px !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            flex: 1 !important;
+            transition: border-color 0.15s;
+        }
+
+        .erp-toolbar select:focus {
+            border-color: var(--primary-color) !important;
+            outline: none !important;
+        }
+
+        .erp-toolbar button.erp-sort-btn {
+            height: 32px !important;
+            width: 32px !important;
+            min-width: 32px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            margin-top: 0 !important;
+            font-size: 0.8rem !important;
+            font-weight: normal !important;
+            border: 1px solid var(--border-color) !important;
+            border-left: none !important;
+            border-radius: 0 6px 6px 0 !important;
+            background-color: var(--bg-color) !important;
+            color: var(--text-primary) !important;
+            box-sizing: border-box !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex: none !important;
+            transition: background-color 0.15s, border-color 0.15s;
+        }
+
+        .erp-toolbar button.erp-sort-btn:active {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        :root.red-mode .erp-toolbar button.erp-sort-btn:active {
+            background-color: rgba(255, 51, 51, 0.05) !important;
+        }
+
+        .erp-toolbar select.erp-sort-select {
+            border-radius: 6px 0 0 6px !important;
+        }
     </style>
 </head>
 
@@ -1493,33 +1572,26 @@
 
             <div class="card">
                 <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
-                    <div
-                        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                        <h3 style="margin:0; margin-left:8px;">리스트</h3>
-                        <div
-                            style="display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:10px; flex:1;">
-                            <div style="display:flex; align-items:center;">
-                                <select id="erp_sort" onchange="renderErpItems()"
-                                    style="padding:4px; font-size:0.75rem; border-radius:4px 0 0 4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color); border-right:none; margin:0;">
-                                    <option value="expiry">⏳ 유통기한</option>
-                                    <option value="name_kr">🔠 가나다</option>
-                                    <option value="name_en">🔤 ABC</option>
-                                </select>
-                                <button id="erp_sort_dir" class="secondary"
-                                    onclick="window.erpSortAsc = window.erpSortAsc === false ? true : false; this.textContent = window.erpSortAsc ? '🔼' : '🔽'; renderErpItems();"
-                                    style="padding:4px 8px; font-size:0.75rem; margin:0; border-radius:0 4px 4px 0; border:1px solid var(--border-color); width:auto;">🔼</button>
-                            </div>
-                            <div style="display:flex; gap:5px;">
-                                <select id="erp_filter_main" onchange="updateFilterSubCats()"
-                                    style="width:85px; padding:4px; font-size:0.8rem; border-radius:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color);">
-                                    <option value="전체">전체보기</option>
-                                </select>
-                                <select id="erp_filter_sub" onchange="renderErpItems()"
-                                    style="width:85px; padding:4px; font-size:0.8rem; border-radius:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color); opacity:0.5;"
-                                    disabled>
-                                    <option value="전체">전체보기</option>
-                                </select>
-                            </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                        <h3 style="margin:0; margin-left:4px; font-size:1.1rem; font-weight:bold; color:var(--text-primary);">📦 물자 리스트</h3>
+                    </div>
+                    <div class="erp-toolbar">
+                        <div class="erp-toolbar-sort">
+                            <select id="erp_sort" class="erp-sort-select" onchange="renderErpItems()">
+                                <option value="expiry">⏳ 유통기한</option>
+                                <option value="name_kr">🔠 가나다</option>
+                                <option value="name_en">🔤 ABC</option>
+                            </select>
+                            <button id="erp_sort_dir" class="erp-sort-btn"
+                                onclick="window.erpSortAsc = window.erpSortAsc === false ? true : false; this.textContent = window.erpSortAsc ? '🔼' : '🔽'; renderErpItems();">🔼</button>
+                        </div>
+                        <div class="erp-toolbar-filter">
+                            <select id="erp_filter_main" onchange="updateFilterSubCats()">
+                                <option value="전체">전체보기</option>
+                            </select>
+                            <select id="erp_filter_sub" onchange="renderErpItems()" disabled style="opacity: 0.5;">
+                                <option value="전체">전체보기</option>
+                            </select>
                         </div>
                     </div>
                     <div id="erp_list_container">
