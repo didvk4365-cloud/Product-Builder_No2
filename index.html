@@ -2034,7 +2034,29 @@
             // === 서비스 워커 등록 (PWA) ===
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(reg => {
+                            reg.addEventListener('updatefound', () => {
+                                const newWorker = reg.installing;
+                                if (newWorker) {
+                                    newWorker.addEventListener('statechange', () => {
+                                        if (newWorker.state === 'activated') {
+                                            console.log('New Service Worker activated.');
+                                        }
+                                    });
+                                }
+                            });
+                        })
+                        .catch(err => console.log('SW failed', err));
+                });
+
+                // 새로운 서비스 워커가 제어권을 가질 때 자동으로 새로고침하여 최신 내용 반영
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
                 });
             }
 
