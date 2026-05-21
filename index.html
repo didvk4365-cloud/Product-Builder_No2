@@ -1060,7 +1060,7 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            margin-top: 8px;
+            margin-top: 30px;
             margin-bottom: 5px;
             box-sizing: border-box;
             gap: 10px;
@@ -3944,7 +3944,7 @@
                 if (dashboard) {
                     const catKeys = Object.keys(catCount);
                     const isEven = (catKeys.length % 2 === 0);
-                    const totalFlex = isEven ? 'flex:1 1 100%;' : 'flex:1 1 30%;';
+                    const totalFlex = (totalCount === 0 || isEven) ? 'flex:1 1 100%;' : 'flex:1 1 30%;';
 
                     let html = `
                     <div style="${totalFlex} min-width:80px; background:var(--surface-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color);">
