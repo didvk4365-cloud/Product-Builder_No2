@@ -893,20 +893,18 @@
         }
 
         #level_text {
-            position: absolute;
-            bottom: 75px;
-            left: 15px;
             z-index: 11;
             background: rgba(0, 0, 0, 0.65);
             padding: 5px 8px;
             border-radius: 8px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             border: 1px solid var(--border-color);
             color: var(--primary-color);
             font-family: monospace;
             pointer-events: none;
             text-align: left;
-            line-height: 1.35;
+            line-height: 1.3;
+            display: inline-block;
         }
 
         :root.red-mode .level-bubble.level-perfect {
@@ -1008,12 +1006,9 @@
 
         /* 프리미엄 센서 보정 버튼 스타일 */
         .sensor-cal-btn {
-            position: absolute;
-            bottom: 75px;
-            right: 15px;
             margin: 0 !important;
             font-size: 0.72rem !important;
-            padding: 5px 8px !important;
+            padding: 6px 10px !important;
             border-radius: 8px !important;
             background: rgba(0, 0, 0, 0.65) !important;
             border: 1px solid var(--border-color) !important;
@@ -1025,6 +1020,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             z-index: 11;
+            white-space: nowrap;
         }
         .sensor-cal-btn:hover {
             background: rgba(255, 255, 255, 0.12) !important;
@@ -1043,6 +1039,49 @@
             background: rgba(255, 51, 51, 0.12) !important;
             color: var(--primary-color) !important;
             border-color: var(--primary-color) !important;
+        }
+
+        /* 센서 하단 정밀 정렬 컨트롤 바 */
+        .sensor-control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+            box-sizing: border-box;
+            gap: 10px;
+        }
+
+        .sensor-left-slot {
+            flex: 1;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .sensor-center-slot {
+            flex: 1.4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sensor-right-slot {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .sensor-action-btn {
+            width: 100% !important;
+            margin-top: 0 !important;
+            padding: 10px 16px !important;
+            font-size: 0.9rem !important;
+            white-space: nowrap;
+            border-radius: 8px !important;
         }
     </style>
 </head>
@@ -1243,9 +1282,14 @@
                             </div>
                             <span id="compass_text">---°</span>
                         </div>
-                        <button onclick="startCompassCalibration()" class="sensor-cal-btn" id="btn_compass_cal">🎯 8자 보정</button>
-                        <div style="position: relative; width: 100%; margin-top: 15px;">
-                            <button onclick="toggleCompass()" id="btn_compass" style="margin-top: 0;">나침반 시작</button>
+                        <div class="sensor-control-bar">
+                            <div class="sensor-left-slot"></div>
+                            <div class="sensor-center-slot">
+                                <button onclick="toggleCompass()" id="btn_compass" class="sensor-action-btn">나침반 시작</button>
+                            </div>
+                            <div class="sensor-right-slot">
+                                <button onclick="startCompassCalibration()" class="sensor-cal-btn" id="btn_compass_cal">🎯 보정</button>
+                            </div>
                         </div>
                     </div>
 
@@ -1265,10 +1309,16 @@
                             <div class="level-crosshair-y"></div>
                             <div class="level-bubble" id="level_bubble"></div>
                         </div>
-                        <span id="level_text">가로: ---°<br>세로: ---°</span>
-                        <button onclick="startLevelCalibration()" class="sensor-cal-btn" id="btn_level_cal">🎯 보정</button>
-                        <div style="position: relative; width: 100%; margin-top: 15px;">
-                            <button onclick="toggleLevel()" id="btn_level" style="margin-top: 0;">수평계 시작</button>
+                        <div class="sensor-control-bar">
+                            <div class="sensor-left-slot">
+                                <span id="level_text">가로: ---°<br>세로: ---°</span>
+                            </div>
+                            <div class="sensor-center-slot">
+                                <button onclick="toggleLevel()" id="btn_level" class="sensor-action-btn">수평계 시작</button>
+                            </div>
+                            <div class="sensor-right-slot">
+                                <button onclick="startLevelCalibration()" class="sensor-cal-btn" id="btn_level_cal">🎯 보정</button>
+                            </div>
                         </div>
                     </div>
                 </div>
