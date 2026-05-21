@@ -1378,7 +1378,7 @@
         /* Todo list items styling */
         .todo-item-row {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 6px;
             padding: 6px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
@@ -1393,11 +1393,16 @@
             border: none !important;
             border-bottom: 1px solid transparent !important;
             border-radius: 0 !important;
-            padding: 4px 2px !important;
+            padding: 2px 2px !important;
             font-size: 0.95rem;
             color: var(--text-primary) !important;
             flex: 1;
             transition: border-color 0.15s;
+            resize: none;
+            overflow-y: hidden;
+            font-family: inherit;
+            line-height: 1.4;
+            min-height: 20px;
         }
         .todo-item-input:focus {
             border-bottom: 1px solid var(--primary-color) !important;
@@ -4974,6 +4979,12 @@
                 });
             }
 
+            function autoResizeTodoTextarea(el) {
+                if (!el) return;
+                el.style.height = 'auto';
+                el.style.height = el.scrollHeight + 'px';
+            }
+
             function renderTodoList() {
                 const listItems = document.getElementById('todo-list-items');
                 if (!listItems) return;
@@ -5011,32 +5022,32 @@
                     cb.style.width = '18px';
                     cb.style.height = '18px';
                     cb.style.margin = '0';
+                    cb.style.marginTop = '2px';
                     cb.style.cursor = 'pointer';
                     cb.addEventListener('change', () => {
                         toggleTodoItem(item.id);
                     });
                     
-                    const input = document.createElement('input');
-                    input.type = 'text';
+                    const input = document.createElement('textarea');
                     input.className = 'todo-item-input';
                     input.value = item.text;
+                    input.rows = 1;
                     
+                    input.addEventListener('input', () => {
+                        autoResizeTodoTextarea(input);
+                    });
                     input.addEventListener('change', (e) => {
                         updateTodoItemText(item.id, e.target.value);
                     });
                     input.addEventListener('blur', (e) => {
                         updateTodoItemText(item.id, e.target.value);
                     });
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            input.blur();
-                        }
-                    });
                     
                     const delBtn = document.createElement('button');
                     delBtn.className = 'todo-item-delete';
                     delBtn.textContent = '×';
                     delBtn.style.fontSize = '1.2rem';
+                    delBtn.style.marginTop = '1px';
                     delBtn.addEventListener('click', () => {
                         deleteTodoItem(item.id);
                     });
@@ -5046,6 +5057,9 @@
                     row.appendChild(delBtn);
                     
                     listItems.appendChild(row);
+                    
+                    // Adjust height after mounting
+                    setTimeout(() => autoResizeTodoTextarea(input), 0);
                 });
             }
 
