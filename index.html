@@ -1258,6 +1258,7 @@
             display: flex;
             gap: 4px;
             align-items: flex-end;
+            flex-shrink: 0;
         }
 
         /* 견출지(Index Sticker) 모양의 서브탭 */
@@ -1276,9 +1277,10 @@
             user-select: none;
             position: relative;
             transition: background-color 0.15s, color 0.15s;
-            touch-action: none; /* Prevent scroll/gestures when dragging */
             height: 34px;
             box-sizing: border-box;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         /* 견출지 느낌의 컬러 프레임 (윗선 스트립) */
@@ -1366,6 +1368,7 @@
             margin-bottom: 0;
             width: auto;
             margin-top: 0;
+            flex-shrink: 0;
         }
         .todo-tab-add:hover {
             background: rgba(255, 255, 255, 0.05);
@@ -1376,7 +1379,7 @@
         .todo-item-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
             padding: 6px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
             transition: opacity 0.15s;
@@ -1390,7 +1393,7 @@
             border: none !important;
             border-bottom: 1px solid transparent !important;
             border-radius: 0 !important;
-            padding: 4px !important;
+            padding: 4px 2px !important;
             font-size: 0.95rem;
             color: var(--text-primary) !important;
             flex: 1;
@@ -1411,7 +1414,7 @@
             border: none;
             cursor: pointer;
             font-size: 0.9rem;
-            padding: 4px 8px;
+            padding: 4px 4px;
             width: auto;
             margin: 0;
             display: inline-flex;
@@ -2255,7 +2258,7 @@
                         <div id="todo-tabs-list" class="todo-tabs-list">
                             <!-- JS로 렌더링 -->
                         </div>
-                        <button class="todo-tab-add" onclick="openTodoCatAddModal()">+</button>
+                        <button class="todo-tab-add" onclick="openTodoCatManageModal()" style="font-size:1.1rem; padding:6px 12px; display:flex; align-items:center; justify-content:center;" title="카테고리 관리">⚙</button>
                     </div>
 
                     <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:15px; margin-bottom:15px;">
@@ -2270,14 +2273,29 @@
                     </div>
                 </div>
 
-                <!-- 카테고리 추가 모달 -->
-                <div id="todo-cat-add-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center;">
-                    <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
-                        <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">새 카테고리 추가</h4>
-                        <input type="text" id="todo-cat-new-name" placeholder="카테고리 이름 입력..." style="margin-bottom:15px;" onkeydown="handleTodoCatAddKey(event)">
-                        <div style="display:flex; gap:10px;">
-                            <button onclick="closeTodoCatAddModal()" class="secondary" style="margin:0; padding:8px; flex:1;">취소</button>
-                            <button onclick="submitTodoCatAdd()" style="margin:0; padding:8px; flex:1;">추가</button>
+                <!-- 카테고리 관리 모달 -->
+                <div id="todo-cat-manage-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center;">
+                    <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:95%; max-width:420px; box-sizing:border-box; display:flex; flex-direction:column; max-height:85vh;">
+                        <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                            <span>카테고리 관리</span>
+                            <button onclick="closeTodoCatManageModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
+                        </h4>
+                        
+                        <!-- 카테고리 목록 리스트 -->
+                        <div id="todo-cat-manage-list" style="flex:1; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:10px; padding-right:5px;">
+                            <!-- JS로 동적 생성 -->
+                        </div>
+
+                        <!-- 새 카테고리 추가 -->
+                        <div style="border-top:1px solid var(--border-color); padding-top:15px; margin-bottom:15px;">
+                            <div style="display:flex; gap:8px;">
+                                <input type="text" id="todo-cat-manage-new-name" placeholder="새 카테고리 이름 입력..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleTodoCatManageAddKey(event)">
+                                <button onclick="submitTodoCatManageAdd()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex; justify-content:flex-end;">
+                            <button onclick="closeTodoCatManageModal()" style="margin:0; padding:8px 20px; width:auto;">완료</button>
                         </div>
                     </div>
                 </div>
@@ -3394,9 +3412,13 @@
             };
 
             function updateUnitOptions(isRestore = false) {
-                const cat = document.getElementById('c_category').value;
+                const catEl = document.getElementById('c_category');
+                if (!catEl) return;
+                const cat = catEl.value;
+                if (!cat || !UNIT_DATA[cat]) return;
                 const fromSelect = document.getElementById('c_unit_from');
                 const toSelect = document.getElementById('c_unit_to');
+                if (!fromSelect || !toSelect) return;
 
                 let optionsHTML = '';
                 UNIT_DATA[cat].forEach(u => {
@@ -3414,15 +3436,25 @@
 
             function convertUnit() {
                 saveInputs();
-                const valFrom = parseFloat(document.getElementById('c_val_from').value);
+                const valFromEl = document.getElementById('c_val_from');
+                if (!valFromEl) return;
+                const valFrom = parseFloat(valFromEl.value);
                 if (isNaN(valFrom)) {
-                    document.getElementById('c_val_to').value = '';
+                    const valToEl = document.getElementById('c_val_to');
+                    if (valToEl) valToEl.value = '';
                     return;
                 }
 
-                const cat = document.getElementById('c_category').value;
-                const unitFrom = document.getElementById('c_unit_from').value;
-                const unitTo = document.getElementById('c_unit_to').value;
+                const catEl = document.getElementById('c_category');
+                if (!catEl) return;
+                const cat = catEl.value;
+                if (!cat || !UNIT_DATA[cat]) return;
+
+                const unitFromEl = document.getElementById('c_unit_from');
+                const unitToEl = document.getElementById('c_unit_to');
+                if (!unitFromEl || !unitToEl) return;
+                const unitFrom = unitFromEl.value;
+                const unitTo = unitToEl.value;
 
                 let result = 0;
 
@@ -3436,15 +3468,21 @@
                     else if (unitTo === 'K') result = tempInC + 273.15;
                 } else {
                     const units = UNIT_DATA[cat];
-                    const factorFrom = units.find(u => u.id === unitFrom).factor;
-                    const factorTo = units.find(u => u.id === unitTo).factor;
+                    const fromUnitObj = units.find(u => u.id === unitFrom);
+                    const toUnitObj = units.find(u => u.id === unitTo);
+                    if (!fromUnitObj || !toUnitObj) return;
+                    const factorFrom = fromUnitObj.factor;
+                    const factorTo = toUnitObj.factor;
 
                     const baseValue = valFrom * factorFrom;
                     result = baseValue / factorTo;
                 }
 
-                let resStr = parseFloat(result.toFixed(6)).toString();
-                document.getElementById('c_val_to').value = resStr;
+                const valToEl = document.getElementById('c_val_to');
+                if (valToEl) {
+                    let resStr = parseFloat(result.toFixed(6)).toString();
+                    valToEl.value = resStr;
+                }
             }
 
             // === D. 알림 시스템 (Alert) ===
@@ -4888,11 +4926,6 @@
                         renderTodoList();
                     });
                     
-                    tabBtn.addEventListener('pointerdown', onTabPointerDown);
-                    tabBtn.addEventListener('pointermove', onTabPointerMove);
-                    tabBtn.addEventListener('pointerup', onTabPointerUp);
-                    tabBtn.addEventListener('pointercancel', onTabPointerUp);
-                    
                     tabsList.appendChild(tabBtn);
                 });
             }
@@ -4915,7 +4948,16 @@
                     return;
                 }
                 
-                filtered.forEach(item => {
+                // Sort todo items: unchecked at the top, checked at the bottom.
+                // Within each group, sort by updatedAt ascending (most recently updated at the bottom).
+                const sorted = [...filtered].sort((a, b) => {
+                    if (a.checked !== b.checked) {
+                        return a.checked ? 1 : -1;
+                    }
+                    return (a.updatedAt || a.id) - (b.updatedAt || b.id);
+                });
+                
+                sorted.forEach(item => {
                     const row = document.createElement('div');
                     row.className = `todo-item-row${item.checked ? ' checked' : ''}`;
                     
@@ -4963,145 +5005,181 @@
                 });
             }
 
-            // --- Pointer Drag & Drop for Category Tabs ---
-
-            function onTabPointerDown(e) {
-                if (e.button !== 0 && e.pointerType === 'mouse') return;
-                
-                const tabBtn = e.currentTarget;
-                dragTabIdx = parseInt(tabBtn.dataset.index);
-                isDragging = true;
-                dragStartClientX = e.clientX;
-                dragActivePointerId = e.pointerId;
-                
-                tabBtn.setPointerCapture(e.pointerId);
-                tabBtn.classList.add('dragging');
-                tabBtn.style.transform = 'translateX(0px)';
-            }
-
-            function onTabPointerMove(e) {
-                if (!isDragging || e.pointerId !== dragActivePointerId) return;
-                
-                const tabBtn = e.currentTarget;
-                const list = document.getElementById('todo-tabs-list');
-                if (!list) return;
-                
-                const deltaX = e.clientX - dragStartClientX;
-                tabBtn.style.transform = `translateX(${deltaX}px)`;
-                
-                const tabs = Array.from(list.children);
-                const currentIdx = tabs.indexOf(tabBtn);
-                if (currentIdx === -1) return;
-                
-                if (deltaX > 0 && currentIdx < tabs.length - 1) {
-                    const neighbor = tabs[currentIdx + 1];
-                    const neighborRect = neighbor.getBoundingClientRect();
-                    const neighborMidpoint = neighborRect.left + neighborRect.width / 2;
-                    if (e.clientX > neighborMidpoint) {
-                        list.insertBefore(neighbor, tabBtn);
-                        dragStartClientX += neighborRect.width + 4;
-                        tabBtn.style.transform = `translateX(${e.clientX - dragStartClientX}px)`;
-                        updateTodoCategoriesOrderFromDOM();
-                    }
-                } else if (deltaX < 0 && currentIdx > 0) {
-                    const neighbor = tabs[currentIdx - 1];
-                    const neighborRect = neighbor.getBoundingClientRect();
-                    const neighborMidpoint = neighborRect.left + neighborRect.width / 2;
-                    if (e.clientX < neighborMidpoint) {
-                        list.insertBefore(tabBtn, neighbor);
-                        dragStartClientX -= neighborRect.width + 4;
-                        tabBtn.style.transform = `translateX(${e.clientX - dragStartClientX}px)`;
-                        updateTodoCategoriesOrderFromDOM();
-                    }
-                }
-            }
-
-            function onTabPointerUp(e) {
-                if (!isDragging || e.pointerId !== dragActivePointerId) return;
-                isDragging = false;
-                dragActivePointerId = null;
-                
-                const tabBtn = e.currentTarget;
-                tabBtn.releasePointerCapture(e.pointerId);
-                tabBtn.classList.remove('dragging');
-                tabBtn.style.transform = '';
-                
-                updateTodoCategoriesOrderFromDOM();
-                saveInputs();
-                renderTodoTabs();
-            }
-
-            function updateTodoCategoriesOrderFromDOM() {
-                const list = document.getElementById('todo-tabs-list');
-                if (!list) return;
-                
-                const newOrder = [];
-                const tabs = Array.from(list.children);
-                tabs.forEach((tabEl) => {
-                    const catId = tabEl.dataset.id;
-                    const cat = appData.todoCategories.find(c => c.id === catId);
-                    if (cat) {
-                        newOrder.push(cat);
-                    }
-                });
-                appData.todoCategories = newOrder;
-                
-                tabs.forEach((tabEl, idx) => {
-                    tabEl.dataset.index = idx;
-                });
-            }
-
-            // --- Category CRUD Modals ---
-            function openTodoCatAddModal() {
-                const modal = document.getElementById('todo-cat-add-modal');
-                const input = document.getElementById('todo-cat-new-name');
-                if (modal && input) {
+            // --- Category Management Modal ---
+            function openTodoCatManageModal() {
+                const modal = document.getElementById('todo-cat-manage-modal');
+                if (modal) {
                     modal.style.display = 'flex';
-                    input.value = '';
-                    input.focus();
+                    renderTodoCatManageList();
                 }
             }
 
-            function closeTodoCatAddModal() {
-                const modal = document.getElementById('todo-cat-add-modal');
+            function closeTodoCatManageModal() {
+                const modal = document.getElementById('todo-cat-manage-modal');
                 if (modal) {
                     modal.style.display = 'none';
                 }
             }
 
-            function handleTodoCatAddKey(e) {
-                if (e.key === 'Enter') {
-                    submitTodoCatAdd();
+            function renderTodoCatManageList() {
+                const list = document.getElementById('todo-cat-manage-list');
+                if (!list) return;
+                list.innerHTML = '';
+
+                const categories = appData.todoCategories || [];
+                const maxIdx = categories.length - 1;
+
+                categories.forEach((cat, idx) => {
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.alignItems = 'center';
+                    row.style.gap = '8px';
+                    row.style.background = 'rgba(255, 255, 255, 0.02)';
+                    row.style.padding = '6px 10px';
+                    row.style.borderRadius = '6px';
+                    row.style.border = '1px solid var(--border-color)';
+
+                    // Input field for renaming
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = cat.name;
+                    input.style.flex = '1';
+                    input.style.margin = '0';
+                    input.style.padding = '4px 8px';
+                    input.style.fontSize = '0.9rem';
+                    input.style.background = 'transparent';
+                    input.style.border = 'none';
+                    input.style.borderBottom = '1px solid transparent';
+                    input.style.borderRadius = '0';
+                    input.style.color = 'var(--text-primary)';
+                    input.addEventListener('focus', () => {
+                        input.style.background = 'rgba(0, 0, 0, 0.2)';
+                        input.style.borderBottom = '1px solid var(--primary-color)';
+                    });
+                    input.addEventListener('blur', () => {
+                        input.style.background = 'transparent';
+                        input.style.borderBottom = '1px solid transparent';
+                        renameTodoCat(cat.id, input.value);
+                    });
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            input.blur();
+                        }
+                    });
+
+                    // Order controls (Up/Down)
+                    const upBtn = document.createElement('button');
+                    upBtn.innerHTML = '▲';
+                    upBtn.style.padding = '4px 8px';
+                    upBtn.style.margin = '0';
+                    upBtn.style.width = 'auto';
+                    upBtn.style.fontSize = '0.75rem';
+                    upBtn.style.background = 'transparent';
+                    upBtn.style.border = '1px solid var(--border-color)';
+                    upBtn.style.color = idx === 0 ? 'var(--text-secondary)' : 'var(--text-primary)';
+                    upBtn.disabled = idx === 0;
+                    upBtn.addEventListener('click', () => {
+                        moveTodoCatOrder(idx, -1);
+                    });
+
+                    const downBtn = document.createElement('button');
+                    downBtn.innerHTML = '▼';
+                    downBtn.style.padding = '4px 8px';
+                    downBtn.style.margin = '0';
+                    downBtn.style.width = 'auto';
+                    downBtn.style.fontSize = '0.75rem';
+                    downBtn.style.background = 'transparent';
+                    downBtn.style.border = '1px solid var(--border-color)';
+                    downBtn.style.color = idx === maxIdx ? 'var(--text-secondary)' : 'var(--text-primary)';
+                    downBtn.disabled = idx === maxIdx;
+                    downBtn.addEventListener('click', () => {
+                        moveTodoCatOrder(idx, 1);
+                    });
+
+                    // Delete button
+                    const delBtn = document.createElement('button');
+                    delBtn.innerHTML = '×';
+                    delBtn.style.padding = '4px 8px';
+                    delBtn.style.margin = '0';
+                    delBtn.style.width = 'auto';
+                    delBtn.style.fontSize = '1.1rem';
+                    delBtn.style.background = 'transparent';
+                    delBtn.style.border = 'none';
+                    delBtn.style.color = 'var(--danger-color)';
+                    delBtn.addEventListener('click', () => {
+                        openTodoCatDelModal(cat.id, cat.name);
+                    });
+
+                    row.appendChild(input);
+                    row.appendChild(upBtn);
+                    row.appendChild(downBtn);
+                    row.appendChild(delBtn);
+
+                    list.appendChild(row);
+                });
+            }
+
+            function renameTodoCat(id, newName) {
+                const trimmed = newName.trim();
+                if (!trimmed) return;
+                const cat = appData.todoCategories.find(c => c.id === id);
+                if (cat && cat.name !== trimmed) {
+                    cat.name = trimmed;
+                    saveInputs();
+                    renderTodoTabs();
+                    showToast('카테고리 이름이 수정되었습니다.');
                 }
             }
 
-            function submitTodoCatAdd() {
-                const input = document.getElementById('todo-cat-new-name');
+            function moveTodoCatOrder(idx, direction) {
+                const targetIdx = idx + direction;
+                if (targetIdx < 0 || targetIdx >= appData.todoCategories.length) return;
+
+                const temp = appData.todoCategories[idx];
+                appData.todoCategories[idx] = appData.todoCategories[targetIdx];
+                appData.todoCategories[targetIdx] = temp;
+
+                saveInputs();
+                renderTodoCatManageList();
+                renderTodoTabs();
+            }
+
+            function handleTodoCatManageAddKey(e) {
+                if (e.key === 'Enter') {
+                    submitTodoCatManageAdd();
+                }
+            }
+
+            function submitTodoCatManageAdd() {
+                const input = document.getElementById('todo-cat-manage-new-name');
                 if (!input) return;
                 const name = input.value.trim();
                 if (!name) {
                     alert('카테고리 이름을 입력해주세요.');
                     return;
                 }
-                
+
                 const newId = 'cat-' + Date.now();
                 if (!appData.todoCategories) appData.todoCategories = [];
                 appData.todoCategories.push({ id: newId, name: name });
-                
+
                 currentTodoCatId = newId;
+                input.value = '';
                 saveInputs();
-                closeTodoCatAddModal();
+                renderTodoCatManageList();
                 renderTodoTabs();
                 renderTodoList();
                 showToast('새 카테고리가 추가되었습니다.');
             }
 
+            // --- Category CRUD Modals ---
             function openTodoCatDelModal(id, name) {
                 catIdToDelete = id;
                 const modal = document.getElementById('todo-cat-del-modal');
                 const nameSpan = document.getElementById('todo-del-cat-name');
                 if (modal && nameSpan) {
                     nameSpan.textContent = name;
+                    modal.style.zIndex = '3100'; // Ensure it's above the manage modal
                     modal.style.display = 'flex';
                 }
                 
@@ -5135,6 +5213,7 @@
                 
                 saveInputs();
                 closeTodoCatDelModal();
+                renderTodoCatManageList();
                 renderTodoTabs();
                 renderTodoList();
                 showToast('카테고리가 삭제되었습니다.');
@@ -5162,7 +5241,8 @@
                     id: Date.now(),
                     catId: currentTodoCatId,
                     text: text,
-                    checked: false
+                    checked: false,
+                    updatedAt: Date.now()
                 });
                 
                 input.value = '';
@@ -5181,6 +5261,7 @@
                 const item = (appData.todoItems || []).find(i => i.id === id);
                 if (item) {
                     item.checked = !item.checked;
+                    item.updatedAt = Date.now();
                     saveInputs();
                     renderTodoList();
                 }
