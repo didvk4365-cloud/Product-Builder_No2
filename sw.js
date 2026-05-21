@@ -1,4 +1,4 @@
-const CACHE_NAME = 'survival-tool-v18';
+const CACHE_NAME = 'survival-tool-v19';
 const urlsToCache = [
   './',
   './index.html',
@@ -36,8 +36,14 @@ self.addEventListener('fetch', event => {
   // Prevent caching non-http/https schemes (like chrome-extension://, file://, etc.)
   if (!event.request.url.startsWith('http')) return;
 
+  const fetchOptions = {};
+  // For navigation requests, bypass browser local cache to get latest index.html from server
+  if (event.request.mode === 'navigate') {
+    fetchOptions.cache = 'no-cache';
+  }
+
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, fetchOptions)
       .then(response => {
         // If response is valid, update the cache
         if (response && response.status === 200 && response.type === 'basic') {

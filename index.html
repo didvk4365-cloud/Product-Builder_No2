@@ -2307,6 +2307,9 @@
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('./sw.js')
                         .then(reg => {
+                            // 페이지 로드 시 즉시 서비스 워커 업데이트 확인 강제
+                            reg.update().catch(err => console.log('SW update failed', err));
+
                             reg.addEventListener('updatefound', () => {
                                 const newWorker = reg.installing;
                                 if (newWorker) {
@@ -3899,28 +3902,32 @@
             }
 
             // Initialize
-            loadData();
-            if (!document.getElementById('c_unit_from').options.length) {
-                updateUnitOptions();
+            try {
+                loadData();
+                if (!document.getElementById('c_unit_from').options.length) {
+                    updateUnitOptions();
+                }
+
+                // Initialize Theme
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'red') {
+                    document.documentElement.classList.add('red-mode');
+                    const btn = document.getElementById('btn_theme');
+                    if (btn) btn.textContent = '⚪';
+                }
+
+                // Init Wiki
+                initWiki();
+
+                // Init Todo
+                initTodo();
+
+                // Init Categories
+                initCategories();
+                updateCatDropdowns();
+            } catch (e) {
+                console.error("Initialization error:", e);
             }
-
-            // Initialize Theme
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'red') {
-                document.documentElement.classList.add('red-mode');
-                const btn = document.getElementById('btn_theme');
-                if (btn) btn.textContent = '⚪';
-            }
-
-            // Init Wiki
-            initWiki();
-
-            // Init Todo
-            initTodo();
-
-            // Init Categories
-            initCategories();
-            updateCatDropdowns();
 
             // === G. 물자 관리 (Mini ERP) ===
             function initCategories() {
@@ -5447,7 +5454,7 @@
             }
 
             // === 스플래시 스크린 초기화 및 나침반 눈금 생성 ===
-            document.addEventListener('DOMContentLoaded', () => {
+            function initApp() {
                 // 스플래시 스크린 초기화
                 const splash = document.getElementById('splash-screen');
                 if (splash) {
@@ -5602,7 +5609,13 @@
                 if (location.hash.startsWith('#wiki')) {
                     setTimeout(handleHashChange, 100);
                 }
-            });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initApp);
+            } else {
+                initApp();
+            }
 
         </script>
 </body>
