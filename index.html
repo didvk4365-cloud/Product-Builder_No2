@@ -1790,7 +1790,7 @@
                 </div>
                 <div class="flex-row" style="align-items: center;">
                     <div class="form-group" style="margin-bottom:0; flex:1;">
-                        <input type="number" id="c_val_from" placeholder="값" oninput="convertUnit()">
+                        <input type="text" id="c_val_from" placeholder="값" inputmode="decimal" oninput="handleUnitValueInput(this)">
                     </div>
                     <div class="form-group" style="margin-bottom:0; flex:1;">
                         <select id="c_unit_from" onchange="convertUnit()"></select>
@@ -3434,11 +3434,55 @@
                 }
             }
 
+            function formatNumberWithCommas(valueStr) {
+                if (valueStr === undefined || valueStr === null) return '';
+                // Preserve negative sign
+                const isNegative = valueStr.startsWith('-');
+                let clean = valueStr.replace(/[^\d.]/g, '');
+                
+                // Allow only the first period
+                const parts = clean.split('.');
+                if (parts.length > 2) {
+                    clean = parts[0] + '.' + parts.slice(1).join('');
+                }
+                
+                const decimalParts = clean.split('.');
+                let integerPart = decimalParts[0];
+                const decimalPart = decimalParts[1] !== undefined ? '.' + decimalParts[1] : '';
+                
+                // Add commas to the integer part
+                integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                
+                return (isNegative ? '-' : '') + integerPart + decimalPart;
+            }
+
+            function handleUnitValueInput(el) {
+                const originalValue = el.value;
+                const selectionStart = el.selectionStart;
+                
+                const formatted = formatNumberWithCommas(originalValue);
+                
+                // Adjust cursor position based on newly added/removed commas
+                const commasBefore = (originalValue.substring(0, selectionStart).match(/,/g) || []).length;
+                el.value = formatted;
+                const commasAfter = (formatted.substring(0, selectionStart).match(/,/g) || []).length;
+                const diff = commasAfter - commasBefore;
+                
+                el.selectionStart = selectionStart + diff;
+                el.selectionEnd = selectionStart + diff;
+                
+                convertUnit();
+            }
+
             function convertUnit() {
                 saveInputs();
                 const valFromEl = document.getElementById('c_val_from');
                 if (!valFromEl) return;
-                const valFrom = parseFloat(valFromEl.value);
+                
+                // Format the input value immediately
+                valFromEl.value = formatNumberWithCommas(valFromEl.value);
+                
+                const valFrom = parseFloat(valFromEl.value.replace(/,/g, ''));
                 if (isNaN(valFrom)) {
                     const valToEl = document.getElementById('c_val_to');
                     if (valToEl) valToEl.value = '';
@@ -3481,7 +3525,7 @@
                 const valToEl = document.getElementById('c_val_to');
                 if (valToEl) {
                     let resStr = parseFloat(result.toFixed(6)).toString();
-                    valToEl.value = resStr;
+                    valToEl.value = formatNumberWithCommas(resStr);
                 }
             }
 
