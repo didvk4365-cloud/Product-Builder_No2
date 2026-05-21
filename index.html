@@ -1238,6 +1238,222 @@
         @keyframes splash-hint-in {
             to { opacity: 0.4; }
         }
+
+        /* ================= To-Do List Styling ================= */
+        /* To-do Tabs Layout */
+        .todo-tabs-container {
+            display: flex;
+            align-items: flex-end;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 15px;
+            padding-top: 5px;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        .todo-tabs-container::-webkit-scrollbar {
+            display: none; /* Safari/Chrome */
+        }
+
+        .todo-tabs-list {
+            display: flex;
+            gap: 4px;
+            align-items: flex-end;
+        }
+
+        /* 견출지(Index Sticker) 모양의 서브탭 */
+        .todo-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.15s, color 0.15s;
+            touch-action: none; /* Prevent scroll/gestures when dragging */
+            height: 34px;
+            box-sizing: border-box;
+        }
+
+        /* 견출지 느낌의 컬러 프레임 (윗선 스트립) */
+        .todo-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: transparent;
+            border-radius: 6px 6px 0 0;
+            transition: background-color 0.15s;
+        }
+
+        .todo-tab.active {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            font-weight: bold;
+            border-color: var(--border-color);
+            border-bottom: 2px solid var(--surface-color); /* Overlap container border */
+            margin-bottom: -2px; /* Pull down to overlay */
+            z-index: 2;
+            height: 36px; /* Active tab is slightly taller */
+        }
+
+        /* Active tab has a colored label strip */
+        .todo-tab.active::before {
+            background: var(--primary-color);
+        }
+
+        /* Red-mode adjustments for tab strip */
+        :root.red-mode .todo-tab.active::before {
+            background: var(--primary-color);
+        }
+
+        .todo-tab.dragging {
+            opacity: 0.7;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            cursor: grabbing;
+        }
+
+        /* X button on tab */
+        .todo-tab-close {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.15s, color 0.15s;
+            padding: 0;
+            margin: 0;
+        }
+        .todo-tab-close:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--danger-color) !important;
+        }
+        :root.red-mode .todo-tab-close:hover {
+            color: var(--primary-color) !important;
+        }
+
+        /* + 버튼 견출지 */
+        .todo-tab-add {
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            padding: 6px 14px;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            height: 34px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.15s, color 0.15s;
+            margin-bottom: 0;
+            width: auto;
+            margin-top: 0;
+        }
+        .todo-tab-add:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary-color);
+        }
+
+        /* Todo list items styling */
+        .todo-item-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: opacity 0.15s;
+        }
+        .todo-item-row.checked {
+            opacity: 0.5;
+        }
+        
+        .todo-item-input {
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px solid transparent !important;
+            border-radius: 0 !important;
+            padding: 4px !important;
+            font-size: 0.95rem;
+            color: var(--text-primary) !important;
+            flex: 1;
+            transition: border-color 0.15s;
+        }
+        .todo-item-input:focus {
+            border-bottom: 1px solid var(--primary-color) !important;
+            outline: none !important;
+        }
+        .todo-item-row.checked .todo-item-input {
+            text-decoration: line-through;
+            color: var(--text-secondary) !important;
+        }
+
+        .todo-item-delete {
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            width: auto;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.15s;
+        }
+        .todo-item-delete:hover {
+            color: var(--danger-color);
+        }
+        :root.red-mode .todo-item-delete:hover {
+            color: var(--primary-color);
+        }
+
+        /* Wiki header tabs */
+        .wiki-header-tabs {
+            display: flex;
+            gap: 15px;
+            height: 100%;
+            align-items: center;
+        }
+        .wiki-header-tab {
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            color: var(--text-secondary);
+            margin: 0;
+            padding: 0 5px;
+            height: 100%;
+            width: auto;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+            display: flex;
+            align-items: center;
+        }
+        .wiki-header-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -1937,95 +2153,150 @@
         <div id="wiki-layer"
             style="display:none; position:fixed; top:0; left:50%; transform:translateX(-50%); width:100%; max-width:800px; height:100%; background:var(--bg-color); z-index:2000; overflow-y:auto; flex-direction:column; box-shadow:0 0 15px rgba(0,0,0,0.8);">
             <div
-                style="padding:10px 20px; background:var(--surface-color); border-bottom:1px solid var(--border-color); position:sticky; top:0; display:flex; justify-content:space-between; align-items:center; z-index:10;">
-                <h3 style="margin:0; font-size:1.2rem; color:var(--primary-color);">📖 메뉴얼</h3>
+                style="padding:0 20px; background:var(--surface-color); border-bottom:1px solid var(--border-color); position:sticky; top:0; display:flex; justify-content:space-between; align-items:center; z-index:10; height: 50px;">
+                <div class="wiki-header-tabs">
+                    <button id="wiki-tab-manual" class="wiki-header-tab active" onclick="switchWikiTab('manual')">매뉴얼</button>
+                    <button id="wiki-tab-todo" class="wiki-header-tab" onclick="switchWikiTab('todo')">To do List</button>
+                </div>
                 <button class="secondary" onclick="closeWikiLayer()"
-                    style="margin:0; padding:4px 8px; font-size:0.8rem; width:auto;">닫기 ✖</button>
+                    style="margin:0; padding:4px 8px; font-size:0.8rem; width:auto; height: 30px; display: inline-flex; align-items: center;">닫기 ✖</button>
             </div>
-            <div style="padding:20px; flex:1; width:100%; box-sizing:border-box;">
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="text" id="wiki_search" placeholder="매뉴얼 검색 (제목 또는 내용)..." onkeyup="renderWikiList()"
-                        style="flex:1; margin:0;">
-                    <button onclick="openWikiEditor()" style="width:auto; margin:0; padding:0 15px;">새 매뉴얼</button>
-                    <button class="secondary" onclick="toggleWikiCatManager()"
-                        style="width:auto; margin:0; padding:0 10px; font-size:0.8rem;">분류 관리</button>
-                </div>
-
-                <!-- 매뉴얼 분류 관리 레이어 -->
-                <div id="wiki_cat_manager"
-                    style="display:none; background:var(--surface-color); padding:15px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:15px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <h4 style="margin:0; color:var(--primary-color);">매뉴얼 분류 관리</h4>
+            <div style="padding:20px; flex:1; width:100%; box-sizing:border-box; position: relative;">
+                
+                <!-- 매뉴얼 뷰 -->
+                <div id="wiki_manual_view" style="display:block;">
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <input type="text" id="wiki_search" placeholder="매뉴얼 검색 (제목 또는 내용)..." onkeyup="renderWikiList()"
+                            style="flex:1; margin:0;">
+                        <button onclick="openWikiEditor()" style="width:auto; margin:0; padding:0 15px;">새 매뉴얼</button>
+                        <button class="secondary" onclick="toggleWikiCatManager()"
+                            style="width:auto; margin:0; padding:0 10px; font-size:0.8rem;">분류 관리</button>
                     </div>
 
-                    <div id="wiki_cat_list" style="display:flex; flex-direction:column; gap:5px; margin-bottom:15px;">
-                    </div>
+                    <!-- 매뉴얼 분류 관리 레이어 -->
+                    <div id="wiki_cat_manager"
+                        style="display:none; background:var(--surface-color); padding:15px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:15px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <h4 style="margin:0; color:var(--primary-color);">매뉴얼 분류 관리</h4>
+                        </div>
 
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="wiki_cat_input" placeholder="새 분류 이름" style="flex:1;">
-                        <button onclick="addWikiCat()" style="width:auto; margin:0; padding:0 15px;">추가</button>
-                    </div>
-                </div>
+                        <div id="wiki_cat_list" style="display:flex; flex-direction:column; gap:5px; margin-bottom:15px;">
+                        </div>
 
-                <div style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
-                    <select id="wiki_filter_select" onchange="renderWikiList()"
-                        style="width:100%; padding:8px; border-radius:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color);">
-                        <!-- 동적 생성 -->
-                    </select>
-                </div>
-
-                <div id="wiki_list" style="display:flex; flex-direction:column; gap:10px;">
-                    <!-- JS로 렌더링 -->
-                </div>
-
-                <div id="wiki_editor"
-                    style="display:none; background:var(--surface-color); padding:15px; border-radius:12px; border:1px solid var(--border-color);">
-                    <h3 id="wiki_editor_title" style="margin-top:0;">새 매뉴얼 작성</h3>
-                    <input type="hidden" id="wiki_edit_id" value="">
-                    <div class="form-group">
-                        <label>카테고리</label>
-                        <select id="wiki_cat_select"></select>
-                    </div>
-                    <div class="form-group"
-                        style="display:flex; align-items:center; gap:10px; margin-top:15px; margin-bottom:15px; padding-left:12px;">
-                        <input type="checkbox" id="wiki_type_checkbox"
-                            style="width: 16px; height: 16px; margin: 0; padding: 0;">
-                        <label for="wiki_type_checkbox"
-                            style="margin:0; text-align:left; color:var(--text-primary); cursor:pointer;">[기본] 메뉴얼로 저장 (공식 가이드
-                            설정)</label>
-                    </div>
-                    <div class="form-group">
-                        <label>제목</label>
-                        <input type="text" id="wiki_title_input" placeholder="매뉴얼 제목을 입력하세요">
-                    </div>
-                    <div class="form-group">
-                        <label>내용 (시나리오, 행동요령 등)</label>
-                        <textarea id="wiki_content_input" rows="12" placeholder="상세 내용을 입력하세요"
-                            style="resize:vertical;"></textarea>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="saveWikiEntry()" style="flex:2; margin:0; padding:8px;">저장하기</button>
-                        <button class="danger" id="wiki_btn_delete" onclick="deleteWikiEntry()"
-                            style="flex:1; margin:0; padding:8px; display:none;">삭제</button>
-                        <button class="secondary" onclick="closeWikiEditor()"
-                            style="flex:1; margin:0; padding:8px;">취소</button>
-                    </div>
-                </div>
-
-                <div id="wiki_reader"
-                    style="display:none; background:var(--surface-color); padding:15px; border-radius:12px; border:1px solid var(--border-color);">
-                    <div
-                        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:10px; margin-bottom:15px;">
-                        <h2 id="wiki_read_title" style="margin:0; font-size:1.2rem; color:var(--primary-color);"></h2>
-                        <div>
-                            <button id="wiki_btn_edit" class="secondary"
-                                style="margin:0; padding:4px 8px; font-size:0.75rem; width:auto;">✏️수정</button>
-                            <button class="secondary" style="margin:0; padding:4px 8px; font-size:0.75rem; width:auto;"
-                                onclick="closeWikiReader()">목록으로</button>
+                        <div style="display:flex; gap:5px;">
+                            <input type="text" id="wiki_cat_input" placeholder="새 분류 이름" style="flex:1;">
+                            <button onclick="addWikiCat()" style="width:auto; margin:0; padding:0 15px;">추가</button>
                         </div>
                     </div>
-                    <div id="wiki_read_content" style="white-space:pre-wrap; line-height:1.6; font-size:0.95rem;"></div>
+
+                    <div style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+                        <select id="wiki_filter_select" onchange="renderWikiList()"
+                            style="width:100%; padding:8px; border-radius:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color);">
+                            <!-- 동적 생성 -->
+                        </select>
+                    </div>
+
+                    <div id="wiki_list" style="display:flex; flex-direction:column; gap:10px;">
+                        <!-- JS로 렌더링 -->
+                    </div>
+
+                    <div id="wiki_editor"
+                        style="display:none; background:var(--surface-color); padding:15px; border-radius:12px; border:1px solid var(--border-color);">
+                        <h3 id="wiki_editor_title" style="margin-top:0;">새 매뉴얼 작성</h3>
+                        <input type="hidden" id="wiki_edit_id" value="">
+                        <div class="form-group">
+                            <label>카테고리</label>
+                            <select id="wiki_cat_select"></select>
+                        </div>
+                        <div class="form-group"
+                            style="display:flex; align-items:center; gap:10px; margin-top:15px; margin-bottom:15px; padding-left:12px;">
+                            <input type="checkbox" id="wiki_type_checkbox"
+                                style="width: 16px; height: 16px; margin: 0; padding: 0;">
+                            <label for="wiki_type_checkbox"
+                                style="margin:0; text-align:left; color:var(--text-primary); cursor:pointer;">[기본] 메뉴얼로 저장 (공식 가이드 설정)</label>
+                        </div>
+                        <div class="form-group">
+                            <label>제목</label>
+                            <input type="text" id="wiki_title_input" placeholder="매뉴얼 제목을 입력하세요">
+                        </div>
+                        <div class="form-group">
+                            <label>내용 (시나리오, 행동요령 등)</label>
+                            <textarea id="wiki_content_input" rows="12" placeholder="상세 내용을 입력하세요"
+                                style="resize:vertical;"></textarea>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="saveWikiEntry()" style="flex:2; margin:0; padding:8px;">저장하기</button>
+                            <button class="danger" id="wiki_btn_delete" onclick="deleteWikiEntry()"
+                                style="flex:1; margin:0; padding:8px; display:none;">삭제</button>
+                            <button class="secondary" onclick="closeWikiEditor()"
+                                style="flex:1; margin:0; padding:8px;">취소</button>
+                        </div>
+                    </div>
+
+                    <div id="wiki_reader"
+                        style="display:none; background:var(--surface-color); padding:15px; border-radius:12px; border:1px solid var(--border-color);">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:10px; margin-bottom:15px;">
+                            <h2 id="wiki_read_title" style="margin:0; font-size:1.2rem; color:var(--primary-color);"></h2>
+                            <div>
+                                <button id="wiki_btn_edit" class="secondary"
+                                    style="margin:0; padding:4px 8px; font-size:0.75rem; width:auto;">✏️수정</button>
+                                <button class="secondary" style="margin:0; padding:4px 8px; font-size:0.75rem; width:auto;"
+                                    onclick="closeWikiReader()">목록으로</button>
+                            </div>
+                        </div>
+                        <div id="wiki_read_content" style="white-space:pre-wrap; line-height:1.6; font-size:0.95rem;"></div>
+                    </div>
                 </div>
+
+                <!-- 할 일 목록 (To-Do List) 뷰 -->
+                <div id="wiki_todo_view" style="display:none;">
+                    <div class="todo-tabs-container">
+                        <div id="todo-tabs-list" class="todo-tabs-list">
+                            <!-- JS로 렌더링 -->
+                        </div>
+                        <button class="todo-tab-add" onclick="openTodoCatAddModal()">+</button>
+                    </div>
+
+                    <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:15px; margin-bottom:15px;">
+                        <div id="todo-list-items" style="display:flex; flex-direction:column; gap:8px;">
+                            <!-- JS로 렌더링 -->
+                        </div>
+                        
+                        <div style="display:flex; gap:8px; margin-top:15px; border-top:1px solid var(--border-color); padding-top:15px;">
+                            <input type="text" id="todo-new-item-text" placeholder="새로운 할 일 추가..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleTodoItemInputKey(event)">
+                            <button onclick="addTodoItem()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 카테고리 추가 모달 -->
+                <div id="todo-cat-add-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center;">
+                    <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
+                        <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">새 카테고리 추가</h4>
+                        <input type="text" id="todo-cat-new-name" placeholder="카테고리 이름 입력..." style="margin-bottom:15px;" onkeydown="handleTodoCatAddKey(event)">
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="closeTodoCatAddModal()" class="secondary" style="margin:0; padding:8px; flex:1;">취소</button>
+                            <button onclick="submitTodoCatAdd()" style="margin:0; padding:8px; flex:1;">추가</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 카테고리 삭제 확인 모달 -->
+                <div id="todo-cat-del-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center;">
+                    <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
+                        <h4 style="margin-top:0; color:var(--danger-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">카테고리 삭제</h4>
+                        <p style="margin-top:0; font-size:0.9rem; color:var(--text-primary); line-height:1.5; margin-bottom:20px; text-align:left;">
+                            정말 '<span id="todo-del-cat-name" style="font-weight:bold; color:var(--primary-color);"></span>' 카테고리를 삭제하시겠습니까?<br>
+                            이 카테고리에 포함된 모든 할 일 목록이 함께 삭제됩니다.
+                        </p>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="closeTodoCatDelModal()" class="secondary" style="margin:0; padding:8px; flex:1;">취소</button>
+                            <button id="todo-cat-del-confirm-btn" class="danger" style="margin:0; padding:8px; flex:1;">삭제</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -2089,6 +2360,14 @@
             // === 상태 관리 (LocalStorage) ===
             let appData = {};
             const DATA_KEY = 'survival_data';
+
+            // To-Do List State Variables
+            let currentTodoCatId = '';
+            let catIdToDelete = null;
+            let dragTabIdx = -1;
+            let isDragging = false;
+            let dragStartClientX = 0;
+            let dragActivePointerId = null;
 
             function loadData() {
                 const saved = localStorage.getItem(DATA_KEY);
@@ -3636,6 +3915,9 @@
             // Init Wiki
             initWiki();
 
+            // Init Todo
+            initTodo();
+
             // Init Categories
             initCategories();
             updateCatDropdowns();
@@ -4510,6 +4792,411 @@
                 showToast('매뉴얼이 저장되었습니다.');
             }
 
+            // === H. 할 일 목록 (To-Do List) ===
+
+            function initTodo() {
+                if (!appData.todoCategories) {
+                    appData.todoCategories = [
+                        { id: 'cat-water', name: '식수' },
+                        { id: 'cat-power', name: '전력' },
+                        { id: 'cat-hygiene', name: '위생' },
+                        { id: 'cat-food', name: '식량' }
+                    ];
+                    saveInputs();
+                }
+                if (!appData.todoItems) {
+                    appData.todoItems = [
+                        { id: 1, catId: 'cat-water', text: '생수 유통기한 확인 및 교체하기', checked: false },
+                        { id: 2, catId: 'cat-water', text: '휴대용 정수 필터 상태 점검', checked: true },
+                        { id: 3, catId: 'cat-power', text: '보조배터리 완충해두기', checked: false },
+                        { id: 4, catId: 'cat-power', text: '비상용 자가발전 라디오 점검', checked: false },
+                        { id: 5, catId: 'cat-hygiene', text: '물티슈 및 소독제 비축분 확인', checked: false },
+                        { id: 6, catId: 'cat-food', text: '전투식량 및 통조림 보관 주기 확인', checked: false }
+                    ];
+                    saveInputs();
+                }
+                
+                // Set default active category
+                if (appData.todoCategories && appData.todoCategories.length > 0) {
+                    currentTodoCatId = appData.todoCategories[0].id;
+                }
+            }
+
+            function switchWikiTab(tab) {
+                const tabManual = document.getElementById('wiki-tab-manual');
+                const tabTodo = document.getElementById('wiki-tab-todo');
+                
+                if (tab === 'manual') {
+                    tabManual.classList.add('active');
+                    tabTodo.classList.remove('active');
+                } else {
+                    tabManual.classList.remove('active');
+                    tabTodo.classList.add('active');
+                }
+                
+                if (location.hash === '#wiki-list') {
+                    window.dispatchEvent(new Event('hashchange'));
+                } else {
+                    location.hash = 'wiki-list';
+                }
+            }
+
+            function renderTodoTabs() {
+                const tabsList = document.getElementById('todo-tabs-list');
+                if (!tabsList) return;
+                
+                tabsList.innerHTML = '';
+                
+                if (!appData.todoCategories || appData.todoCategories.length === 0) {
+                    currentTodoCatId = '';
+                    return;
+                }
+                
+                if (!currentTodoCatId || !appData.todoCategories.some(c => c.id === currentTodoCatId)) {
+                    currentTodoCatId = appData.todoCategories[0].id;
+                }
+                
+                appData.todoCategories.forEach((cat, idx) => {
+                    const tabBtn = document.createElement('div');
+                    tabBtn.className = `todo-tab${cat.id === currentTodoCatId ? ' active' : ''}`;
+                    tabBtn.dataset.id = cat.id;
+                    tabBtn.dataset.index = idx;
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = cat.name;
+                    tabBtn.appendChild(nameSpan);
+                    
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'todo-tab-close';
+                    closeBtn.textContent = '×';
+                    closeBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openTodoCatDelModal(cat.id, cat.name);
+                    });
+                    tabBtn.appendChild(closeBtn);
+                    
+                    tabBtn.addEventListener('click', () => {
+                        currentTodoCatId = cat.id;
+                        renderTodoTabs();
+                        renderTodoList();
+                    });
+                    
+                    tabBtn.addEventListener('pointerdown', onTabPointerDown);
+                    tabBtn.addEventListener('pointermove', onTabPointerMove);
+                    tabBtn.addEventListener('pointerup', onTabPointerUp);
+                    tabBtn.addEventListener('pointercancel', onTabPointerUp);
+                    
+                    tabsList.appendChild(tabBtn);
+                });
+            }
+
+            function renderTodoList() {
+                const listItems = document.getElementById('todo-list-items');
+                if (!listItems) return;
+                
+                listItems.innerHTML = '';
+                
+                if (!currentTodoCatId) {
+                    listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">카테고리를 먼저 추가해주세요.</div>';
+                    return;
+                }
+                
+                const filtered = (appData.todoItems || []).filter(item => item.catId === currentTodoCatId);
+                
+                if (filtered.length === 0) {
+                    listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">등록된 할 일이 없습니다. 새로운 할 일을 추가해보세요!</div>';
+                    return;
+                }
+                
+                filtered.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = `todo-item-row${item.checked ? ' checked' : ''}`;
+                    
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.checked = item.checked;
+                    cb.style.width = '18px';
+                    cb.style.height = '18px';
+                    cb.style.margin = '0';
+                    cb.style.cursor = 'pointer';
+                    cb.addEventListener('change', () => {
+                        toggleTodoItem(item.id);
+                    });
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'todo-item-input';
+                    input.value = item.text;
+                    
+                    input.addEventListener('change', (e) => {
+                        updateTodoItemText(item.id, e.target.value);
+                    });
+                    input.addEventListener('blur', (e) => {
+                        updateTodoItemText(item.id, e.target.value);
+                    });
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            input.blur();
+                        }
+                    });
+                    
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'todo-item-delete';
+                    delBtn.textContent = '×';
+                    delBtn.style.fontSize = '1.2rem';
+                    delBtn.addEventListener('click', () => {
+                        deleteTodoItem(item.id);
+                    });
+                    
+                    row.appendChild(cb);
+                    row.appendChild(input);
+                    row.appendChild(delBtn);
+                    
+                    listItems.appendChild(row);
+                });
+            }
+
+            // --- Pointer Drag & Drop for Category Tabs ---
+
+            function onTabPointerDown(e) {
+                if (e.button !== 0 && e.pointerType === 'mouse') return;
+                
+                const tabBtn = e.currentTarget;
+                dragTabIdx = parseInt(tabBtn.dataset.index);
+                isDragging = true;
+                dragStartClientX = e.clientX;
+                dragActivePointerId = e.pointerId;
+                
+                tabBtn.setPointerCapture(e.pointerId);
+                tabBtn.classList.add('dragging');
+                tabBtn.style.transform = 'translateX(0px)';
+            }
+
+            function onTabPointerMove(e) {
+                if (!isDragging || e.pointerId !== dragActivePointerId) return;
+                
+                const tabBtn = e.currentTarget;
+                const list = document.getElementById('todo-tabs-list');
+                if (!list) return;
+                
+                const deltaX = e.clientX - dragStartClientX;
+                tabBtn.style.transform = `translateX(${deltaX}px)`;
+                
+                const tabs = Array.from(list.children);
+                const currentIdx = tabs.indexOf(tabBtn);
+                if (currentIdx === -1) return;
+                
+                if (deltaX > 0 && currentIdx < tabs.length - 1) {
+                    const neighbor = tabs[currentIdx + 1];
+                    const neighborRect = neighbor.getBoundingClientRect();
+                    const neighborMidpoint = neighborRect.left + neighborRect.width / 2;
+                    if (e.clientX > neighborMidpoint) {
+                        list.insertBefore(neighbor, tabBtn);
+                        dragStartClientX += neighborRect.width + 4;
+                        tabBtn.style.transform = `translateX(${e.clientX - dragStartClientX}px)`;
+                        updateTodoCategoriesOrderFromDOM();
+                    }
+                } else if (deltaX < 0 && currentIdx > 0) {
+                    const neighbor = tabs[currentIdx - 1];
+                    const neighborRect = neighbor.getBoundingClientRect();
+                    const neighborMidpoint = neighborRect.left + neighborRect.width / 2;
+                    if (e.clientX < neighborMidpoint) {
+                        list.insertBefore(tabBtn, neighbor);
+                        dragStartClientX -= neighborRect.width + 4;
+                        tabBtn.style.transform = `translateX(${e.clientX - dragStartClientX}px)`;
+                        updateTodoCategoriesOrderFromDOM();
+                    }
+                }
+            }
+
+            function onTabPointerUp(e) {
+                if (!isDragging || e.pointerId !== dragActivePointerId) return;
+                isDragging = false;
+                dragActivePointerId = null;
+                
+                const tabBtn = e.currentTarget;
+                tabBtn.releasePointerCapture(e.pointerId);
+                tabBtn.classList.remove('dragging');
+                tabBtn.style.transform = '';
+                
+                updateTodoCategoriesOrderFromDOM();
+                saveInputs();
+                renderTodoTabs();
+            }
+
+            function updateTodoCategoriesOrderFromDOM() {
+                const list = document.getElementById('todo-tabs-list');
+                if (!list) return;
+                
+                const newOrder = [];
+                const tabs = Array.from(list.children);
+                tabs.forEach((tabEl) => {
+                    const catId = tabEl.dataset.id;
+                    const cat = appData.todoCategories.find(c => c.id === catId);
+                    if (cat) {
+                        newOrder.push(cat);
+                    }
+                });
+                appData.todoCategories = newOrder;
+                
+                tabs.forEach((tabEl, idx) => {
+                    tabEl.dataset.index = idx;
+                });
+            }
+
+            // --- Category CRUD Modals ---
+            function openTodoCatAddModal() {
+                const modal = document.getElementById('todo-cat-add-modal');
+                const input = document.getElementById('todo-cat-new-name');
+                if (modal && input) {
+                    modal.style.display = 'flex';
+                    input.value = '';
+                    input.focus();
+                }
+            }
+
+            function closeTodoCatAddModal() {
+                const modal = document.getElementById('todo-cat-add-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
+            function handleTodoCatAddKey(e) {
+                if (e.key === 'Enter') {
+                    submitTodoCatAdd();
+                }
+            }
+
+            function submitTodoCatAdd() {
+                const input = document.getElementById('todo-cat-new-name');
+                if (!input) return;
+                const name = input.value.trim();
+                if (!name) {
+                    alert('카테고리 이름을 입력해주세요.');
+                    return;
+                }
+                
+                const newId = 'cat-' + Date.now();
+                if (!appData.todoCategories) appData.todoCategories = [];
+                appData.todoCategories.push({ id: newId, name: name });
+                
+                currentTodoCatId = newId;
+                saveInputs();
+                closeTodoCatAddModal();
+                renderTodoTabs();
+                renderTodoList();
+                showToast('새 카테고리가 추가되었습니다.');
+            }
+
+            function openTodoCatDelModal(id, name) {
+                catIdToDelete = id;
+                const modal = document.getElementById('todo-cat-del-modal');
+                const nameSpan = document.getElementById('todo-del-cat-name');
+                if (modal && nameSpan) {
+                    nameSpan.textContent = name;
+                    modal.style.display = 'flex';
+                }
+                
+                const confirmBtn = document.getElementById('todo-cat-del-confirm-btn');
+                if (confirmBtn) {
+                    confirmBtn.onclick = submitTodoCatDel;
+                }
+            }
+
+            function closeTodoCatDelModal() {
+                const modal = document.getElementById('todo-cat-del-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+                catIdToDelete = null;
+            }
+
+            function submitTodoCatDel() {
+                if (!catIdToDelete) return;
+                
+                appData.todoCategories = (appData.todoCategories || []).filter(c => c.id !== catIdToDelete);
+                appData.todoItems = (appData.todoItems || []).filter(item => item.catId !== catIdToDelete);
+                
+                if (currentTodoCatId === catIdToDelete) {
+                    if (appData.todoCategories.length > 0) {
+                        currentTodoCatId = appData.todoCategories[0].id;
+                    } else {
+                        currentTodoCatId = '';
+                    }
+                }
+                
+                saveInputs();
+                closeTodoCatDelModal();
+                renderTodoTabs();
+                renderTodoList();
+                showToast('카테고리가 삭제되었습니다.');
+            }
+
+            // --- Checklist Item CRUD ---
+            function addTodoItem() {
+                if (!currentTodoCatId) {
+                    alert('카테고리를 먼저 선택하거나 추가해주세요.');
+                    return;
+                }
+                
+                const input = document.getElementById('todo-new-item-text');
+                if (!input) return;
+                
+                const text = input.value.trim();
+                if (!text) {
+                    alert('할 일 내용을 입력해주세요.');
+                    return;
+                }
+                
+                if (!appData.todoItems) appData.todoItems = [];
+                
+                appData.todoItems.push({
+                    id: Date.now(),
+                    catId: currentTodoCatId,
+                    text: text,
+                    checked: false
+                });
+                
+                input.value = '';
+                saveInputs();
+                renderTodoList();
+                input.focus();
+            }
+
+            function handleTodoItemInputKey(e) {
+                if (e.key === 'Enter') {
+                    addTodoItem();
+                }
+            }
+
+            function toggleTodoItem(id) {
+                const item = (appData.todoItems || []).find(i => i.id === id);
+                if (item) {
+                    item.checked = !item.checked;
+                    saveInputs();
+                    renderTodoList();
+                }
+            }
+
+            function updateTodoItemText(id, newText) {
+                const item = (appData.todoItems || []).find(i => i.id === id);
+                if (item) {
+                    const trimmed = newText.trim();
+                    if (trimmed !== item.text) {
+                        item.text = trimmed || '할 일';
+                        saveInputs();
+                        renderTodoList();
+                    }
+                }
+            }
+
+            function deleteTodoItem(id) {
+                appData.todoItems = (appData.todoItems || []).filter(i => i.id !== id);
+                saveInputs();
+                renderTodoList();
+            }
+
             // === I. 수평계 (Bubble Level) ===
             function switchNavTool(tool) {
                 const btnCompass = document.getElementById('tab_btn_compass');
@@ -4824,13 +5511,29 @@
 
                         if (hash === '#wiki-list') {
                             wikiHistoryCount = 1;
-                            document.getElementById('wiki_list').style.display = 'flex';
-                            document.getElementById('wiki_reader').style.display = 'none';
-                            document.getElementById('wiki_editor').style.display = 'none';
-                            renderWikiList();
+                            const isTodoActive = document.getElementById('wiki-tab-todo').classList.contains('active');
+                            if (isTodoActive) {
+                                document.getElementById('wiki_manual_view').style.display = 'none';
+                                document.getElementById('wiki_todo_view').style.display = 'block';
+                                renderTodoTabs();
+                                renderTodoList();
+                            } else {
+                                document.getElementById('wiki_manual_view').style.display = 'block';
+                                document.getElementById('wiki_todo_view').style.display = 'none';
+                                document.getElementById('wiki_list').style.display = 'flex';
+                                document.getElementById('wiki_reader').style.display = 'none';
+                                document.getElementById('wiki_editor').style.display = 'none';
+                                renderWikiList();
+                            }
                         } else if (hash.startsWith('#wiki-reader-')) {
                             wikiHistoryCount = 2;
                             const id = parseInt(hash.replace('#wiki-reader-', ''));
+                            
+                            // Force manual tab active
+                            document.getElementById('wiki-tab-manual').classList.add('active');
+                            document.getElementById('wiki-tab-todo').classList.remove('active');
+                            document.getElementById('wiki_manual_view').style.display = 'block';
+                            document.getElementById('wiki_todo_view').style.display = 'none';
                             
                             document.getElementById('wiki_list').style.display = 'none';
                             document.getElementById('wiki_reader').style.display = 'block';
@@ -4844,6 +5547,13 @@
                             }
                         } else if (hash === '#wiki-editor') {
                             wikiHistoryCount = 2;
+                            
+                            // Force manual tab active
+                            document.getElementById('wiki-tab-manual').classList.add('active');
+                            document.getElementById('wiki-tab-todo').classList.remove('active');
+                            document.getElementById('wiki_manual_view').style.display = 'block';
+                            document.getElementById('wiki_todo_view').style.display = 'none';
+                            
                             document.getElementById('wiki_list').style.display = 'none';
                             document.getElementById('wiki_reader').style.display = 'none';
                             document.getElementById('wiki_editor').style.display = 'block';
@@ -4858,6 +5568,12 @@
                         } else if (hash.startsWith('#wiki-editor-')) {
                             wikiHistoryCount = 3;
                             const id = parseInt(hash.replace('#wiki-editor-', ''));
+                            
+                            // Force manual tab active
+                            document.getElementById('wiki-tab-manual').classList.add('active');
+                            document.getElementById('wiki-tab-todo').classList.remove('active');
+                            document.getElementById('wiki_manual_view').style.display = 'block';
+                            document.getElementById('wiki_todo_view').style.display = 'none';
                             
                             document.getElementById('wiki_list').style.display = 'none';
                             document.getElementById('wiki_reader').style.display = 'none';
