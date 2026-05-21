@@ -4989,8 +4989,6 @@
                 const listItems = document.getElementById('todo-list-items');
                 if (!listItems) return;
                 
-                listItems.innerHTML = '';
-                
                 if (!currentTodoCatId) {
                     listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">카테고리를 먼저 추가해주세요.</div>';
                     return;
@@ -5003,6 +5001,11 @@
                     return;
                 }
                 
+                // Clear placeholder if it exists (no todo-item-row elements are in listItems)
+                if (!listItems.querySelector('.todo-item-row')) {
+                    listItems.innerHTML = '';
+                }
+                
                 // Sort todo items: unchecked at the top, checked at the bottom.
                 // Within each group, sort by updatedAt ascending (most recently updated at the bottom).
                 const sorted = [...filtered].sort((a, b) => {
@@ -5012,54 +5015,99 @@
                     return (a.updatedAt || a.id) - (b.updatedAt || b.id);
                 });
                 
+                // Get existing DOM rows mapped by ID
+                const existingRows = {};
+                const rowsInDOM = listItems.querySelectorAll('.todo-item-row');
+                rowsInDOM.forEach(row => {
+                    const id = row.getAttribute('data-id');
+                    if (id) {
+                        existingRows[id] = row;
+                    }
+                });
+                
+                const sortedIds = new Set(sorted.map(item => String(item.id)));
+                
+                // Remove rows that are no longer in the sorted list (deleted or from other categories)
+                rowsInDOM.forEach(row => {
+                    const id = row.getAttribute('data-id');
+                    if (!id || !sortedIds.has(id)) {
+                        row.remove();
+                    }
+                });
+                
+                // Update existing elements or create new ones
                 sorted.forEach(item => {
-                    const row = document.createElement('div');
-                    row.className = `todo-item-row${item.checked ? ' checked' : ''}`;
+                    const itemIdStr = String(item.id);
+                    let row = existingRows[itemIdStr];
+                    let input;
+                    let cb;
                     
-                    const cb = document.createElement('input');
-                    cb.type = 'checkbox';
-                    cb.checked = item.checked;
-                    cb.style.width = '18px';
-                    cb.style.height = '18px';
-                    cb.style.margin = '0';
-                    cb.style.marginTop = '2px';
-                    cb.style.cursor = 'pointer';
-                    cb.addEventListener('change', () => {
-                        toggleTodoItem(item.id);
-                    });
+                    if (row) {
+                        // Update existing row properties
+                        row.className = `todo-item-row${item.checked ? ' checked' : ''}`;
+                        
+                        cb = row.querySelector('input[type="checkbox"]');
+                        if (cb && cb.checked !== item.checked) {
+                            cb.checked = item.checked;
+                        }
+                        
+                        input = row.querySelector('.todo-item-input');
+                        if (input && input.value !== item.text) {
+                            input.value = item.text;
+                        }
+                    } else {
+                        // Create a new row
+                        row = document.createElement('div');
+                        row.className = `todo-item-row${item.checked ? ' checked' : ''}`;
+                        row.setAttribute('data-id', itemIdStr);
+                        
+                        cb = document.createElement('input');
+                        cb.type = 'checkbox';
+                        cb.checked = item.checked;
+                        cb.style.width = '18px';
+                        cb.style.height = '18px';
+                        cb.style.margin = '0';
+                        cb.style.marginTop = '2px';
+                        cb.style.cursor = 'pointer';
+                        cb.addEventListener('change', () => {
+                            toggleTodoItem(item.id);
+                        });
+                        
+                        input = document.createElement('textarea');
+                        input.className = 'todo-item-input';
+                        input.value = item.text;
+                        input.rows = 1;
+                        
+                        input.addEventListener('input', () => {
+                            autoResizeTodoTextarea(input);
+                        });
+                        input.addEventListener('change', (e) => {
+                            updateTodoItemText(item.id, e.target.value);
+                        });
+                        input.addEventListener('blur', (e) => {
+                            updateTodoItemText(item.id, e.target.value);
+                        });
+                        
+                        const delBtn = document.createElement('button');
+                        delBtn.className = 'todo-item-delete';
+                        delBtn.textContent = '×';
+                        delBtn.style.fontSize = '1.2rem';
+                        delBtn.style.marginTop = '1px';
+                        delBtn.addEventListener('click', () => {
+                            deleteTodoItem(item.id);
+                        });
+                        
+                        row.appendChild(cb);
+                        row.appendChild(input);
+                        row.appendChild(delBtn);
+                    }
                     
-                    const input = document.createElement('textarea');
-                    input.className = 'todo-item-input';
-                    input.value = item.text;
-                    input.rows = 1;
-                    
-                    input.addEventListener('input', () => {
-                        autoResizeTodoTextarea(input);
-                    });
-                    input.addEventListener('change', (e) => {
-                        updateTodoItemText(item.id, e.target.value);
-                    });
-                    input.addEventListener('blur', (e) => {
-                        updateTodoItemText(item.id, e.target.value);
-                    });
-                    
-                    const delBtn = document.createElement('button');
-                    delBtn.className = 'todo-item-delete';
-                    delBtn.textContent = '×';
-                    delBtn.style.fontSize = '1.2rem';
-                    delBtn.style.marginTop = '1px';
-                    delBtn.addEventListener('click', () => {
-                        deleteTodoItem(item.id);
-                    });
-                    
-                    row.appendChild(cb);
-                    row.appendChild(input);
-                    row.appendChild(delBtn);
-                    
+                    // Append row to position it correctly according to the sorted order.
+                    // If the row was already in the DOM, appendChild moves it.
                     listItems.appendChild(row);
                     
-                    // Adjust height after mounting
-                    setTimeout(() => autoResizeTodoTextarea(input), 0);
+                    // Adjust height synchronously
+                    autoResizeTodoTextarea(input);
                 });
             }
 
