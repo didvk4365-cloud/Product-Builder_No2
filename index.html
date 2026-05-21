@@ -582,7 +582,7 @@
             height: 220px;
             border: 8px solid var(--border-color);
             border-radius: 50%;
-            margin: 30px auto 15px auto;
+            margin: 15px auto 10px auto;
             position: relative;
             background: var(--surface-color);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.05);
@@ -821,7 +821,7 @@
             height: 220px;
             border: 8px solid var(--border-color);
             border-radius: 50%;
-            margin: 30px auto 15px auto;
+            margin: 15px auto 10px auto;
             position: relative;
             background: var(--surface-color);
             overflow: hidden;
@@ -1047,7 +1047,8 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 8px;
+            margin-bottom: 5px;
             box-sizing: border-box;
             gap: 10px;
         }
@@ -1264,9 +1265,9 @@
                         📐 수평계</div>
                 </div>
 
-                <div style="min-height: 380px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; width: 100%;">
                     <!-- Compass View -->
-                    <div id="view_compass" style="position: relative;">
+                    <div id="view_compass" style="position: relative; width: 100%;">
                         <div class="compass-circle">
                             <!-- Calibration Overlay -->
                             <div id="compass_cal_overlay" style="display:none; position: absolute; top:-8px; left:-8px; right:-8px; bottom:-8px; border-radius:50%; background:rgba(0,0,0,0.92); z-index:20; flex-direction:column; justify-content:center; align-items:center; gap:8px; padding:15px; box-sizing:border-box; text-align:center; border:8px solid var(--primary-color);">
@@ -1294,7 +1295,7 @@
                     </div>
 
                     <!-- Level View -->
-                    <div id="view_level" style="display:none; position: relative;">
+                    <div id="view_level" style="display:none; position: relative; width: 100%;">
                         <div class="level-container" id="level_container">
                             <!-- Calibration Overlay -->
                             <div id="level_cal_overlay" style="display:none; position: absolute; top:-8px; left:-8px; right:-8px; bottom:-8px; border-radius:50%; background:rgba(0,0,0,0.92); z-index:20; flex-direction:column; justify-content:center; align-items:center; gap:8px; padding:15px; box-sizing:border-box; text-align:center; border:8px solid var(--primary-color);">
