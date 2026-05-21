@@ -2987,6 +2987,14 @@
                     isCompassCalibrating = false;
                     document.getElementById('compass_cal_overlay').style.display = 'none';
                     
+                    // Reset compass rose rotation smoothly
+                    const rose = document.getElementById('compass_rose');
+                    if (rose) {
+                        rose.style.transition = 'transform 0.5s ease-out';
+                        rose.style.transform = 'rotate(0deg)';
+                    }
+                    currentRotation = 0;
+                    
                     btn.innerText = "나침반 시작";
                     btn.classList.remove('danger');
                     document.getElementById('compass_text').innerText = "---°";
@@ -3002,6 +3010,8 @@
                                 window.removeEventListener('deviceorientation', handleOrientation);
                                 window.addEventListener('deviceorientation', handleOrientation);
                                 isCompassActive = true;
+                                const rose = document.getElementById('compass_rose');
+                                if (rose) rose.style.transition = 'none';
                                 btn.innerText = "나침반 중지";
                                 btn.classList.add('danger');
                             }
@@ -3017,6 +3027,8 @@
                         window.addEventListener('deviceorientation', handleOrientation);
                     }
                     isCompassActive = true;
+                    const rose = document.getElementById('compass_rose');
+                    if (rose) rose.style.transition = 'none';
                     btn.innerText = "나침반 중지";
                     btn.classList.add('danger');
                 }
