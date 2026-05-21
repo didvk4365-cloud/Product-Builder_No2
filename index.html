@@ -1434,42 +1434,102 @@
             color: var(--primary-color);
         }
 
-        /* Memo 독립 탭 2단 레이아웃 */
-        .memo-flex {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: stretch;
-            min-height: 450px;
-        }
-        .memo-list-col {
-            flex: 0.9;
-            min-width: 0;
+
+        /* Memo 뷰: 툴바 + 전체너비 편집기 */
+        #wiki_memo_view {
             display: flex;
             flex-direction: column;
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px;
+            gap: 0;
         }
-        .memo-editor-col {
-            flex: 1.1;
-            min-width: 0;
+
+        /* 상단 툴바 */
+        .memo-toolbar {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
             background: var(--surface-color);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            border-bottom: none;
         }
+        .memo-active-title {
+            flex: 1;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 4px;
+        }
+        .memo-toolbar-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .memo-toolbar-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .memo-delete-toolbar-btn:hover:not(:disabled) {
+            border-color: var(--danger-color) !important;
+            color: var(--danger-color) !important;
+        }
+        :root.red-mode .memo-delete-toolbar-btn:hover:not(:disabled) {
+            border-color: var(--primary-color) !important;
+            color: var(--primary-color) !important;
+        }
+        .memo-toolbar-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* 본문 편집기 (전체 너비) */
+        .memo-editor-textarea {
+            width: 100%;
+            min-height: 420px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 10px 10px;
+            padding: 14px 16px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            resize: vertical;
+            outline: none;
+            box-sizing: border-box;
+            font-family: inherit;
+            transition: border-color 0.15s;
+        }
+        .memo-editor-textarea:focus {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .memo-editor-textarea:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.01) !important;
+        }
+
+        /* 메모 목록 팝업 내 아이템 */
         .memo-list-items {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            overflow-y: auto;
-            flex: 1;
-            max-height: 400px;
-            padding-right: 4px;
+            gap: 6px;
         }
         .memo-item-row {
             display: flex;
@@ -1478,26 +1538,25 @@
             padding: 10px 12px;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
         .memo-item-row:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             border-color: var(--primary-color);
         }
         .memo-item-row.memo-item-active {
-            background: rgba(255, 152, 0, 0.1);
+            background: rgba(255, 152, 0, 0.12);
             border-color: var(--primary-color);
         }
         :root.red-mode .memo-item-row.memo-item-active {
             background: rgba(244, 67, 54, 0.1);
-            border-color: var(--primary-color);
         }
         .memo-item-title {
             font-size: 0.9rem;
             color: var(--text-primary);
-            font-weight: bold;
+            font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1528,8 +1587,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            opacity: 0.6;
+            transition: opacity 0.15s;
         }
         .memo-item-delete:hover {
             opacity: 1;
@@ -1538,48 +1597,10 @@
         :root.red-mode .memo-item-delete:hover {
             color: var(--primary-color);
         }
-        
-        .memo-editor-textarea {
-            flex: 1;
-            width: 100%;
-            min-height: 350px;
-            background: rgba(255, 255, 255, 0.01);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 12px;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            resize: none;
-            outline: none;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-        .memo-editor-textarea:focus {
-            border-color: var(--primary-color);
-            background: rgba(255, 255, 255, 0.02);
-        }
-        .memo-editor-textarea:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: rgba(255, 255, 255, 0.01) !important;
-        }
-        
+
         @media (max-width: 480px) {
-            .memo-flex {
-                flex-direction: column;
-                gap: 15px;
-                min-height: auto;
-            }
-            .memo-list-col, .memo-editor-col {
-                flex: none;
-                width: 100%;
-            }
-            .memo-list-items {
-                max-height: 200px;
-            }
             .memo-editor-textarea {
-                min-height: 250px;
+                min-height: 300px;
             }
         }
 
@@ -2432,19 +2453,34 @@
                 </div>
 
                 <!-- 메모 (Memo) 뷰 -->
-                <div id="wiki_memo_view" style="display:none;">
-                    <div class="memo-flex">
-                        <!-- 좌측 영역: 메모 목록 -->
-                        <div class="memo-list-col">
-                            <button onclick="addMemo()" style="margin-bottom:15px; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.9rem; height:36px; padding:0;">➕ 새 메모</button>
-                            <div id="memo-list-items" class="memo-list-items">
+                <div id="wiki_memo_view" style="display:none; display:flex; flex-direction:column; gap:0;">
+                    <!-- 상단 툴바: 목록 버튼 + 현재 제목 + 새 메모/삭제 버튼 -->
+                    <div class="memo-toolbar">
+                        <button id="memo-list-toggle-btn" onclick="openMemoListPopup()" class="memo-toolbar-btn" title="메모 목록">
+                            📋
+                        </button>
+                        <span id="memo-active-title" class="memo-active-title">메모를 선택하거나 새로 추가하세요</span>
+                        <button onclick="addMemo()" class="memo-toolbar-btn" title="새 메모 추가" style="color:var(--primary-color);">
+                            ➕
+                        </button>
+                        <button id="memo-delete-btn" onclick="deleteActiveMemo()" class="memo-toolbar-btn memo-delete-toolbar-btn" title="현재 메모 삭제" disabled>
+                            🗑️
+                        </button>
+                    </div>
+
+                    <!-- 하단: 본문 편집기 (전체 너비 최대 활용) -->
+                    <textarea id="memo-editor-textarea" class="memo-editor-textarea" placeholder="메모를 선택하거나 새 메모를 추가하세요." disabled oninput="saveActiveMemoContent()"></textarea>
+
+                    <!-- 메모 목록 팝업 -->
+                    <div id="memo-list-popup" onclick="closeMemoListPopup()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); z-index:3500; align-items:flex-start; justify-content:center; padding-top:60px; box-sizing:border-box;">
+                        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; width:95%; max-width:420px; box-sizing:border-box; display:flex; flex-direction:column; max-height:70vh; overflow:hidden;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border-color);">
+                                <span style="font-weight:bold; font-size:0.95rem; color:var(--primary-color);">📋 메모 목록</span>
+                                <button onclick="closeMemoListPopup()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
+                            </div>
+                            <div id="memo-list-items" class="memo-list-items" style="overflow-y:auto; flex:1; padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
                                 <!-- JS로 렌더링 -->
                             </div>
-                        </div>
-                        
-                        <!-- 우측 영역: 메모 편집기 -->
-                        <div class="memo-editor-col">
-                            <textarea id="memo-editor-textarea" class="memo-editor-textarea" placeholder="메모를 선택하거나 새 메모를 추가하세요." disabled oninput="saveActiveMemoContent()"></textarea>
                         </div>
                     </div>
                 </div>
@@ -5447,63 +5483,39 @@
             }
             
             // === 독립 메모(Memo) 앱 CRUD 구현 ===
-            function renderMemos() {
-                const listItems = document.getElementById('memo-list-items');
-                if (!listItems) return;
-                
-                listItems.innerHTML = '';
-                const memos = appData.memos || [];
-                
-                if (memos.length === 0) {
-                    listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">작성된 메모가 없습니다.<br>새 메모를 추가해보세요.</div>';
-                    const textarea = document.getElementById('memo-editor-textarea');
-                    if (textarea) {
-                        textarea.value = '';
-                        textarea.disabled = true;
-                        textarea.placeholder = "메모를 선택하거나 새 메모를 추가하세요.";
-                    }
-                    return;
+
+            // 툴바 상태 업데이트 (제목 표시, 삭제 버튼 활성화)
+            function updateMemoToolbar() {
+                const titleEl = document.getElementById('memo-active-title');
+                const deleteBtn = document.getElementById('memo-delete-btn');
+                const activeMemo = (appData.memos || []).find(m => m.id === appData.activeMemoId);
+                if (titleEl) {
+                    titleEl.textContent = activeMemo ? (activeMemo.title || '새 메모') : '메모를 선택하거나 새로 추가하세요';
                 }
-                
-                // 최신 수정 시간 순 정렬
-                const sortedMemos = [...memos].sort((a, b) => b.updatedAt - a.updatedAt);
-                
-                sortedMemos.forEach(memo => {
-                    const row = document.createElement('div');
-                    row.className = 'memo-item-row' + (appData.activeMemoId === memo.id ? ' memo-item-active' : '');
-                    row.onclick = () => selectMemo(memo.id);
-                    
-                    const titleEl = document.createElement('span');
-                    titleEl.className = 'memo-item-title';
-                    titleEl.textContent = memo.title || '새 메모';
-                    
-                    const metaEl = document.createElement('div');
-                    metaEl.className = 'memo-item-meta';
-                    
-                    const dateEl = document.createElement('span');
-                    dateEl.className = 'memo-item-date';
-                    const date = new Date(memo.updatedAt);
-                    const timeStr = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-                    dateEl.textContent = timeStr;
-                    
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'memo-item-delete';
-                    deleteBtn.textContent = '×';
-                    deleteBtn.title = '메모 삭제';
-                    deleteBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        deleteMemo(memo.id);
-                    };
-                    
-                    metaEl.appendChild(dateEl);
-                    metaEl.appendChild(deleteBtn);
-                    row.appendChild(titleEl);
-                    row.appendChild(metaEl);
-                    
-                    listItems.appendChild(row);
-                });
-                
-                // 만약 활성 메모가 있다면 텍스트 로드
+                if (deleteBtn) {
+                    deleteBtn.disabled = !activeMemo;
+                }
+            }
+
+            // 팝업 열기/닫기
+            function openMemoListPopup() {
+                renderMemoListOnly();
+                const popup = document.getElementById('memo-list-popup');
+                if (popup) popup.style.display = 'flex';
+            }
+            function closeMemoListPopup() {
+                const popup = document.getElementById('memo-list-popup');
+                if (popup) popup.style.display = 'none';
+            }
+
+            // 활성 메모 삭제 (툴바 🗑️ 버튼)
+            function deleteActiveMemo() {
+                if (appData.activeMemoId) deleteMemo(appData.activeMemoId);
+            }
+
+            function renderMemos() {
+                renderMemoListOnly();
+                const memos = appData.memos || [];
                 const activeMemo = memos.find(m => m.id === appData.activeMemoId);
                 const textarea = document.getElementById('memo-editor-textarea');
                 if (textarea) {
@@ -5514,89 +5526,59 @@
                     } else {
                         textarea.value = '';
                         textarea.disabled = true;
-                        textarea.placeholder = "메모를 선택하거나 새 메모를 추가하세요.";
+                        textarea.placeholder = '메모를 선택하거나 새 메모를 추가하세요.';
                     }
                 }
+                updateMemoToolbar();
             }
 
             function selectMemo(id) {
                 appData.activeMemoId = id;
                 saveInputs();
+                closeMemoListPopup();
                 renderMemos();
                 const textarea = document.getElementById('memo-editor-textarea');
-                if (textarea && !textarea.disabled) {
-                    textarea.focus();
-                }
+                if (textarea && !textarea.disabled) textarea.focus();
             }
 
             function addMemo() {
                 const newId = Date.now();
-                const newMemo = {
-                    id: newId,
-                    title: '새 메모',
-                    content: '',
-                    updatedAt: newId
-                };
-                
                 if (!appData.memos) appData.memos = [];
-                appData.memos.push(newMemo);
+                appData.memos.push({ id: newId, title: '새 메모', content: '', updatedAt: newId });
                 appData.activeMemoId = newId;
-                
                 saveInputs();
+                closeMemoListPopup();
                 renderMemos();
-                
                 const textarea = document.getElementById('memo-editor-textarea');
-                if (textarea) {
-                    textarea.disabled = false;
-                    textarea.value = '';
-                    textarea.focus();
-                }
+                if (textarea) { textarea.disabled = false; textarea.value = ''; textarea.focus(); }
             }
 
             function deleteMemo(id) {
                 if (!confirm('정말 이 메모를 삭제하시겠습니까?')) return;
-                
                 appData.memos = (appData.memos || []).filter(m => m.id !== id);
-                
                 if (appData.activeMemoId === id) {
-                    if (appData.memos.length > 0) {
-                        // 가장 최근에 업데이트된 메모 선택
-                        const sorted = [...appData.memos].sort((a, b) => b.updatedAt - a.updatedAt);
-                        appData.activeMemoId = sorted[0].id;
-                    } else {
-                        appData.activeMemoId = null;
-                    }
+                    const sorted = [...appData.memos].sort((a, b) => b.updatedAt - a.updatedAt);
+                    appData.activeMemoId = sorted.length > 0 ? sorted[0].id : null;
                 }
-                
                 saveInputs();
+                closeMemoListPopup();
                 renderMemos();
             }
 
             function saveActiveMemoContent() {
                 const textarea = document.getElementById('memo-editor-textarea');
                 if (!textarea || !appData.activeMemoId) return;
-                
                 const content = textarea.value;
                 const memo = (appData.memos || []).find(m => m.id === appData.activeMemoId);
-                
                 if (memo) {
                     memo.content = content;
                     memo.updatedAt = Date.now();
-                    
-                    // 제목 추출: 첫 줄의 첫 15자 추출 (빈 줄 무시)
                     const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                    let title = '새 메모';
-                    if (lines.length > 0) {
-                        title = lines[0];
-                        if (title.length > 15) {
-                            title = title.substring(0, 15) + '...';
-                        }
-                    }
-                    memo.title = title;
-                    
+                    memo.title = lines.length > 0
+                        ? (lines[0].length > 15 ? lines[0].substring(0, 15) + '...' : lines[0])
+                        : '새 메모';
                     saveInputs();
-                    // 좌측 리스트 갱신 (전체 렌더 대신 리스트만 새로 그려 커서 위치 깨짐을 방지)
-                    renderMemoListOnly();
+                    updateMemoToolbar();
                 }
             }
 
