@@ -3952,24 +3952,26 @@
                         <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">${totalCount}개</div>
                     </div>
                 `;
-                    for (let cat in catCount) {
-                        let subHtml = `<div id="sub_dash_${cat}" style="display:none; margin-top:8px; border-top:1px solid var(--border-color); padding-top:8px; font-size:0.75rem; color:var(--text-secondary); text-align:left;">`;
-                        let hasSub = false;
-                        for (let sub in subCatCount[cat]) {
-                            if (subCatCount[cat][sub] > 0) {
-                                subHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${sub}</span><span style="color:var(--text-primary);">${subCatCount[cat][sub]}</span></div>`;
-                                hasSub = true;
+                    if (totalCount > 0) {
+                        for (let cat in catCount) {
+                            let subHtml = `<div id="sub_dash_${cat}" style="display:none; margin-top:8px; border-top:1px solid var(--border-color); padding-top:8px; font-size:0.75rem; color:var(--text-secondary); text-align:left;">`;
+                            let hasSub = false;
+                            for (let sub in subCatCount[cat]) {
+                                if (subCatCount[cat][sub] > 0) {
+                                    subHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${sub}</span><span style="color:var(--text-primary);">${subCatCount[cat][sub]}</span></div>`;
+                                    hasSub = true;
+                                }
                             }
-                        }
-                        if (!hasSub) subHtml += `<div>항목 없음</div>`;
-                        subHtml += `</div>`;
+                            if (!hasSub) subHtml += `<div>항목 없음</div>`;
+                            subHtml += `</div>`;
 
-                        html += `
-                    <div onclick="const e=document.getElementById('sub_dash_${cat}'); if(e) e.style.display = e.style.display === 'none' ? 'block' : 'none';" style="flex:1 1 30%; min-width:80px; background:var(--surface-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color); cursor:pointer; user-select:none;">
-                        <div style="color:var(--text-secondary); font-size:0.75rem;">${cat} <span style="font-size:0.6rem;">▼</span></div>
-                        <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">${catCount[cat]}</div>
-                        ${subHtml}
-                    </div>`;
+                            html += `
+                        <div onclick="const e=document.getElementById('sub_dash_${cat}'); if(e) e.style.display = e.style.display === 'none' ? 'block' : 'none';" style="flex:1 1 30%; min-width:80px; background:var(--surface-color); padding:10px; border-radius:8px; text-align:center; border:1px solid var(--border-color); cursor:pointer; user-select:none;">
+                            <div style="color:var(--text-secondary); font-size:0.75rem;">${cat} <span style="font-size:0.6rem;">▼</span></div>
+                            <div style="font-weight:bold; font-size:1.1rem; color:var(--text-primary);">${catCount[cat]}</div>
+                            ${subHtml}
+                        </div>`;
+                        }
                     }
                     dashboard.innerHTML = html;
                 }
