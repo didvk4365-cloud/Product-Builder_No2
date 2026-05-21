@@ -1434,6 +1434,39 @@
             color: var(--primary-color);
         }
 
+        /* To-Do List & Memo 2단 레이아웃 */
+        .todo-memo-flex {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: stretch;
+        }
+        .todo-list-col {
+            flex: 1.2;
+            min-width: 0;
+        }
+        .todo-memo-col {
+            flex: 0.8;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .todo-memo-col textarea:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.01) !important;
+        }
+        @media (max-width: 480px) {
+            .todo-memo-flex {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .todo-list-col, .todo-memo-col {
+                flex: none;
+                width: 100%;
+            }
+        }
+
         /* Wiki header tabs */
         .wiki-header-tabs {
             display: flex;
@@ -1600,11 +1633,14 @@
                         </label>
                         <label style="margin: 0; padding: 0; text-align: right;">텍스트 입력 (영문/숫자)</label>
                     </div>
-                    <input type="text" id="s_text" value="SOS" oninput="saveInputs()"
-                        onfocus="if(this.value==='SOS')this.value=''" style="text-transform: uppercase;">
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <input type="text" id="s_text" value="SOS" oninput="saveInputs()"
+                            onfocus="if(this.value==='SOS')this.value=''" style="text-transform: uppercase; flex: 1; margin: 0;">
+                        <button id="morse-preset-open-btn" onclick="openMorsePresetModal()" style="width: 42px; height: 42px; padding: 0; margin: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">📋</button>
+                    </div>
                 </div>
                 <div class="result-box" id="s_morse_result"
-                    style="font-size: 1.5rem; letter-spacing: 2px; word-wrap: break-word;"></div>
+                    style="font-size: 1.25rem; letter-spacing: 2px; word-wrap: break-word; margin-top: 10px; padding: 8px 12px;"></div>
 
                 <div class="flex-row">
                     <button onclick="playMorse(false)">🎵 Sound</button>
@@ -2266,14 +2302,25 @@
                         <button class="todo-tab-add" onclick="openTodoCatManageModal()" style="font-size:1.1rem; padding:6px 12px; display:flex; align-items:center; justify-content:center;" title="카테고리 관리">⚙</button>
                     </div>
 
-                    <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:15px; margin-bottom:15px;">
-                        <div id="todo-list-items" style="display:flex; flex-direction:column; gap:8px;">
-                            <!-- JS로 렌더링 -->
+                    <div class="todo-memo-flex">
+                        <!-- 좌측 영역: To-Do List -->
+                        <div class="todo-list-col" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:15px; display:flex; flex-direction:column; margin-bottom:15px;">
+                            <div id="todo-list-items" style="display:flex; flex-direction:column; gap:8px;">
+                                <!-- JS로 렌더링 -->
+                            </div>
+                            
+                            <div style="display:flex; gap:8px; margin-top:15px; border-top:1px solid var(--border-color); padding-top:15px;">
+                                <input type="text" id="todo-new-item-text" placeholder="새로운 할 일 추가..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleTodoItemInputKey(event)">
+                                <button onclick="addTodoItem()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
+                            </div>
                         </div>
-                        
-                        <div style="display:flex; gap:8px; margin-top:15px; border-top:1px solid var(--border-color); padding-top:15px;">
-                            <input type="text" id="todo-new-item-text" placeholder="새로운 할 일 추가..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleTodoItemInputKey(event)">
-                            <button onclick="addTodoItem()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
+
+                        <!-- 우측 영역: Memo -->
+                        <div class="todo-memo-col" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:15px; display:flex; flex-direction:column; margin-bottom:15px;">
+                            <div class="todo-memo-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <h4 style="margin:0; font-size:0.95rem; color:var(--primary-color);">📝 메모 (Memo)</h4>
+                            </div>
+                            <textarea id="todo-cat-memo" placeholder="선택한 카테고리에 대한 메모를 입력하세요..." style="flex:1; width:100%; min-height:120px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:6px; padding:10px; color:var(--text-primary); font-size:0.9rem; line-height:1.5; resize:vertical; outline:none; box-sizing:border-box; font-family:inherit;" oninput="saveTodoCategoryMemo()"></textarea>
                         </div>
                     </div>
                 </div>
@@ -2316,6 +2363,29 @@
                         <div style="display:flex; gap:10px;">
                             <button onclick="closeTodoCatDelModal()" class="secondary" style="margin:0; padding:8px; flex:1;">취소</button>
                             <button id="todo-cat-del-confirm-btn" class="danger" style="margin:0; padding:8px; flex:1;">삭제</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 모스 부호 프리셋 모달 -->
+                <div id="morse-preset-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center;">
+                    <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:95%; max-width:420px; box-sizing:border-box; display:flex; flex-direction:column; max-height:85vh;">
+                        <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                            <span>모스 부호 프리셋</span>
+                            <button onclick="closeMorsePresetModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
+                        </h4>
+                        
+                        <!-- 프리셋 목록 리스트 -->
+                        <div id="morse-preset-list" style="flex:1; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:10px; padding-right:5px;">
+                            <!-- JS로 동적 생성 -->
+                        </div>
+
+                        <!-- 새 프리셋 추가 -->
+                        <div style="border-top:1px solid var(--border-color); padding-top:15px;">
+                            <div style="display:flex; gap:8px;">
+                                <input type="text" id="morse-preset-new-text" placeholder="새 프리셋 텍스트 (영문/숫자)..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem; text-transform:uppercase;" onkeydown="handleMorsePresetAddKey(event)">
+                                <button onclick="addMorsePreset()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2400,41 +2470,48 @@
                 if (saved) {
                     try {
                         appData = JSON.parse(saved);
-                        appData.alarms = appData.alarms || [];
-                        const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
-                        inputs.forEach(id => {
-                            if (appData[id] !== undefined) {
-                                const el = document.getElementById(id);
-                                if (el) el.value = appData[id];
-                            }
-                        });
-                        if (appData['a_repeat'] !== undefined) {
-                            document.getElementById('a_repeat').checked = appData['a_repeat'];
-                        }
-                        if (appData['s_repeat'] !== undefined) {
-                            document.getElementById('s_repeat').checked = appData['s_repeat'];
-                        }
-                        if (appData['s_morse_flash_toggle'] !== undefined) {
-                            document.getElementById('s_morse_flash_toggle').checked = appData['s_morse_flash_toggle'];
-                        }
-                        if (appData['s_strobe_flash_toggle'] !== undefined) {
-                            document.getElementById('s_strobe_flash_toggle').checked = appData['s_strobe_flash_toggle'];
-                        }
-                        if (appData['s_beacon_flash_toggle'] !== undefined) {
-                            document.getElementById('s_beacon_flash_toggle').checked = appData['s_beacon_flash_toggle'];
-                        }
-                        if (appData['c_category']) {
-                            updateUnitOptions(true);
-                            if (appData['c_unit_from']) document.getElementById('c_unit_from').value = appData['c_unit_from'];
-                            if (appData['c_unit_to']) document.getElementById('c_unit_to').value = appData['c_unit_to'];
-                            convertUnit();
-                        }
-                        saveAndCalcWater();
-                        updateMorseText();
-                        renderAlarms();
-                        renderErpItems();
-                    } catch (e) { }
+                    } catch (e) {
+                        appData = {};
+                    }
+                } else {
+                    appData = {};
                 }
+                appData.alarms = appData.alarms || [];
+                appData.todoMemos = appData.todoMemos || {};
+                appData.morsePresets = appData.morsePresets || ['SOS', 'HELP', 'HELLO', 'OK', 'FIRE', 'SAFE'];
+                
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                inputs.forEach(id => {
+                    if (appData[id] !== undefined) {
+                        const el = document.getElementById(id);
+                        if (el) el.value = appData[id];
+                    }
+                });
+                if (appData['a_repeat'] !== undefined) {
+                    document.getElementById('a_repeat').checked = appData['a_repeat'];
+                }
+                if (appData['s_repeat'] !== undefined) {
+                    document.getElementById('s_repeat').checked = appData['s_repeat'];
+                }
+                if (appData['s_morse_flash_toggle'] !== undefined) {
+                    document.getElementById('s_morse_flash_toggle').checked = appData['s_morse_flash_toggle'];
+                }
+                if (appData['s_strobe_flash_toggle'] !== undefined) {
+                    document.getElementById('s_strobe_flash_toggle').checked = appData['s_strobe_flash_toggle'];
+                }
+                if (appData['s_beacon_flash_toggle'] !== undefined) {
+                    document.getElementById('s_beacon_flash_toggle').checked = appData['s_beacon_flash_toggle'];
+                }
+                if (appData['c_category']) {
+                    updateUnitOptions(true);
+                    if (appData['c_unit_from']) document.getElementById('c_unit_from').value = appData['c_unit_from'];
+                    if (appData['c_unit_to']) document.getElementById('c_unit_to').value = appData['c_unit_to'];
+                    convertUnit();
+                }
+                saveAndCalcWater();
+                updateMorseText();
+                renderAlarms();
+                renderErpItems();
                 updateToggleLabels();
             }
 
@@ -2531,6 +2608,105 @@
                 saveInputs();
                 updateMorseText();
             });
+
+            // === 모스 부호 프리셋 관리 ===
+            function openMorsePresetModal() {
+                const modal = document.getElementById('morse-preset-modal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    renderMorsePresets();
+                }
+            }
+
+            function closeMorsePresetModal() {
+                const modal = document.getElementById('morse-preset-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
+            function renderMorsePresets() {
+                const list = document.getElementById('morse-preset-list');
+                if (!list) return;
+                list.innerHTML = '';
+                
+                const presets = appData.morsePresets || [];
+                if (presets.length === 0) {
+                    list.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:0.9rem; padding:20px 0;">등록된 프리셋이 없습니다.</div>`;
+                    return;
+                }
+                
+                presets.forEach((preset, index) => {
+                    const item = document.createElement('div');
+                    item.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:6px; padding:8px 12px;";
+                    
+                    const btn = document.createElement('button');
+                    btn.innerText = preset;
+                    btn.style.cssText = "background:none; border:none; color:var(--text-primary); text-align:left; padding:0; font-size:0.95rem; font-weight:bold; cursor:pointer; flex:1; margin:0; text-transform:uppercase; height:auto; display:block; outline:none;";
+                    btn.onclick = () => selectMorsePreset(preset);
+                    
+                    const delBtn = document.createElement('button');
+                    delBtn.innerHTML = "×";
+                    delBtn.style.cssText = "background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0 5px; width:auto; margin:0; transition:color 0.15s; outline:none;";
+                    delBtn.onmouseover = () => delBtn.style.color = "var(--danger-color)";
+                    delBtn.onmouseout = () => delBtn.style.color = "var(--text-secondary)";
+                    delBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteMorsePreset(index);
+                    };
+                    
+                    item.appendChild(btn);
+                    item.appendChild(delBtn);
+                    list.appendChild(item);
+                });
+            }
+
+            function selectMorsePreset(preset) {
+                const input = document.getElementById('s_text');
+                if (input) {
+                    input.value = preset.toUpperCase();
+                    saveInputs();
+                    updateMorseText();
+                }
+                closeMorsePresetModal();
+            }
+
+            function addMorsePreset() {
+                const input = document.getElementById('morse-preset-new-text');
+                if (!input) return;
+                
+                const val = input.value.trim().toUpperCase();
+                if (!val) {
+                    alert('프리셋 텍스트를 입력해주세요.');
+                    return;
+                }
+                
+                appData.morsePresets = appData.morsePresets || [];
+                if (appData.morsePresets.includes(val)) {
+                    alert('이미 존재하는 프리셋입니다.');
+                    return;
+                }
+                
+                appData.morsePresets.push(val);
+                saveInputs();
+                input.value = '';
+                renderMorsePresets();
+                showToast('프리셋이 추가되었습니다.');
+            }
+
+            function deleteMorsePreset(index) {
+                if (!appData.morsePresets) return;
+                appData.morsePresets.splice(index, 1);
+                saveInputs();
+                renderMorsePresets();
+                showToast('프리셋이 삭제되었습니다.');
+            }
+
+            function handleMorsePresetAddKey(e) {
+                if (e.key === 'Enter') {
+                    addMorsePreset();
+                }
+            }
 
             function updateMorseText() {
                 const txt = (document.getElementById('s_text').value || "").toUpperCase();
@@ -5001,6 +5177,20 @@
                 const listItems = document.getElementById('todo-list-items');
                 if (!listItems) return;
                 
+                // 메모장 렌더링
+                const memoTextarea = document.getElementById('todo-cat-memo');
+                if (memoTextarea) {
+                    if (!currentTodoCatId) {
+                        memoTextarea.value = '';
+                        memoTextarea.disabled = true;
+                        memoTextarea.placeholder = '카테고리를 먼저 추가해주세요.';
+                    } else {
+                        memoTextarea.disabled = false;
+                        memoTextarea.placeholder = '선택한 카테고리에 대한 메모를 입력하세요...';
+                        memoTextarea.value = (appData.todoMemos && appData.todoMemos[currentTodoCatId]) || '';
+                    }
+                }
+
                 if (!currentTodoCatId) {
                     listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">카테고리를 먼저 추가해주세요.</div>';
                     return;
@@ -5315,11 +5505,26 @@
                 catIdToDelete = null;
             }
 
+            function saveTodoCategoryMemo() {
+                const memoTextarea = document.getElementById('todo-cat-memo');
+                if (!memoTextarea || !currentTodoCatId) return;
+                
+                if (!appData.todoMemos) {
+                    appData.todoMemos = {};
+                }
+                appData.todoMemos[currentTodoCatId] = memoTextarea.value;
+                saveInputs();
+            }
+
             function submitTodoCatDel() {
                 if (!catIdToDelete) return;
                 
                 appData.todoCategories = (appData.todoCategories || []).filter(c => c.id !== catIdToDelete);
                 appData.todoItems = (appData.todoItems || []).filter(item => item.catId !== catIdToDelete);
+                
+                if (appData.todoMemos && appData.todoMemos[catIdToDelete] !== undefined) {
+                    delete appData.todoMemos[catIdToDelete];
+                }
                 
                 if (currentTodoCatId === catIdToDelete) {
                     if (appData.todoCategories.length > 0) {
