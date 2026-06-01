@@ -429,6 +429,16 @@
             background-color: rgba(255, 51, 51, 0.05);
         }
 
+        button.btn-filled-primary {
+            background-color: var(--primary-color);
+            color: #111827;
+            border: 1.5px solid var(--primary-color);
+        }
+
+        :root.red-mode button.btn-filled-primary {
+            color: #ffffff;
+        }
+
         /* Premium Toggle Switch Styling */
         .switch-container {
             display: flex;
@@ -1927,20 +1937,20 @@
                         <span style="font-size:0.85rem; font-weight:bold; color:var(--primary-color);">🚨 생존 준비 알람
                             (Margin Time)</span>
                     </div>
-                    <div class="flex-row" style="align-items: center;">
-                        <div class="form-group" style="margin-bottom:0; flex:1.5;">
-                            <select id="sun_target_type" onchange="updateSunCountdown()">
+                    <div class="flex-row" style="align-items: center; gap: 8px;">
+                        <div class="form-group" style="margin-bottom:0; width: 50%; flex: none;">
+                            <select id="sun_target_type" onchange="updateSunCountdown()" style="margin:0;">
                                 <option value="bmnt">🌅 BMNT(항해박명초) 전 준비</option>
                                 <option value="sunrise" selected>☀️ 일출 전 준비</option>
                                 <option value="sunset">🌙 일몰 전 준비</option>
                                 <option value="eent">🌆 EENT(항해박명종) 전 준비</option>
                             </select>
                         </div>
-                        <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <div style="display: flex; align-items: center; gap: 4px; width: 25%; flex: none;">
                             <input type="number" id="sun_margin_mins" value="30" min="0" oninput="updateSunCountdown()"
-                                placeholder="분">
+                                placeholder="분" style="margin:0; width: 100%; box-sizing: border-box;">
+                            <span style="font-size:0.85rem; color:var(--text-secondary); white-space:nowrap;">분 전</span>
                         </div>
-                        <div style="font-size:0.8rem; color:var(--text-secondary); white-space:nowrap;">분 전</div>
                     </div>
                     <div id="sun_countdown_display" class="result-box"
                         style="margin-top:10px; text-align:center; font-size:1.1rem; display:none;">
@@ -2160,7 +2170,7 @@
             <div class="card">
                 <h3>데이터 백업 및 복구</h3>
                 <p style="font-size: 0.9rem; color: var(--text-secondary);">인터넷 연결이 끊겼을 때를 대비해 설정과 위치 정보를 기기에 백업합니다.</p>
-                <button onclick="exportData()">💾 JSON 내보내기 (Export)</button>
+                <button class="btn-filled-primary" onclick="exportData()">💾 JSON 내보내기 (Export)</button>
                 <button class="secondary" onclick="document.getElementById('import_file').click()">📂 JSON 가져오기
                     (Import)</button>
                 <input type="file" id="import_file" style="display: none;" accept=".json" onchange="importData(event)">
@@ -4310,17 +4320,43 @@
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = function (e) {
+                    let parsed;
                     try {
                         const content = e.target.result;
-                        JSON.parse(content); // validate json
-                        localStorage.setItem(DATA_KEY, content);
-                        alert("데이터가 성공적으로 복원되었습니다.");
-                        loadData();
+                        parsed = JSON.parse(content); // validate json
+                        
+                        if (!parsed || typeof parsed !== 'object') {
+                            throw new Error("Invalid format");
+                        }
+
+                        // 교차 오인 로드 감지 및 지능형 피드백 안내 (지도 버전 백업 오인 방지)
+                        if (parsed.type === "FeatureCollection" || parsed.type === "Feature" || (parsed.route && parsed.geofence && !parsed.alarms && !parsed.categories)) {
+                            alert("이 파일은 [대피 지도 데이터 백업] 파일입니다.\n\n이 데이터는 지도 버전 도구의 지도 레이어 내에서 복원해 주십시오.");
+                            return;
+                        }
                     } catch (err) {
-                        alert("올바르지 않은 백업 파일입니다.");
+                        alert("올바르지 않은 백업 파일입니다. 생존 도구 설정 백업 JSON 파일을 선택해 주십시오.");
+                        return;
+                    }
+
+                    // JSON 파싱 검증 완료 후, 데이터 적용 단계는 별도 예외 처리
+                    try {
+                        localStorage.setItem(DATA_KEY, JSON.stringify(parsed));
+                        appData = parsed; // 메모리 상의 appData 즉시 갱신
+                        
+                        // 데이터 로드 및 카테고리 자가 복구, 드롭다운 동기화 강제 정합
+                        loadData();
+                        initCategories();
+                        updateCatDropdowns();
+                        
+                        alert("데이터가 성공적으로 복원되었습니다.");
+                    } catch (loadErr) {
+                        console.error("Backup data restoration apply failed:", loadErr);
+                        alert(`⚠️ 데이터 적용에 실패했습니다: ${loadErr.message}`);
                     }
                 };
                 reader.readAsText(file);
+                event.target.value = ''; // 동일 파일 재선택 가능하도록 리셋
             }
 
             function clearData() {
@@ -4368,7 +4404,23 @@
 
             // === G. 물자 관리 (Mini ERP) ===
             function initCategories() {
-                if (!appData.categories) {
+                let needReset = false;
+
+                // categories가 아예 없거나, 객체가 아니거나, 빈 객체인 경우
+                if (!appData.categories || typeof appData.categories !== 'object' || Array.isArray(appData.categories) || Object.keys(appData.categories).length === 0) {
+                    needReset = true;
+                } else {
+                    // 내부 중분류 값들이 모두 배열인지 정밀 검증
+                    for (let key in appData.categories) {
+                        if (!Array.isArray(appData.categories[key])) {
+                            needReset = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (needReset) {
+                    console.warn("Invalid categories schema detected. Repairing schema to defaults...");
                     appData.categories = {
                         "식량": ["통조림", "즉석밥", "건조식품", "기타"],
                         "식수": ["생수", "정수필터", "정수알약", "기타"],
@@ -4583,31 +4635,59 @@
                 const mainSel = document.getElementById('erp_cat_main');
                 const filterMainSel = document.getElementById('erp_filter_main');
 
+                // 1단계 안전장치: categories 가 유실되었거나 파괴되어 있다면 강제 자가 복구
+                if (!appData.categories || Object.keys(appData.categories).length === 0) {
+                    initCategories();
+                }
+
                 if (mainSel) {
                     const oldVal = mainSel.value;
                     mainSel.innerHTML = '';
-                    Object.keys(appData.categories).forEach(cat => {
+                    
+                    Object.keys(appData.categories || {}).forEach(cat => {
                         let opt = document.createElement('option');
                         opt.value = cat;
                         opt.innerText = cat;
                         mainSel.appendChild(opt);
                     });
-                    if (Object.keys(appData.categories).includes(oldVal)) mainSel.value = oldVal;
+
+                    // 2단계 안전장치: 옵션이 단 하나도 채워지지 않았다면(비정상 케이스) initCategories 재강제 후 재생성
+                    if (mainSel.options.length === 0) {
+                        initCategories();
+                        Object.keys(appData.categories || {}).forEach(cat => {
+                            let opt = document.createElement('option');
+                            opt.value = cat;
+                            opt.innerText = cat;
+                            mainSel.appendChild(opt);
+                        });
+                    }
+
+                    if (Object.keys(appData.categories || {}).includes(oldVal)) {
+                        mainSel.value = oldVal;
+                    } else if (mainSel.options.length > 0) {
+                        mainSel.selectedIndex = 0;
+                    }
                 }
 
                 if (filterMainSel) {
                     const oldFilterMain = filterMainSel.value;
                     filterMainSel.innerHTML = '<option value="전체">전체보기</option>';
-                    Object.keys(appData.categories).forEach(cat => {
+                    Object.keys(appData.categories || {}).forEach(cat => {
                         let opt = document.createElement('option');
                         opt.value = cat;
                         opt.innerText = cat;
                         filterMainSel.appendChild(opt);
                     });
-                    if (Object.keys(appData.categories).includes(oldFilterMain)) filterMainSel.value = oldFilterMain;
+                    if (Object.keys(appData.categories || {}).includes(oldFilterMain)) {
+                        filterMainSel.value = oldFilterMain;
+                    } else if (filterMainSel.options.length > 0) {
+                        filterMainSel.selectedIndex = 0;
+                    }
                 }
 
-                updateSubCats();
+                // 대분류 설정 후 중분류가 유기적으로 채워지도록 보장하기 위해 명시적으로 대분류 값을 넘겨 강제 호출
+                const activeMainVal = mainSel ? mainSel.value : null;
+                updateSubCats(activeMainVal);
                 updateFilterSubCats(true);
             }
 
@@ -4833,7 +4913,7 @@
                 container.innerHTML = html;
 
                 // 경고 알림 (전체 보기일 때만 실제 전체 카운트를 기반으로 경고)
-                if (filterVal === '전체' && warningCount > 0 && warningCount !== appData.lastWarningCount) {
+                if (filterMainVal === '전체' && warningCount > 0 && warningCount !== appData.lastWarningCount) {
                     appData.lastWarningCount = warningCount;
                     showToast(`⚠️ 유통기한 임박(30일 이내) 물품이 ${warningCount}개 있습니다.`);
                     saveInputs();
