@@ -1404,8 +1404,9 @@
             border: none;
             cursor: pointer;
             font-size: 0.9rem;
-            padding: 4px 4px;
-            width: auto;
+            padding: 0;
+            width: 18px;
+            height: 18px;
             margin: 0;
             display: inline-flex;
             align-items: center;
@@ -5559,8 +5560,8 @@
                         const delBtn = document.createElement('button');
                         delBtn.className = 'todo-item-delete';
                         delBtn.textContent = '×';
-                        delBtn.style.fontSize = '1.2rem';
-                        delBtn.style.marginTop = '1px';
+                        delBtn.style.fontSize = '1.1rem';
+                        delBtn.style.marginTop = '2px';
                         delBtn.addEventListener('click', () => {
                             deleteTodoItem(item.id);
                         });
