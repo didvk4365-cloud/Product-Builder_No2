@@ -1334,31 +1334,6 @@
             cursor: grabbing;
         }
 
-        /* X button on tab */
-        .todo-tab-close {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.15s, color 0.15s;
-            padding: 0;
-            margin: 0;
-        }
-        .todo-tab-close:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: var(--danger-color) !important;
-        }
-        :root.red-mode .todo-tab-close:hover {
-            color: var(--primary-color) !important;
-        }
-
         /* + 버튼 견출지 */
         .todo-tab-add {
             background: transparent;
@@ -5394,15 +5369,6 @@
                     const nameSpan = document.createElement('span');
                     nameSpan.textContent = cat.name;
                     tabBtn.appendChild(nameSpan);
-                    
-                    const closeBtn = document.createElement('button');
-                    closeBtn.className = 'todo-tab-close';
-                    closeBtn.textContent = '×';
-                    closeBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openTodoCatDelModal(cat.id, cat.name);
-                    });
-                    tabBtn.appendChild(closeBtn);
                     
                     tabBtn.addEventListener('click', () => {
                         currentTodoCatId = cat.id;
