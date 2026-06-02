@@ -2837,32 +2837,46 @@
             }
 
             function saveCurrentWaterRecipe() {
-                const w = document.getElementById('w_w').value.trim();
-                const l = document.getElementById('w_l').value.trim();
-                const h = document.getElementById('w_h').value.trim();
-                const v = document.getElementById('w_v').value.trim();
+                try {
+                    const wEl = document.getElementById('w_w');
+                    const lEl = document.getElementById('w_l');
+                    const hEl = document.getElementById('w_h');
+                    const vEl = document.getElementById('w_v');
 
-                const volume = parseFloat(v) || 0;
-                const hasDimensions = w && l && h;
-                
-                if (!hasDimensions && volume <= 0) {
-                    alert("저장할 물의 규격이나 양이 입력되지 않았습니다. 수치 입력 후 다시 시도해 주세요.");
-                    return;
-                }
+                    const w = wEl ? wEl.value.trim() : '';
+                    const l = lEl ? lEl.value.trim() : '';
+                    const h = hEl ? hEl.value.trim() : '';
+                    const v = vEl ? vEl.value.trim() : '';
 
-                const modal = document.getElementById('water-recipe-add-modal');
-                const nameInput = document.getElementById('water_recipe_new_name');
-                if (modal && nameInput) {
-                    nameInput.value = '';
-                    modal.style.display = 'flex';
-                    nameInput.focus();
+                    const volume = parseFloat(v) || 0;
+                    const hasDimensions = w && l && h;
+                    
+                    if (!hasDimensions && volume <= 0) {
+                        alert("저장할 물의 규격이나 양이 입력되지 않았습니다. 수치 입력 후 다시 시도해 주세요.");
+                        return;
+                    }
+
+                    const modal = document.getElementById('water-recipe-add-modal');
+                    const nameInput = document.getElementById('water_recipe_new_name');
+                    if (modal && nameInput) {
+                        nameInput.value = '';
+                        modal.style.display = 'flex';
+                        nameInput.focus();
+                    }
+                } catch (err) {
+                    console.error("saveCurrentWaterRecipe error:", err);
+                    alert("저장 창을 여는 도중 오류가 발생했습니다: " + err.message);
                 }
             }
 
             function closeWaterRecipeAddModal() {
-                const modal = document.getElementById('water-recipe-add-modal');
-                if (modal) {
-                    modal.style.display = 'none';
+                try {
+                    const modal = document.getElementById('water-recipe-add-modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error("closeWaterRecipeAddModal error:", err);
                 }
             }
 
@@ -2873,65 +2887,85 @@
             }
 
             function submitWaterRecipeAdd() {
-                const nameInput = document.getElementById('water_recipe_new_name');
-                const name = nameInput.value.trim();
-                if (!name) {
-                    alert("레시피 이름을 입력해야 저장할 수 있습니다.");
-                    return;
+                try {
+                    const nameInput = document.getElementById('water_recipe_new_name');
+                    if (!nameInput) {
+                        alert("입력창을 찾을 수 없습니다.");
+                        return;
+                    }
+                    const name = nameInput.value.trim();
+                    if (!name) {
+                        alert("레시피 이름을 입력해야 저장할 수 있습니다.");
+                        return;
+                    }
+
+                    const wEl = document.getElementById('w_w');
+                    const lEl = document.getElementById('w_l');
+                    const hEl = document.getElementById('w_h');
+                    const vEl = document.getElementById('w_v');
+                    const sEl = document.getElementById('w_s');
+                    const cEl = document.getElementById('w_c');
+
+                    const w = wEl ? wEl.value.trim() : '';
+                    const l = lEl ? lEl.value.trim() : '';
+                    const h = hEl ? hEl.value.trim() : '';
+                    const v = vEl ? vEl.value.trim() : '';
+                    const s = sEl ? sEl.value : '1';
+                    const c = cEl ? cEl.value : '5.25';
+
+                    // 계산 및 최종 물의 양(Volume) 얻기
+                    const volume = parseFloat(v) || 0;
+                    const hasDimensions = w && l && h;
+                    let finalVol = volume;
+                    if (hasDimensions) {
+                        finalVol = (parseFloat(w) * parseFloat(l) * parseFloat(h)) / 1000;
+                    }
+
+                    const conc = parseFloat(c) || 5.25;
+                    const cloudy = parseInt(s) === 2;
+                    const targetPPM = cloudy ? 8 : 4;
+
+                    const mlNeeded = (finalVol * targetPPM) / (conc * 10);
+                    const dropsNeeded = mlNeeded * 20;
+
+                    const newRecipe = {
+                        id: Date.now(),
+                        name: name,
+                        w_w: w,
+                        w_l: l,
+                        w_h: h,
+                        w_v: finalVol.toFixed(2),
+                        w_s: s,
+                        w_c: c,
+                        drops: dropsNeeded.toFixed(1),
+                        ml: mlNeeded.toFixed(2)
+                    };
+
+                    appData.waterRecipes = appData.waterRecipes || [];
+                    appData.waterRecipes.push(newRecipe);
+
+                    saveInputs();
+                    renderWaterRecipes();
+                    closeWaterRecipeAddModal();
+                    showToast("새 정화 레시피가 저장되었습니다.");
+                } catch (err) {
+                    console.error("submitWaterRecipeAdd error:", err);
+                    alert("레시피를 저장하는 도중 오류가 발생했습니다: " + err.message);
                 }
-
-                const w = document.getElementById('w_w').value.trim();
-                const l = document.getElementById('w_l').value.trim();
-                const h = document.getElementById('w_h').value.trim();
-                const v = document.getElementById('w_v').value.trim();
-                const s = document.getElementById('w_s').value;
-                const c = document.getElementById('w_c').value;
-
-                // 계산 및 최종 물의 양(Volume) 얻기
-                const volume = parseFloat(v) || 0;
-                const hasDimensions = w && l && h;
-                let finalVol = volume;
-                if (hasDimensions) {
-                    finalVol = (parseFloat(w) * parseFloat(l) * parseFloat(h)) / 1000;
-                }
-
-                const conc = parseFloat(c) || 5.25;
-                const cloudy = parseInt(s) === 2;
-                const targetPPM = cloudy ? 8 : 4;
-
-                const mlNeeded = (finalVol * targetPPM) / (conc * 10);
-                const dropsNeeded = mlNeeded * 20;
-
-                const newRecipe = {
-                    id: Date.now(),
-                    name: name,
-                    w_w: w,
-                    w_l: l,
-                    w_h: h,
-                    w_v: finalVol.toFixed(2),
-                    w_s: s,
-                    w_c: c,
-                    drops: dropsNeeded.toFixed(1),
-                    ml: mlNeeded.toFixed(2)
-                };
-
-                appData.waterRecipes = appData.waterRecipes || [];
-                appData.waterRecipes.push(newRecipe);
-
-                saveInputs();
-                renderWaterRecipes();
-                closeWaterRecipeAddModal();
-                showToast("새 정화 레시피가 저장되었습니다.");
             }
 
             function deleteWaterRecipe(id, event) {
-                if (event) event.stopPropagation();
-                
-                if (confirm("이 정화 레시피를 정말로 삭제하시겠습니까?")) {
-                    appData.waterRecipes = (appData.waterRecipes || []).filter(r => r.id !== id);
-                    saveInputs();
-                    renderWaterRecipes();
-                    showToast("레시피가 삭제되었습니다.");
+                try {
+                    if (event) event.stopPropagation();
+                    
+                    if (confirm("이 정화 레시피를 정말로 삭제하시겠습니까?")) {
+                        appData.waterRecipes = (appData.waterRecipes || []).filter(r => r.id !== id);
+                        saveInputs();
+                        renderWaterRecipes();
+                        showToast("레시피가 삭제되었습니다.");
+                    }
+                } catch (err) {
+                    console.error("deleteWaterRecipe error:", err);
                 }
             }
 
