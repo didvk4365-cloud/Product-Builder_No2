@@ -2676,42 +2676,68 @@
                 } else {
                     appData = {};
                 }
-                appData.alarms = appData.alarms || [];
-                appData.todoMemos = appData.todoMemos || {};
-                appData.memos = appData.memos || [];
+
+                // appData 무결성 검증
+                if (!appData || typeof appData !== 'object' || Array.isArray(appData)) {
+                    appData = {};
+                }
+
+                // 배열 자료형 데이터 정밀 검증 및 자가 복구
+                if (!Array.isArray(appData.alarms)) appData.alarms = [];
+                if (!Array.isArray(appData.memos)) appData.memos = [];
+                if (typeof appData.todoMemos !== 'object' || Array.isArray(appData.todoMemos) || appData.todoMemos === null) {
+                    appData.todoMemos = {};
+                }
                 appData.activeMemoId = appData.activeMemoId || null;
-                appData.morsePresets = appData.morsePresets || ['SOS', 'HELP', 'HELLO', 'OK', 'FIRE', 'SAFE'];
-                appData.waterRecipes = appData.waterRecipes || [
-                    { id: 1, name: "페트병 정화 (2L)", w_w: "", w_l: "", w_h: "", w_v: "2.00", w_s: "1", w_c: "5.25", drops: "3.0", ml: "0.15" },
-                    { id: 2, name: "일반 말통 (10L)", w_w: "", w_l: "", w_h: "", w_v: "10.00", w_s: "1", w_c: "5.25", drops: "15.2", ml: "0.76" }
-                ];
+                if (!Array.isArray(appData.morsePresets)) {
+                    appData.morsePresets = ['SOS', 'HELP', 'HELLO', 'OK', 'FIRE', 'SAFE'];
+                }
+                if (!Array.isArray(appData.waterRecipes)) {
+                    appData.waterRecipes = [
+                        { id: 1, name: "페트병 정화 (2L)", w_w: "", w_l: "", w_h: "", w_v: "2.00", w_s: "1", w_c: "5.25", drops: "3.0", ml: "0.15" },
+                        { id: 2, name: "일반 말통 (10L)", w_w: "", w_l: "", w_h: "", w_v: "10.00", w_s: "1", w_c: "5.25", drops: "15.2", ml: "0.76" }
+                    ];
+                }
                 
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 inputs.forEach(id => {
                     if (appData[id] !== undefined) {
                         const el = document.getElementById(id);
                         if (el) el.value = appData[id];
                     }
                 });
+
+                // 체크박스 엘리먼트 로드 시 Null-safe 처리
                 if (appData['a_repeat'] !== undefined) {
-                    document.getElementById('a_repeat').checked = appData['a_repeat'];
+                    const el = document.getElementById('a_repeat');
+                    if (el) el.checked = !!appData['a_repeat'];
                 }
                 if (appData['s_repeat'] !== undefined) {
-                    document.getElementById('s_repeat').checked = appData['s_repeat'];
+                    const el = document.getElementById('s_repeat');
+                    if (el) el.checked = !!appData['s_repeat'];
                 }
                 if (appData['s_morse_flash_toggle'] !== undefined) {
-                    document.getElementById('s_morse_flash_toggle').checked = appData['s_morse_flash_toggle'];
+                    const el = document.getElementById('s_morse_flash_toggle');
+                    if (el) el.checked = !!appData['s_morse_flash_toggle'];
                 }
                 if (appData['s_strobe_flash_toggle'] !== undefined) {
-                    document.getElementById('s_strobe_flash_toggle').checked = appData['s_strobe_flash_toggle'];
+                    const el = document.getElementById('s_strobe_flash_toggle');
+                    if (el) el.checked = !!appData['s_strobe_flash_toggle'];
                 }
                 if (appData['s_beacon_flash_toggle'] !== undefined) {
-                    document.getElementById('s_beacon_flash_toggle').checked = appData['s_beacon_flash_toggle'];
+                    const el = document.getElementById('s_beacon_flash_toggle');
+                    if (el) el.checked = !!appData['s_beacon_flash_toggle'];
                 }
                 if (appData['c_category']) {
                     updateUnitOptions(true);
-                    if (appData['c_unit_from']) document.getElementById('c_unit_from').value = appData['c_unit_from'];
-                    if (appData['c_unit_to']) document.getElementById('c_unit_to').value = appData['c_unit_to'];
+                    if (appData['c_unit_from']) {
+                        const el = document.getElementById('c_unit_from');
+                        if (el) el.value = appData['c_unit_from'];
+                    }
+                    if (appData['c_unit_to']) {
+                        const el = document.getElementById('c_unit_to');
+                        if (el) el.value = appData['c_unit_to'];
+                    }
                     convertUnit();
                 }
                 saveAndCalcWater();
@@ -2728,35 +2754,73 @@
                 const beaconToggle = document.getElementById('s_beacon_flash_toggle');
 
                 if (morseToggle) {
-                    document.getElementById('label_morse_flash').innerHTML = morseToggle.checked
-                        ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
-                        : '📱 플래쉬 off';
+                    const label = document.getElementById('label_morse_flash');
+                    if (label) {
+                        label.innerHTML = morseToggle.checked
+                            ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
+                            : '📱 플래쉬 off';
+                    }
                 }
                 if (strobeToggle) {
-                    document.getElementById('label_strobe_flash').innerHTML = strobeToggle.checked
-                        ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
-                        : '📱 플래쉬 off';
+                    const label = document.getElementById('label_strobe_flash');
+                    if (label) {
+                        label.innerHTML = strobeToggle.checked
+                            ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
+                            : '📱 플래쉬 off';
+                    }
                 }
                 if (beaconToggle) {
-                    document.getElementById('label_beacon_flash').innerHTML = beaconToggle.checked
-                        ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
-                        : '📱 플래쉬 off';
+                    const label = document.getElementById('label_beacon_flash');
+                    if (label) {
+                        label.innerHTML = beaconToggle.checked
+                            ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
+                            : '📱 플래쉬 off';
+                    }
                 }
             }
 
             function saveInputs() {
                 const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                
+                if (!appData || typeof appData !== 'object' || Array.isArray(appData)) {
+                    appData = {};
+                }
+
                 inputs.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) appData[id] = el.value;
                 });
-                appData['a_repeat'] = document.getElementById('a_repeat').checked;
-                appData['s_repeat'] = document.getElementById('s_repeat').checked;
-                appData['s_morse_flash_toggle'] = document.getElementById('s_morse_flash_toggle').checked;
-                appData['s_strobe_flash_toggle'] = document.getElementById('s_strobe_flash_toggle').checked;
-                appData['s_beacon_flash_toggle'] = document.getElementById('s_beacon_flash_toggle').checked;
-                appData['alarms'] = appData['alarms'] || [];
-                localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+
+                // 체크박스 엘리먼트 저장 시 Null-safe 처리
+                const aRepeat = document.getElementById('a_repeat');
+                if (aRepeat) appData['a_repeat'] = aRepeat.checked;
+
+                const sRepeat = document.getElementById('s_repeat');
+                if (sRepeat) appData['s_repeat'] = sRepeat.checked;
+
+                const sMorse = document.getElementById('s_morse_flash_toggle');
+                if (sMorse) appData['s_morse_flash_toggle'] = sMorse.checked;
+
+                const sStrobe = document.getElementById('s_strobe_flash_toggle');
+                if (sStrobe) appData['s_strobe_flash_toggle'] = sStrobe.checked;
+
+                const sBeacon = document.getElementById('s_beacon_flash_toggle');
+                if (sBeacon) appData['s_beacon_flash_toggle'] = sBeacon.checked;
+
+                if (!Array.isArray(appData.alarms)) appData.alarms = [];
+                if (!Array.isArray(appData.memos)) appData.memos = [];
+                if (!Array.isArray(appData.waterRecipes)) {
+                    appData.waterRecipes = [
+                        { id: 1, name: "페트병 정화 (2L)", w_w: "", w_l: "", w_h: "", w_v: "2.00", w_s: "1", w_c: "5.25", drops: "3.0", ml: "0.15" },
+                        { id: 2, name: "일반 말통 (10L)", w_w: "", w_l: "", w_h: "", w_v: "10.00", w_s: "1", w_c: "5.25", drops: "15.2", ml: "0.76" }
+                    ];
+                }
+
+                try {
+                    localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+                } catch (e) {
+                    console.error("localStorage save error:", e);
+                }
             }
 
             // === 탭 전환 로직 ===
