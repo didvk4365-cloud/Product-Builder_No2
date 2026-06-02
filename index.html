@@ -1702,59 +1702,65 @@
         <!-- 1. 정화 & 용량 계산기 -->
         <div id="tab-water" class="tab-content active">
             <div class="card">
-                <h3>💧 수질정화 계산기</h3>
+                <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"
+                    onclick="const d = document.getElementById('water_calc_body'); const i = document.getElementById('water_calc_toggle_btn'); if(d.style.display==='none'){d.style.display='block'; i.innerHTML='접기 ▲'; this.style.marginBottom='10px';}else{d.style.display='none'; i.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
+                    <span style="margin:0;">💧 수질정화 계산기</span>
+                    <button class="secondary" id="water_calc_toggle_btn"
+                        style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">접기 ▲</button>
+                </h3>
 
-                <!-- 용량 계산 섹션 -->
-                <div class="flex-row">
-                    <div class="form-group">
-                        <label>가로 (cm)</label>
-                        <input type="number" id="w_w" placeholder="0" oninput="saveAndCalcWater()">
+                <div id="water_calc_body">
+                    <!-- 용량 계산 섹션 -->
+                    <div class="flex-row">
+                        <div class="form-group">
+                            <label>가로 (cm)</label>
+                            <input type="number" id="w_w" placeholder="0" oninput="saveAndCalcWater()">
+                        </div>
+                        <div class="form-group">
+                            <label>세로 (cm)</label>
+                            <input type="number" id="w_l" placeholder="0" oninput="saveAndCalcWater()">
+                        </div>
+                        <div class="form-group">
+                            <label>높이 (cm)</label>
+                            <input type="number" id="w_h" placeholder="0" oninput="saveAndCalcWater()">
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>세로 (cm)</label>
-                        <input type="number" id="w_l" placeholder="0" oninput="saveAndCalcWater()">
+                        <label>또는 물의 양 직접 입력 (L)</label>
+                        <input type="number" id="w_v" placeholder="예: 1.5" oninput="saveAndCalcWater(true)">
                     </div>
-                    <div class="form-group">
-                        <label>높이 (cm)</label>
-                        <input type="number" id="w_h" placeholder="0" oninput="saveAndCalcWater()">
+
+                    <!-- 구분선 -->
+                    <div style="border-top: 1px dashed var(--border-color); margin: 15px 0;"></div>
+
+                    <!-- 수질 정화 설정 섹션 -->
+                    <div class="form-group" style="margin-bottom: 6px;">
+                        <label>물 상태</label>
+                        <select id="w_s" onchange="saveAndCalcWater()" style="margin: 0;">
+                            <option value="1">맑은 물 (Clear)</option>
+                            <option value="2">탁한 물 (Cloudy)</option>
+                        </select>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>또는 물의 양 직접 입력 (L)</label>
-                    <input type="number" id="w_v" placeholder="예: 1.5" oninput="saveAndCalcWater(true)">
-                </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>락스 농도 (%)</label>
+                        <select id="w_c" onchange="saveAndCalcWater()" style="margin: 0;">
+                            <option value="4">4% (일반 가정용)</option>
+                            <option value="5">5% (표준 가정용)</option>
+                            <option value="5.25" selected>5.25% (유한락스 등)</option>
+                            <option value="10">10%</option>
+                        </select>
+                    </div>
 
-                <!-- 구분선 -->
-                <div style="border-top: 1px dashed var(--border-color); margin: 15px 0;"></div>
-
-                <!-- 수질 정화 설정 섹션 -->
-                <div class="form-group" style="margin-bottom: 6px;">
-                    <label>물 상태</label>
-                    <select id="w_s" onchange="saveAndCalcWater()" style="margin: 0;">
-                        <option value="1">맑은 물 (Clear)</option>
-                        <option value="2">탁한 물 (Cloudy)</option>
-                    </select>
+                    <div class="result-box" id="water_result" style="margin-top: 15px;">
+                        물의 양을 입력하세요.
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px; margin-bottom:0;">* 주의: 향료나 계면활성제가 없는 순수
+                        차아염소산나트륨(락스)만 사용. 반드시 30분 대기 후 냄새 확인.</p>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label>락스 농도 (%)</label>
-                    <select id="w_c" onchange="saveAndCalcWater()" style="margin: 0;">
-                        <option value="4">4% (일반 가정용)</option>
-                        <option value="5">5% (표준 가정용)</option>
-                        <option value="5.25" selected>5.25% (유한락스 등)</option>
-                        <option value="10">10%</option>
-                    </select>
-                </div>
+            </div>
 
-                <div class="result-box" id="water_result" style="margin-top: 15px;">
-                    물의 양을 입력하세요.
-                </div>
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px; margin-bottom:15px;">* 주의: 향료나 계면활성제가 없는 순수
-                    차아염소산나트륨(락스)만 사용. 반드시 30분 대기 후 냄새 확인.</p>
-
-                <!-- 구분선 -->
-                <div style="border-top: 1.5px dashed rgba(255,255,255,0.22); margin: 15px 0 12px 0;"></div>
-
-                <!-- 저장된 정화 레시피 영역 -->
+            <!-- 저장된 정화 레시피 영역 -->
+            <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h4 style="margin:0; font-size:0.95rem; color:var(--primary-color); display:flex; align-items:center; gap:6px;">💧 Recipe</h4>
                     <div style="display:flex; gap:6px; align-items:center;">
