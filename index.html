@@ -1757,9 +1757,14 @@
                 <!-- 저장된 정화 레시피 영역 -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h4 style="margin:0; font-size:0.95rem; color:var(--primary-color); display:flex; align-items:center; gap:6px;">💧 Recipe</h4>
-                    <button onclick="saveCurrentWaterRecipe()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold;">
-                        💾 저장
-                    </button>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button id="btn_water_recipe_edit" onclick="toggleWaterRecipeEditMode()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold; background:rgba(255,255,255,0.05); border:1px solid var(--border-color); color:var(--text-primary);">
+                            ✏️ 수정
+                        </button>
+                        <button onclick="saveCurrentWaterRecipe()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold;">
+                            💾 저장
+                        </button>
+                    </div>
                 </div>
                 <div id="water_recipe_list" style="display:flex; flex-direction:column; gap:8px;">
                     <!-- JS로 동적 생성 -->
@@ -2706,6 +2711,7 @@
             // === 상태 관리 (LocalStorage) ===
             let appData = {};
             const DATA_KEY = 'survival_data';
+            let isWaterRecipeEditMode = false;
 
             // To-Do List State Variables
             let currentTodoCatId = '';
@@ -2916,6 +2922,26 @@
                     '<strong>필요 락스 양:</strong> 약 ' + dropsNeeded.toFixed(1) + ' 방울 (' + mlNeeded.toFixed(2) + ' ml)';
             }
 
+            function toggleWaterRecipeEditMode() {
+                isWaterRecipeEditMode = !isWaterRecipeEditMode;
+                const btn = document.getElementById('btn_water_recipe_edit');
+                if (btn) {
+                    if (isWaterRecipeEditMode) {
+                        btn.innerText = '✔ 완료';
+                        btn.style.backgroundColor = 'var(--primary-color)';
+                        btn.style.borderColor = 'var(--primary-color)';
+                        const isRed = document.documentElement.classList.contains('red-mode');
+                        btn.style.color = isRed ? '#ffffff' : '#111827';
+                    } else {
+                        btn.innerText = '✏️ 수정';
+                        btn.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                        btn.style.borderColor = 'var(--border-color)';
+                        btn.style.color = 'var(--text-primary)';
+                    }
+                }
+                renderWaterRecipes();
+            }
+
             function renderWaterRecipes() {
                 const listContainer = document.getElementById('water_recipe_list');
                 if (!listContainer) return;
@@ -2936,6 +2962,10 @@
                     }
                     
                     const stateText = parseInt(r.w_s) === 2 ? "탁한 물" : "맑은 물";
+                    
+                    const editBtnHtml = isWaterRecipeEditMode
+                        ? `<button onclick="editWaterRecipe(${r.id}, event)" class="recipe-edit-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.0rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s; opacity:0.65;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.65'">✏️</button>`
+                        : '';
 
                     html += `
                     <div class="water-recipe-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; transition:background 0.15s, border-color 0.15s; margin-bottom:2px; gap:12px;">
@@ -2958,7 +2988,7 @@
                         
                         <!-- 4. 수정 및 삭제 버튼 -->
                         <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
-                            <button onclick="editWaterRecipe(${r.id}, event)" class="recipe-edit-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.0rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s; opacity:0.65;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.65'">✏️</button>
+                            ${editBtnHtml}
                             <button onclick="deleteWaterRecipe(${r.id}, event)" class="recipe-del-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s;">×</button>
                         </div>
                     </div>`;
