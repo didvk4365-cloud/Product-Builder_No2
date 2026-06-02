@@ -2241,7 +2241,14 @@
                     <div class="flex-row">
                         <div class="form-group" style="flex:1;">
                             <label>유통기한</label>
-                            <input type="date" id="erp_expiry">
+                            <div class="erp-date-inputs" style="display: flex; gap: 6px; align-items: center;">
+                                <input type="number" id="erp_year" placeholder="YYYY" min="2020" max="2100" inputmode="numeric" style="flex: 1.5; margin: 0; text-align: center;" oninput="if(this.value.length >= 4) { this.value = this.value.slice(0, 4); document.getElementById('erp_month').focus(); }">
+                                <span style="color: var(--text-secondary); font-size: 0.9rem; flex-shrink: 0;">년</span>
+                                <input type="number" id="erp_month" placeholder="MM" min="1" max="12" inputmode="numeric" style="flex: 1; margin: 0; text-align: center;" oninput="if(this.value.length >= 2) { this.value = this.value.slice(0, 2); document.getElementById('erp_day').focus(); }">
+                                <span style="color: var(--text-secondary); font-size: 0.9rem; flex-shrink: 0;">월</span>
+                                <input type="number" id="erp_day" placeholder="DD" min="1" max="31" inputmode="numeric" style="flex: 1; margin: 0; text-align: center;" oninput="if(this.value.length >= 2) { this.value = this.value.slice(0, 2); }">
+                                <span style="color: var(--text-secondary); font-size: 0.9rem; flex-shrink: 0;">일</span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex-row">
@@ -4905,7 +4912,23 @@
                 document.getElementById('erp_cat_sub').value = item.category_sub || '기타';
                 document.getElementById('erp_name').value = item.name;
                 document.getElementById('erp_quantity').value = item.quantity;
-                document.getElementById('erp_expiry').value = item.expiry_date || '';
+                
+                if (item.expiry_date) {
+                    const parts = item.expiry_date.split('-');
+                    if (parts.length === 3) {
+                        document.getElementById('erp_year').value = parts[0];
+                        document.getElementById('erp_month').value = parts[1];
+                        document.getElementById('erp_day').value = parts[2];
+                    } else {
+                        document.getElementById('erp_year').value = "";
+                        document.getElementById('erp_month').value = "";
+                        document.getElementById('erp_day').value = "";
+                    }
+                } else {
+                    document.getElementById('erp_year').value = "";
+                    document.getElementById('erp_month').value = "";
+                    document.getElementById('erp_day').value = "";
+                }
 
                 document.getElementById('erp_form_title').innerText = "✏️ 물품 정보 수정";
                 document.getElementById('btn_erp_save').innerText = "수정완료";
@@ -4915,11 +4938,49 @@
                 window.scrollTo(0, 0);
             }
 
+            function getFormattedExpiryDate() {
+                const y = document.getElementById('erp_year').value.trim();
+                const m = document.getElementById('erp_month').value.trim();
+                const d = document.getElementById('erp_day').value.trim();
+                
+                if (!y && !m && !d) return "";
+                
+                if (!y || !m || !d) {
+                    alert("유통기한 연, 월, 일을 모두 입력하거나 비워두세요.");
+                    return null;
+                }
+                
+                const year = parseInt(y, 10);
+                const month = parseInt(m, 10);
+                const day = parseInt(d, 10);
+                
+                if (year < 1900 || year > 2999) {
+                    alert("올바른 연도를 입력해주세요 (4자리 숫자).");
+                    return null;
+                }
+                if (month < 1 || month > 12) {
+                    alert("올바른 월을 입력해주세요 (1~12).");
+                    return null;
+                }
+                
+                const dateObj = new Date(year, month - 1, day);
+                if (dateObj.getFullYear() !== year || dateObj.getMonth() !== month - 1 || dateObj.getDate() !== day) {
+                    alert("존재하지 않는 유효하지 않은 날짜입니다.");
+                    return null;
+                }
+                
+                const mm = String(month).padStart(2, '0');
+                const dd = String(day).padStart(2, '0');
+                return `${year}-${mm}-${dd}`;
+            }
+
             function cancelErpEdit() {
                 document.getElementById('erp_edit_id').value = "";
                 document.getElementById('erp_name').value = "";
                 document.getElementById('erp_quantity').value = "";
-                document.getElementById('erp_expiry').value = "";
+                document.getElementById('erp_year').value = "";
+                document.getElementById('erp_month').value = "";
+                document.getElementById('erp_day').value = "";
 
                 document.getElementById('erp_form_title').innerText = "📦 물품 등록";
                 document.getElementById('btn_erp_save').innerText = "추가하기";
@@ -4932,7 +4993,11 @@
                 const catMainEl = document.getElementById('erp_cat_main');
                 const catSubEl = document.getElementById('erp_cat_sub');
                 const qtyEl = document.getElementById('erp_quantity');
-                const expEl = document.getElementById('erp_expiry');
+                
+                const expiryDate = getFormattedExpiryDate();
+                if (expiryDate === null) {
+                    return; // 유효성 검사 실패
+                }
 
                 if (!nameEl.value.trim()) {
                     alert("물품명을 입력해주세요.");
@@ -4949,7 +5014,7 @@
                         item.category = catMainEl.value;
                         item.category_sub = catSubEl.value;
                         item.quantity = qtyEl.value.trim() || '1';
-                        item.expiry_date = expEl.value;
+                        item.expiry_date = expiryDate;
                     }
                     showToast("물품이 수정되었습니다.");
                     cancelErpEdit(); // 폼 초기화
@@ -4961,14 +5026,16 @@
                         category: catMainEl.value,
                         category_sub: catSubEl.value,
                         quantity: qtyEl.value.trim() || '1',
-                        expiry_date: expEl.value
+                        expiry_date: expiryDate
                     };
                     appData.erp.push(newItem);
                     showToast("새 물품이 추가되었습니다.");
 
                     nameEl.value = '';
                     qtyEl.value = '';
-                    expEl.value = '';
+                    document.getElementById('erp_year').value = '';
+                    document.getElementById('erp_month').value = '';
+                    document.getElementById('erp_day').value = '';
                 }
 
                 saveInputs();
