@@ -2886,15 +2886,22 @@
                     }
                     
                     const stateText = parseInt(r.w_s) === 2 ? "탁한 물" : "맑은 물";
-                    desc += ` / ${stateText} / 락스 ${r.w_c}%<br><strong>필요 락스량:</strong> 약 ${r.drops || '0.0'} 방울 (${r.ml || '0.00'} ml)`;
+                    desc += ` / ${stateText} / 락스 ${r.w_c}%`;
 
                     html += `
-                    <div class="water-recipe-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; transition:background 0.15s, border-color 0.15s; margin-bottom:2px;">
+                    <div class="water-recipe-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; transition:background 0.15s, border-color 0.15s; margin-bottom:2px; gap:10px;">
+                        <!-- 좌측: 레시피 명칭 및 세부수치 -->
                         <div style="display:flex; flex-direction:column; gap:4px; text-align:left; flex:1;">
                             <span style="font-weight:bold; font-size:0.88rem; color:var(--text-primary);">${r.name}</span>
                             <span style="font-size:0.75rem; color:var(--text-secondary); line-height:1.4;">${desc}</span>
                         </div>
-                        <button onclick="deleteWaterRecipe(${r.id}, event)" class="recipe-del-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s;">×</button>
+                        <!-- 우측: 필요 락스 방울 수 및 ml (레이블 없이 강조) -->
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px; padding-right:4px;">
+                            <span style="font-weight:bold; font-size:0.95rem; color:var(--primary-color);">약 ${r.drops || '0.0'} 방울</span>
+                            <span style="font-size:0.72rem; color:var(--text-secondary);">(${r.ml || '0.00'} ml)</span>
+                        </div>
+                        <!-- 삭제 버튼 -->
+                        <button onclick="deleteWaterRecipe(${r.id}, event)" class="recipe-del-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s; flex-shrink:0;">×</button>
                     </div>`;
                 });
                 listContainer.innerHTML = html;
