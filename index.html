@@ -2566,7 +2566,7 @@
                 <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">💾 정화 레시피 저장</h4>
                 <div class="form-group" style="margin-bottom:20px; text-align:left;">
                     <label>레시피 이름</label>
-                    <input type="text" id="water_recipe_new_name" placeholder="예: 생수병 2L, 우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleWaterRecipeAddKey(event)">
+                    <textarea id="water_recipe_new_name" placeholder="예: 생수병 2L&#10;우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem; height:54px; resize:none; font-family:inherit; display:block;" onkeydown="handleWaterRecipeAddKey(event)"></textarea>
                 </div>
                 <div style="display:flex; gap:10px; justify-content:flex-end;">
                     <button class="secondary" onclick="closeWaterRecipeAddModal()" style="margin:0; padding:8px 16px; width:auto;">취소</button>
@@ -2583,7 +2583,7 @@
                 
                 <div class="form-group" style="margin-bottom:12px; text-align:left;">
                     <label>레시피 이름</label>
-                    <input type="text" id="water_recipe_edit_name" placeholder="예: 생수병 2L, 우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleWaterRecipeEditKey(event)">
+                    <textarea id="water_recipe_edit_name" placeholder="예: 생수병 2L&#10;우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem; height:54px; resize:none; font-family:inherit; display:block;" onkeydown="handleWaterRecipeEditKey(event)"></textarea>
                 </div>
 
                 <div class="form-group" style="margin-bottom:12px; text-align:left;">
@@ -2971,7 +2971,7 @@
                     <div class="water-recipe-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; transition:background 0.15s, border-color 0.15s; margin-bottom:2px; gap:12px;">
                         <!-- 1. 좌측: 레시피 제목 -->
                         <div style="display:flex; align-items:center; text-align:left; flex:1.1; min-width:0;">
-                            <span style="font-weight:bold; font-size:0.88rem; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.3;">${r.name}</span>
+                            <span style="font-weight:bold; font-size:0.88rem; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.3; white-space:pre-wrap;">${r.name}</span>
                         </div>
                         
                         <!-- 2. 중앙: 조건 상세 (용량 / 물상태 | 농도) -->
@@ -3057,7 +3057,8 @@
             }
 
             function handleWaterRecipeEditKey(e) {
-                if (e.key === 'Enter') {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
                     submitWaterRecipeEdit();
                 }
             }
@@ -3188,7 +3189,8 @@
             }
 
             function handleWaterRecipeAddKey(e) {
-                if (e.key === 'Enter') {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
                     submitWaterRecipeAdd();
                 }
             }
