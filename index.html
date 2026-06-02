@@ -1763,10 +1763,10 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h4 style="margin:0; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">💧 Recipe</h4>
                     <div style="display:flex; gap:6px; align-items:center;">
-                        <button id="btn_water_recipe_edit" onclick="toggleWaterRecipeEditMode()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold;">
+                        <button id="btn_water_recipe_edit" onclick="toggleWaterRecipeEditMode()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold; color:var(--text-secondary); border:1.5px solid var(--text-secondary); background:transparent;">
                             ✏️ 수정
                         </button>
-                        <button onclick="saveCurrentWaterRecipe()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold;">
+                        <button onclick="saveCurrentWaterRecipe()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold; color:var(--text-secondary); border:1.5px solid var(--text-secondary); background:transparent;">
                             💾 저장
                         </button>
                     </div>
@@ -2945,16 +2945,15 @@
                 const btn = document.getElementById('btn_water_recipe_edit');
                 if (btn) {
                     if (isWaterRecipeEditMode) {
-                        btn.innerText = '✔ 완료';
-                        btn.style.backgroundColor = 'var(--primary-color)';
+                        btn.innerText = '✏️ 완료';
+                        btn.style.backgroundColor = 'transparent';
                         btn.style.borderColor = 'var(--primary-color)';
-                        const isRed = document.documentElement.classList.contains('red-mode');
-                        btn.style.color = isRed ? '#ffffff' : '#111827';
+                        btn.style.color = 'var(--primary-color)';
                     } else {
                         btn.innerText = '✏️ 수정';
-                        btn.style.backgroundColor = '';
-                        btn.style.borderColor = '';
-                        btn.style.color = '';
+                        btn.style.backgroundColor = 'transparent';
+                        btn.style.borderColor = 'var(--text-secondary)';
+                        btn.style.color = 'var(--text-secondary)';
                     }
                 }
                 renderWaterRecipes();
