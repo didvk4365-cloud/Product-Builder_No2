@@ -1429,7 +1429,7 @@
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            cursor: pointer;
+            cursor: default;
             transition: background 0.15s, border-color 0.15s;
         }
         .water-recipe-item:hover {
@@ -1758,7 +1758,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h4 style="margin:0; font-size:0.95rem; color:var(--primary-color); display:flex; align-items:center; gap:6px;">💧 자주 쓰는 정화 레시피</h4>
                     <button onclick="saveCurrentWaterRecipe()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold;">
-                        💾 현재 설정 저장
+                        💾 저장
                     </button>
                 </div>
                 <div id="water_recipe_list" style="display:flex; flex-direction:column; gap:8px;">
@@ -2552,6 +2552,21 @@
                     </div>
                 </div>
 
+                <!-- 수질정화 레시피 추가 모달 -->
+                <div id="water-recipe-add-modal" onclick="closeWaterRecipeAddModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; align-items:center; justify-content:center;">
+                    <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
+                        <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">💾 정화 레시피 저장</h4>
+                        <div class="form-group" style="margin-bottom:20px; text-align:left;">
+                            <label>레시피 이름</label>
+                            <input type="text" id="water_recipe_new_name" placeholder="예: 생수병 2L, 우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleWaterRecipeAddKey(event)">
+                        </div>
+                        <div style="display:flex; gap:10px; justify-content:flex-end;">
+                            <button class="secondary" onclick="closeWaterRecipeAddModal()" style="margin:0; padding:8px 16px; width:auto;">취소</button>
+                            <button onclick="submitWaterRecipeAdd()" style="margin:0; padding:8px 20px; width:auto; font-weight:bold;">저장</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -2667,8 +2682,8 @@
                 appData.activeMemoId = appData.activeMemoId || null;
                 appData.morsePresets = appData.morsePresets || ['SOS', 'HELP', 'HELLO', 'OK', 'FIRE', 'SAFE'];
                 appData.waterRecipes = appData.waterRecipes || [
-                    { id: 1, name: "페트병 정화 (2L)", w_w: "", w_l: "", w_h: "", w_v: "2", w_s: "1", w_c: "5.25" },
-                    { id: 2, name: "일반 말통 (10L)", w_w: "", w_l: "", w_h: "", w_v: "10", w_s: "1", w_c: "5.25" }
+                    { id: 1, name: "페트병 정화 (2L)", w_w: "", w_l: "", w_h: "", w_v: "2.00", w_s: "1", w_c: "5.25", drops: "3.0", ml: "0.15" },
+                    { id: 2, name: "일반 말통 (10L)", w_w: "", w_l: "", w_h: "", w_v: "10.00", w_s: "1", w_c: "5.25", drops: "15.2", ml: "0.76" }
                 ];
                 
                 const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
@@ -2803,17 +2818,17 @@
                     if (r.w_w && r.w_l && r.w_h) {
                         desc += `${r.w_w}x${r.w_l}x${r.w_h}cm (${r.w_v}L)`;
                     } else {
-                        desc += `${r.w_v} L 직접입력`;
+                        desc += `${r.w_v} L`;
                     }
                     
                     const stateText = parseInt(r.w_s) === 2 ? "탁한 물" : "맑은 물";
-                    desc += ` | ${stateText} | 락스 ${r.w_c}%`;
+                    desc += ` / ${stateText} / 락스 ${r.w_c}%<br><strong>필요 락스량:</strong> 약 ${r.drops || '0.0'} 방울 (${r.ml || '0.00'} ml)`;
 
                     html += `
-                    <div class="water-recipe-item" onclick="loadWaterRecipe(${r.id})" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; transition:background 0.15s, border-color 0.15s; margin-bottom:2px;">
+                    <div class="water-recipe-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; transition:background 0.15s, border-color 0.15s; margin-bottom:2px;">
                         <div style="display:flex; flex-direction:column; gap:4px; text-align:left; flex:1;">
                             <span style="font-weight:bold; font-size:0.88rem; color:var(--text-primary);">${r.name}</span>
-                            <span style="font-size:0.75rem; color:var(--text-secondary);">${desc}</span>
+                            <span style="font-size:0.75rem; color:var(--text-secondary); line-height:1.4;">${desc}</span>
                         </div>
                         <button onclick="deleteWaterRecipe(${r.id}, event)" class="recipe-del-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s;">×</button>
                     </div>`;
@@ -2826,10 +2841,7 @@
                 const l = document.getElementById('w_l').value.trim();
                 const h = document.getElementById('w_h').value.trim();
                 const v = document.getElementById('w_v').value.trim();
-                const s = document.getElementById('w_s').value;
-                const c = document.getElementById('w_c').value;
 
-                // 물의 양 유효성 검사
                 const volume = parseFloat(v) || 0;
                 const hasDimensions = w && l && h;
                 
@@ -2838,59 +2850,82 @@
                     return;
                 }
 
-                const recipeName = prompt("저장할 레시피의 이름을 입력해 주세요 (예: 생수병 2L, 대형 고무대야):", "새 정화 레시피");
-                if (recipeName === null) return; // 취소
-                
-                const trimmedName = recipeName.trim();
-                if (!trimmedName) {
+                const modal = document.getElementById('water-recipe-add-modal');
+                const nameInput = document.getElementById('water_recipe_new_name');
+                if (modal && nameInput) {
+                    nameInput.value = '';
+                    modal.style.display = 'flex';
+                    nameInput.focus();
+                }
+            }
+
+            function closeWaterRecipeAddModal() {
+                const modal = document.getElementById('water-recipe-add-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
+            function handleWaterRecipeAddKey(e) {
+                if (e.key === 'Enter') {
+                    submitWaterRecipeAdd();
+                }
+            }
+
+            function submitWaterRecipeAdd() {
+                const nameInput = document.getElementById('water_recipe_new_name');
+                const name = nameInput.value.trim();
+                if (!name) {
                     alert("레시피 이름을 입력해야 저장할 수 있습니다.");
                     return;
                 }
 
-                // 물의 양(Volume) 최종 계산값 얻기
+                const w = document.getElementById('w_w').value.trim();
+                const l = document.getElementById('w_l').value.trim();
+                const h = document.getElementById('w_h').value.trim();
+                const v = document.getElementById('w_v').value.trim();
+                const s = document.getElementById('w_s').value;
+                const c = document.getElementById('w_c').value;
+
+                // 계산 및 최종 물의 양(Volume) 얻기
+                const volume = parseFloat(v) || 0;
+                const hasDimensions = w && l && h;
                 let finalVol = volume;
                 if (hasDimensions) {
                     finalVol = (parseFloat(w) * parseFloat(l) * parseFloat(h)) / 1000;
                 }
 
+                const conc = parseFloat(c) || 5.25;
+                const cloudy = parseInt(s) === 2;
+                const targetPPM = cloudy ? 8 : 4;
+
+                const mlNeeded = (finalVol * targetPPM) / (conc * 10);
+                const dropsNeeded = mlNeeded * 20;
+
                 const newRecipe = {
                     id: Date.now(),
-                    name: trimmedName,
+                    name: name,
                     w_w: w,
                     w_l: l,
                     w_h: h,
                     w_v: finalVol.toFixed(2),
                     w_s: s,
-                    w_c: c
+                    w_c: c,
+                    drops: dropsNeeded.toFixed(1),
+                    ml: mlNeeded.toFixed(2)
                 };
 
                 appData.waterRecipes = appData.waterRecipes || [];
                 appData.waterRecipes.push(newRecipe);
-                
+
                 saveInputs();
                 renderWaterRecipes();
+                closeWaterRecipeAddModal();
                 showToast("새 정화 레시피가 저장되었습니다.");
             }
 
-            function loadWaterRecipe(id) {
-                const recipe = (appData.waterRecipes || []).find(r => r.id === id);
-                if (!recipe) return;
-
-                document.getElementById('w_w').value = recipe.w_w || '';
-                document.getElementById('w_l').value = recipe.w_l || '';
-                document.getElementById('w_h').value = recipe.w_h || '';
-                document.getElementById('w_v').value = recipe.w_v || '';
-                document.getElementById('w_s').value = recipe.w_s || '1';
-                document.getElementById('w_c').value = recipe.w_c || '5.25';
-
-                // 로컬 데이터 스토리지 동기화 및 락스 계산
-                const hasDimensions = recipe.w_w && recipe.w_l && recipe.w_h;
-                saveAndCalcWater(!hasDimensions);
-                showToast(`'${recipe.name}' 레시피를 불러왔습니다.`);
-            }
-
             function deleteWaterRecipe(id, event) {
-                if (event) event.stopPropagation(); // 로드 방지
+                if (event) event.stopPropagation();
                 
                 if (confirm("이 정화 레시피를 정말로 삭제하시겠습니까?")) {
                     appData.waterRecipes = (appData.waterRecipes || []).filter(r => r.id !== id);
