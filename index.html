@@ -5704,21 +5704,52 @@
                     let itemDiv = document.createElement('div');
                     itemDiv.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:var(--surface-color); padding:4px 8px; border-radius:4px; margin-bottom:5px; border:1px solid var(--border-color);";
 
-                    let leftDiv = document.createElement('div');
-                    leftDiv.style.cssText = "display:flex; align-items:center; gap:5px;";
-                    leftDiv.innerHTML = `
-                        <button class="secondary" onclick="moveWikiCat(${index}, -1)" style="padding:2px 5px; margin:0; font-size:0.7rem; width:auto;">▲</button>
-                        <button class="secondary" onclick="moveWikiCat(${index}, 1)" style="padding:2px 5px; margin:0; font-size:0.7rem; width:auto;">▼</button>
-                        <span style="font-size:0.9rem; cursor:pointer;" onclick="editWikiCat('${cat}')" title="이름 수정">${cat} ✏️</span>
-                    `;
+                    let inputEl = document.createElement('input');
+                    inputEl.type = "text";
+                    inputEl.value = cat;
+                    inputEl.style.cssText = "margin:0; padding:2px 6px; font-size:0.9rem; border:1px solid transparent; background:transparent; color:var(--text-primary); border-radius:4px; flex:1; min-width:0; outline:none;";
+                    inputEl.onfocus = () => {
+                        inputEl.style.border = '1px solid var(--border-color)';
+                        inputEl.style.background = 'var(--bg-color)';
+                    };
+                    inputEl.onblur = () => {
+                        inputEl.style.border = '1px solid transparent';
+                        inputEl.style.background = 'transparent';
+                        changeWikiCat(cat, inputEl.value);
+                    };
+                    inputEl.onkeydown = (e) => {
+                        if (e.key === 'Enter') inputEl.blur();
+                    };
+
+                    let upBtn = document.createElement('button');
+                    upBtn.className = "secondary";
+                    upBtn.style.cssText = "padding:2px 5px; margin:0; font-size:0.7rem; width:auto; flex-shrink:0;";
+                    upBtn.innerText = "▲";
+                    upBtn.onclick = () => moveWikiCat(index, -1);
+
+                    let downBtn = document.createElement('button');
+                    downBtn.className = "secondary";
+                    downBtn.style.cssText = "padding:2px 5px; margin:0; font-size:0.7rem; width:auto; flex-shrink:0;";
+                    downBtn.innerText = "▼";
+                    downBtn.onclick = () => moveWikiCat(index, 1);
+
+                    let btnContainer = document.createElement('div');
+                    btnContainer.style.cssText = "display:flex; gap:4px; align-items:center; flex-shrink:0;";
+                    btnContainer.appendChild(upBtn);
+                    btnContainer.appendChild(downBtn);
+
+                    let mainLeftWrapper = document.createElement('div');
+                    mainLeftWrapper.style.cssText = "display:flex; align-items:center; gap:8px; flex:1; min-width:0; margin-right:8px;";
+                    mainLeftWrapper.appendChild(btnContainer);
+                    mainLeftWrapper.appendChild(inputEl);
 
                     let delBtn = document.createElement('button');
                     delBtn.className = "danger";
-                    delBtn.style.cssText = "padding:2px 6px; margin:0; font-size:0.7rem; width:auto;";
+                    delBtn.style.cssText = "padding:2px 6px; margin:0; font-size:0.7rem; width:auto; flex-shrink:0;";
                     delBtn.innerText = "X";
                     delBtn.onclick = () => deleteWikiCat(cat);
 
-                    itemDiv.appendChild(leftDiv);
+                    itemDiv.appendChild(mainLeftWrapper);
                     itemDiv.appendChild(delBtn);
                     listDiv.appendChild(itemDiv);
                 });
@@ -5752,27 +5783,37 @@
                 }
             }
 
-            function editWikiCat(oldCat) {
-                const newName = prompt(`'${oldCat}'의 새 이름을 입력하세요:`, oldCat);
-                if (newName && newName.trim() !== '' && newName !== oldCat) {
-                    const cleanName = newName.trim();
-                    if (appData.wikiCategories.includes(cleanName)) {
-                        alert('이미 존재하는 분류 이름입니다.');
-                        return;
-                    }
-
-                    const idx = appData.wikiCategories.indexOf(oldCat);
-                    if (idx !== -1) appData.wikiCategories[idx] = cleanName;
-
-                    appData.wiki.forEach(item => {
-                        if (item.category === oldCat) item.category = cleanName;
-                    });
-
-                    saveInputs();
+            function changeWikiCat(oldCat, newName) {
+                if (!newName) {
                     renderWikiCatManager();
-                    updateWikiCatDropdowns();
-                    renderWikiList();
+                    return;
                 }
+                const cleanName = newName.trim();
+                if (cleanName === oldCat) {
+                    return;
+                }
+                if (cleanName === '') {
+                    alert('분류 이름을 입력해주세요.');
+                    renderWikiCatManager();
+                    return;
+                }
+                if (appData.wikiCategories.includes(cleanName)) {
+                    alert('이미 존재하는 분류 이름입니다.');
+                    renderWikiCatManager();
+                    return;
+                }
+
+                const idx = appData.wikiCategories.indexOf(oldCat);
+                if (idx !== -1) appData.wikiCategories[idx] = cleanName;
+
+                appData.wiki.forEach(item => {
+                    if (item.category === oldCat) item.category = cleanName;
+                });
+
+                saveInputs();
+                renderWikiCatManager();
+                updateWikiCatDropdowns();
+                renderWikiList();
             }
 
             function moveWikiCat(index, direction) {
