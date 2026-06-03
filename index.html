@@ -1665,6 +1665,7 @@
             max-width: 600px;
             width: 100%;
             max-height: 85vh;
+            max-height: 85dvh;
             display: flex;
             flex-direction: column;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
@@ -1747,6 +1748,47 @@
             color: #666 !important;
             cursor: not-allowed;
             border: 1px solid #3d3d3d !important;
+        }
+
+        /* 모바일 환경 대응 서약서 팝업 최적화 */
+        @media (max-width: 480px), (max-height: 740px) {
+            #agreement-modal {
+                padding: 8px;
+            }
+            .agreement-content-wrapper {
+                max-height: 82vh;
+                max-height: 82dvh;
+                border-radius: 8px;
+            }
+            .agreement-title {
+                margin: 12px 12px 3px 12px;
+                font-size: 1.05rem;
+            }
+            .agreement-sub-title {
+                margin: 0 12px 8px 12px;
+                font-size: 0.7rem;
+            }
+            .agreement-body {
+                padding: 10px 12px;
+                font-size: 0.82rem;
+                line-height: 1.5;
+            }
+            .agreement-body h3 {
+                font-size: 0.88rem;
+                margin-top: 12px;
+                margin-bottom: 5px;
+            }
+            .agreement-body p {
+                margin-bottom: 8px;
+            }
+            .agreement-footer {
+                padding: 8px 12px;
+            }
+            .agreement-footer button {
+                padding: 8px;
+                font-size: 0.85rem;
+                border-radius: 6px;
+            }
         }
     </style>
 </head>
