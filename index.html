@@ -1756,8 +1756,8 @@
                 padding: 8px;
             }
             .agreement-content-wrapper {
-                max-height: 82vh;
-                max-height: 82dvh;
+                max-height: 80vh;
+                max-height: 80dvh;
                 border-radius: 8px;
             }
             .agreement-title {
@@ -1788,6 +1788,21 @@
                 padding: 8px;
                 font-size: 0.85rem;
                 border-radius: 6px;
+            }
+        }
+
+        /* 가로 모드 모바일 및 극단적으로 세로가 좁은 화면 대응 */
+        @media (max-height: 520px) {
+            .agreement-title {
+                display: none !important;
+            }
+            .agreement-sub-title {
+                margin-top: 10px !important;
+                margin-bottom: 5px !important;
+            }
+            .agreement-content-wrapper {
+                max-height: 85vh;
+                max-height: 85dvh;
             }
         }
     </style>
@@ -7106,8 +7121,8 @@
 
                     // 스크롤 이벤트 핸들러 바인딩
                     scrollBox.onscroll = () => {
-                        // 오차 보정을 위해 8px 여유 적용
-                        const isBottom = (scrollBox.scrollHeight - scrollBox.scrollTop - scrollBox.clientHeight) <= 8;
+                        // 오차 및 모바일 바운스 스크롤 보정을 위해 25px 여유 적용
+                        const isBottom = (scrollBox.scrollHeight - scrollBox.scrollTop - scrollBox.clientHeight) <= 25;
                         if (isBottom) {
                             agreeBtn.disabled = false;
                             agreeBtn.innerText = "위 강령을 준수하며 동의합니다";
@@ -7116,7 +7131,7 @@
 
                     // 디바이스 해상도나 폰트 크기 등으로 인해 스크롤바가 생기지 않는 경우에 대한 체크
                     setTimeout(() => {
-                        if (scrollBox.scrollHeight <= scrollBox.clientHeight + 8) {
+                        if (scrollBox.scrollHeight <= scrollBox.clientHeight + 25) {
                             agreeBtn.disabled = false;
                             agreeBtn.innerText = "위 강령을 준수하며 동의합니다";
                         }
