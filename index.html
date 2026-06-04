@@ -6202,52 +6202,7 @@
                 renderErpItems();
             }
 
-            function consumeErpItemOne(id) {
-                const item = appData.erp.find(i => i.id === id);
-                if (!item) return;
 
-                // 숫자를 추출하여 1 차감
-                const numbers = item.quantity.match(/[0-9]+/);
-                if (numbers) {
-                    let qtyNum = parseInt(numbers[0]);
-                    qtyNum--;
-                    
-                    const unit = item.quantity.replace(/[0-9]/g, '').trim();
-
-                    // 시간 기록용 포맷팅 (YYYY-MM-DD HH:mm:ss)
-                    const now = new Date();
-                    const year = now.getFullYear();
-                    const month = String(now.getMonth() + 1).padStart(2, '0');
-                    const date = String(now.getDate()).padStart(2, '0');
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const minutes = String(now.getMinutes()).padStart(2, '0');
-                    const seconds = String(now.getSeconds()).padStart(2, '0');
-                    const dateStr = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
-
-                    if (!Array.isArray(item.history)) item.history = [];
-                    item.history.unshift({
-                        type: 'consume',
-                        quantity: 1,
-                        date: dateStr
-                    });
-
-                    if (qtyNum <= 0) {
-                        if (confirm(`'${item.name}'의 수량이 0이 됩니다. 목록에서 삭제하시겠습니까?`)) {
-                            appData.erp = appData.erp.filter(i => i.id !== id);
-                        }
-                    } else {
-                        item.quantity = qtyNum + unit;
-                    }
-                } else {
-                    // 수량 문자열에 숫자가 없는 경우 (예: "약간", "가득") 직접 0개 취급하거나 삭제 유도
-                    if (confirm(`수량을 차감할 수 없는 단위입니다. 목록에서 삭제하시겠습니까?`)) {
-                        appData.erp = appData.erp.filter(i => i.id !== id);
-                    }
-                }
-
-                saveInputs();
-                renderErpItems(); // 전체 리스트 및 알림 리스트 동시 갱신
-            }
 
             function renderErpExpiryAlerts() {
                 const card = document.getElementById('erp_expiry_alert_card');
@@ -6335,9 +6290,8 @@
                                 기한: <span style="${expiryColor}">${item.expiry_date} (${daysLeftStr})</span>
                             </div>
                         </div>
-                        <div style="flex-shrink:0; display:flex; align-items:center; gap:12px;">
+                        <div style="flex-shrink:0;">
                             <span style="font-size:0.85rem; color:var(--text-secondary); white-space:nowrap;">수량: <strong style="color:var(--text-primary);">${item.quantity}</strong></span>
-                            <button class="secondary" style="margin:0; padding:4px 8px; font-size:0.7rem; width:auto; border-color:var(--primary-color); color:var(--primary-color); white-space:nowrap;" onclick="event.stopPropagation(); consumeErpItemOne(${item.id})">🥄 1개 소비</button>
                         </div>
                     </div>`;
                 });
