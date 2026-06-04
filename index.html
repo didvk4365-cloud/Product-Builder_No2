@@ -1827,6 +1827,54 @@
         </div>
     </div>
 
+    <!-- 물자 상세 및 소모/추가/폐기 히스토리 모달 -->
+    <div id="erp-detail-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10002; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
+        <div style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 450px; width: 100%; max-height: 90vh; max-height: 90dvh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow: hidden; box-sizing: border-box;">
+            <!-- 모달 헤더 -->
+            <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="min-width: 0; flex: 1;">
+                    <span id="erp_detail_category" style="font-size: 0.75rem; color: var(--text-secondary); background: var(--bg-color); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;"></span>
+                    <h3 id="erp_detail_name" style="margin: 0; font-size: 1.15rem; color: var(--primary-color); font-weight: bold; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></h3>
+                </div>
+                <button onclick="closeErpDetailModal()" style="background: transparent; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; padding: 0 5px; line-height: 1; margin: 0;">✕</button>
+            </div>
+            <!-- 모달 본문 (스크롤 영역) -->
+            <div style="padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 15px;">
+                <!-- 현재 수량 카드 -->
+                <div style="background: rgba(255, 152, 0, 0.05); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; text-align: center;">
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);">현재 보유량</span>
+                    <div id="erp_detail_qty" style="font-size: 1.6rem; font-weight: bold; color: var(--text-primary); margin-top: 4px;">0</div>
+                </div>
+
+                <!-- 수량 수동 조정 입력 폼 -->
+                <div>
+                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">수량 조정</label>
+                    <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+                        <input type="number" id="erp_adjust_qty" min="1" value="1" style="flex: 1.5; text-align: center; font-size: 1.1rem; font-weight: bold; padding: 8px; margin: 0; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none;">
+                        <span id="erp_detail_unit" style="align-self: center; font-size: 0.9rem; color: var(--text-secondary); padding: 0 4px; flex-shrink: 0;">개</span>
+                    </div>
+                    <div style="display: flex; gap: 6px;">
+                        <button onclick="adjustErpQuantity('consume')" style="flex: 1; padding: 10px 6px; margin: 0; font-size: 0.85rem; font-weight: bold; background: var(--primary-color); color: #000; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🥄 소모</button>
+                        <button onclick="adjustErpQuantity('add')" style="flex: 1; padding: 10px 6px; margin: 0; font-size: 0.85rem; font-weight: bold; background: #4caf50; color: #fff; border: 1px solid #4caf50; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">➕ 추가</button>
+                        <button class="danger" onclick="adjustErpQuantity('discard')" style="flex: 1; padding: 10px 6px; margin: 0; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🗑️ 폐기</button>
+                    </div>
+                </div>
+
+                <!-- 변경 이력 목록 -->
+                <div>
+                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">📋 소모 및 추가 변동 이력</label>
+                    <div id="erp_history_list" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-top: 6px;">
+                        <!-- JS 렌더링 -->
+                    </div>
+                </div>
+            </div>
+            <!-- 모달 푸터 (총 합계 누적 기록) -->
+            <div id="erp_history_summary" style="padding: 12px 16px; background: var(--bg-color); border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+                <!-- JS 렌더링 -->
+            </div>
+        </div>
+    </div>
+
     <!-- 생존 서약서 모달 -->
     <div id="agreement-modal" style="display: none;">
         <div class="agreement-content-wrapper">
@@ -3042,6 +3090,11 @@
                         { id: 2, name: "일반 말통 (10L)", w_w: "", w_l: "", w_h: "", w_v: "10.00", w_s: "1", w_c: "5.25", drops: "15.2", ml: "0.76" }
                     ];
                 }
+
+                if (!Array.isArray(appData.erp)) appData.erp = [];
+                appData.erp.forEach(item => {
+                    if (!Array.isArray(item.history)) item.history = [];
+                });
                 
                 const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 inputs.forEach(id => {
@@ -5719,7 +5772,7 @@
                     }
 
                     html += `
-                <div class="erp-item ${warningClass}">
+                <div class="erp-item ${warningClass}" style="cursor:pointer;" ontouchstart="handleErpTouchStart(event)" ontouchmove="handleErpTouchMove(event)" onclick="handleErpItemClick(${item.id})">
                     <div class="erp-info" style="display:flex; flex-direction:column; gap:4px;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <div class="erp-name" style="margin-bottom:0;">${item.name}</div>
@@ -5731,8 +5784,8 @@
                         </div>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:5px; margin-left:10px;">
-                        <button class="secondary" style="margin:0; padding:6px 10px; font-size:0.75rem; width:auto;" onclick="editErpItem(${item.id})">✏️수정</button>
-                        <button class="danger" style="margin:0; padding:6px 10px; font-size:0.75rem; width:auto;" onclick="deleteErpItem(${item.id})">🗑삭제</button>
+                        <button class="secondary" style="margin:0; padding:6px 10px; font-size:0.75rem; width:auto;" onclick="event.stopPropagation(); editErpItem(${item.id})">✏️수정</button>
+                        <button class="danger" style="margin:0; padding:6px 10px; font-size:0.75rem; width:auto;" onclick="event.stopPropagation(); deleteErpItem(${item.id})">🗑삭제</button>
                     </div>
                 </div>`;
                 });
@@ -5781,6 +5834,197 @@
                 }
             }
 
+            // === 물자 상세 터치 가드 변수 및 함수 ===
+            let erpTouchStartY = 0;
+            let erpTouchStartX = 0;
+            let erpIsDrag = false;
+            let erpSelectedItemId = null; // 현재 상세 모달에 띄운 물품 ID
+
+            function handleErpTouchStart(e) {
+                erpTouchStartY = e.touches[0].clientY;
+                erpTouchStartX = e.touches[0].clientX;
+                erpIsDrag = false;
+            }
+
+            function handleErpTouchMove(e) {
+                const diffY = Math.abs(e.touches[0].clientY - erpTouchStartY);
+                const diffX = Math.abs(e.touches[0].clientX - erpTouchStartX);
+                if (diffY > 8 || diffX > 8) { // 8px 오차
+                    erpIsDrag = true;
+                }
+            }
+
+            function handleErpItemClick(itemId) {
+                if (erpIsDrag) return;
+                openErpDetailModal(itemId);
+            }
+
+            function openErpDetailModal(itemId) {
+                const item = appData.erp.find(i => i.id === itemId);
+                if (!item) return;
+
+                erpSelectedItemId = itemId;
+                
+                // 모달 텍스트 매핑
+                document.getElementById('erp_detail_category').innerText = `${item.category} > ${item.category_sub || '기타'}`;
+                document.getElementById('erp_detail_name').innerText = item.name;
+                document.getElementById('erp_detail_qty').innerText = item.quantity;
+                
+                // 기본 단위 추출 (수량 문자열에서 숫자를 제외한 부분)
+                const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
+                document.getElementById('erp_detail_unit').innerText = unit;
+                
+                // 입력 필드 초기화
+                document.getElementById('erp_adjust_qty').value = 1;
+
+                // 히스토리 목록 렌더링
+                renderErpHistory(itemId);
+
+                // 모달 열기
+                document.getElementById('erp-detail-modal').style.display = 'flex';
+            }
+
+            function closeErpDetailModal() {
+                document.getElementById('erp-detail-modal').style.display = 'none';
+                erpSelectedItemId = null;
+            }
+
+            function adjustErpQuantity(actionType) {
+                if (!erpSelectedItemId) return;
+                const item = appData.erp.find(i => i.id === erpSelectedItemId);
+                if (!item) return;
+
+                const adjustInput = document.getElementById('erp_adjust_qty');
+                const adjustVal = parseInt(adjustInput.value.trim());
+                if (isNaN(adjustVal) || adjustVal <= 0) {
+                    alert("1 이상의 올바른 수량을 입력하세요.");
+                    return;
+                }
+
+                // 기존 수량에서 숫자 추출
+                const numbers = item.quantity.match(/[0-9]+/);
+                let currentNum = numbers ? parseInt(numbers[0]) : 0;
+                const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
+
+                let actionName = '';
+                let newNum = currentNum;
+
+                if (actionType === 'consume') {
+                    // 소모
+                    if (currentNum < adjustVal) {
+                        alert("소모하려는 수량이 현재 보유량보다 많습니다.");
+                        return;
+                    }
+                    newNum = currentNum - adjustVal;
+                    actionName = '소모';
+                } else if (actionType === 'add') {
+                    // 추가
+                    newNum = currentNum + adjustVal;
+                    actionName = '추가';
+                } else if (actionType === 'discard') {
+                    // 폐기
+                    if (currentNum < adjustVal) {
+                        alert("폐기하려는 수량이 현재 보유량보다 많습니다.");
+                        return;
+                    }
+                    newNum = currentNum - adjustVal;
+                    actionName = '폐기';
+                }
+
+                // 시간 기록용 포맷팅 (YYYY-MM-DD HH:mm:ss)
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const date = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+
+                // 히스토리 항목 추가
+                if (!Array.isArray(item.history)) item.history = [];
+                item.history.unshift({
+                    type: actionType,
+                    quantity: adjustVal,
+                    date: dateStr
+                });
+
+                // 수량 최종 업데이트
+                if (newNum <= 0) {
+                    if (confirm(`'${item.name}'의 수량이 0이 됩니다. 목록에서 삭제하시겠습니까?`)) {
+                        appData.erp = appData.erp.filter(i => i.id !== erpSelectedItemId);
+                        closeErpDetailModal();
+                    } else {
+                        item.quantity = "0" + unit;
+                        document.getElementById('erp_detail_qty').innerText = item.quantity;
+                        renderErpHistory(erpSelectedItemId);
+                    }
+                } else {
+                    item.quantity = newNum + unit;
+                    document.getElementById('erp_detail_qty').innerText = item.quantity;
+                    renderErpHistory(erpSelectedItemId);
+                }
+
+                saveInputs();
+                renderErpItems(); // 전체 화면 업데이트 (이어서 renderErpExpiryAlerts 도 동시 갱신됨)
+            }
+
+            function renderErpHistory(itemId) {
+                const item = appData.erp.find(i => i.id === itemId);
+                if (!item) return;
+
+                const historyList = document.getElementById('erp_history_list');
+                const historySummary = document.getElementById('erp_history_summary');
+                if (!historyList || !historySummary) return;
+
+                const history = item.history || [];
+                const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
+
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div style="text-align:center; padding:15px; color:var(--text-secondary); font-size:0.8rem;">변동 이력이 없습니다.</div>';
+                    historySummary.innerHTML = `<div>누적 추가: 0${unit}</div><div>누적 소모: 0${unit}</div><div>누적 폐기: 0${unit}</div>`;
+                    return;
+                }
+
+                let html = '';
+                let totalAdd = 0;
+                let totalConsume = 0;
+                let totalDiscard = 0;
+
+                history.forEach(log => {
+                    let typeBadge = '';
+                    let qtyStyle = '';
+                    
+                    if (log.type === 'add') {
+                        typeBadge = '<span style="color:#4caf50; font-weight:bold;">[추가]</span>';
+                        qtyStyle = 'color:#4caf50;';
+                        totalAdd += log.quantity;
+                    } else if (log.type === 'consume') {
+                        typeBadge = '<span style="color:var(--primary-color); font-weight:bold;">[소모]</span>';
+                        qtyStyle = 'color:var(--primary-color);';
+                        totalConsume += log.quantity;
+                    } else if (log.type === 'discard') {
+                        typeBadge = '<span style="color:var(--danger-color); font-weight:bold;">[폐기]</span>';
+                        qtyStyle = 'color:var(--danger-color);';
+                        totalDiscard += log.quantity;
+                    }
+
+                    // 연월일 시분초를 우측으로 정렬
+                    html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:6px 10px; border-radius:4px; font-size:0.8rem; border-bottom:1px solid rgba(255,255,255,0.02);">
+                        <div>${typeBadge} <strong style="${qtyStyle}">${log.quantity}</strong>${unit}</div>
+                        <div style="color:var(--text-secondary); font-size:0.75rem;">${log.date}</div>
+                    </div>`;
+                });
+
+                historyList.innerHTML = html;
+                historySummary.innerHTML = `
+                    <div>누적 추가: <strong style="color:#4caf50;">${totalAdd}</strong>${unit}</div>
+                    <div>누적 소모: <strong style="color:var(--primary-color);">${totalConsume}</strong>${unit}</div>
+                    <div>누적 폐기: <strong style="color:var(--danger-color);">${totalDiscard}</strong>${unit}</div>
+                `;
+            }
+
             function consumeErpItemOne(id) {
                 const item = appData.erp.find(i => i.id === id);
                 if (!item) return;
@@ -5792,6 +6036,24 @@
                     qtyNum--;
                     
                     const unit = item.quantity.replace(/[0-9]/g, '').trim();
+
+                    // 시간 기록용 포맷팅 (YYYY-MM-DD HH:mm:ss)
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const date = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    const dateStr = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+
+                    if (!Array.isArray(item.history)) item.history = [];
+                    item.history.unshift({
+                        type: 'consume',
+                        quantity: 1,
+                        date: dateStr
+                    });
+
                     if (qtyNum <= 0) {
                         if (confirm(`'${item.name}'의 수량이 0이 됩니다. 목록에서 삭제하시겠습니까?`)) {
                             appData.erp = appData.erp.filter(i => i.id !== id);
@@ -5885,7 +6147,7 @@
                     const daysLeftStr = daysLeft < 0 ? `D+${Math.abs(daysLeft)}` : (daysLeft === 0 ? 'D-Day' : `D-${daysLeft}`);
 
                     html += `
-                    <div class="${itemClass}" style="background:var(--surface-color); border:1px solid var(--border-color); padding:8px 10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;">
+                    <div class="${itemClass}" style="background:var(--surface-color); border:1px solid var(--border-color); padding:8px 10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px; cursor:pointer;" ontouchstart="handleErpTouchStart(event)" ontouchmove="handleErpTouchMove(event)" onclick="handleErpItemClick(${item.id})">
                         <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;">
                             <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
                                 ${badgeHtml}
@@ -5898,7 +6160,7 @@
                         </div>
                         <div style="flex-shrink:0; display:flex; align-items:center; gap:12px;">
                             <span style="font-size:0.85rem; color:var(--text-secondary); white-space:nowrap;">수량: <strong style="color:var(--text-primary);">${item.quantity}</strong></span>
-                            <button class="secondary" style="margin:0; padding:4px 8px; font-size:0.7rem; width:auto; border-color:var(--primary-color); color:var(--primary-color); white-space:nowrap;" onclick="consumeErpItemOne(${item.id})">🥄 1개 소비</button>
+                            <button class="secondary" style="margin:0; padding:4px 8px; font-size:0.7rem; width:auto; border-color:var(--primary-color); color:var(--primary-color); white-space:nowrap;" onclick="event.stopPropagation(); consumeErpItemOne(${item.id})">🥄 1개 소비</button>
                         </div>
                     </div>`;
                 });
