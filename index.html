@@ -1872,7 +1872,7 @@
                             <button onclick="adjustErpQuantity('consume')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">🥄소모</button>
                             <button onclick="adjustErpQuantity('add')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid #4caf50; color: #4caf50; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">➕추가</button>
                             <button onclick="adjustErpQuantity('discard')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">🗑️폐기</button>
-                            <button id="erp_history_edit_toggle" onclick="toggleErpHistoryEditMode()" style="padding: 8px 10px; margin: 0; font-size: 0.95rem; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; height: 36px; border-radius: 6px; cursor: pointer; flex-shrink: 0; box-sizing: border-box;">⚙️</button>
+                            <button id="erp_history_edit_toggle" onclick="toggleErpHistoryEditMode()" style="width: 36px; height: 36px; padding: 0; margin: 0; font-size: 0.95rem; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; flex-shrink: 0; box-sizing: border-box;">⚙️</button>
                         </div>
                     </div>
                 </div>
@@ -1882,14 +1882,24 @@
                     <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px;">📋 소모 및 추가 변동 이력</label>
                     <div style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color);">
                         <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed;">
-                            <thead id="erp_history_thead">
-                                <!-- JS 동적 렌더링 -->
+                            <thead>
+                                <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); width: 43%;">일시</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 19%;">소모</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: #4caf50; width: 19%;">추가</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; color: var(--danger-color); width: 19%;">폐기</th>
+                                </tr>
                             </thead>
                             <tbody id="erp_history_table_body">
                                 <!-- JS 동적 렌더링 -->
                             </tbody>
-                            <tfoot id="erp_history_tfoot" style="position: sticky; bottom: 0; z-index: 2; background-color: var(--surface-color); border-top: 2px solid var(--border-color); font-weight: bold;">
-                                <!-- JS 동적 렌더링 -->
+                            <tfoot style="position: sticky; bottom: 0; z-index: 2; background-color: var(--surface-color); border-top: 2px solid var(--border-color); font-weight: bold;">
+                                <tr>
+                                    <td style="padding: 8px 4px; border-right: 1px solid var(--border-color);">합계</td>
+                                    <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color);">0</td>
+                                    <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: #4caf50;">0</td>
+                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color);">0</td>
+                                </tr>
                             </tfoot>
                         </table>
                     </div>
@@ -5862,6 +5872,7 @@
             let erpTouchStartX = 0;
             let erpIsDrag = false;
             let erpSelectedItemId = null; // 현재 상세 모달에 띄운 물품 ID
+            let erpHistoryEditMode = false; // 이력 편집(삭제) 모드 활성화 여부
 
             function handleErpTouchStart(e) {
                 erpTouchStartY = e.touches[0].clientY;
@@ -5882,11 +5893,35 @@
                 openErpDetailModal(itemId);
             }
 
+            function toggleErpHistoryEditMode() {
+                erpHistoryEditMode = !erpHistoryEditMode;
+                const btn = document.getElementById('erp_history_edit_toggle');
+                if (btn) {
+                    if (erpHistoryEditMode) {
+                        btn.style.borderColor = 'var(--primary-color)';
+                        btn.style.color = 'var(--primary-color)';
+                    } else {
+                        btn.style.borderColor = 'var(--text-secondary)';
+                        btn.style.color = 'var(--text-secondary)';
+                    }
+                }
+                if (erpSelectedItemId !== null) {
+                    renderErpHistory(erpSelectedItemId);
+                }
+            }
+
             function openErpDetailModal(itemId) {
                 const item = appData.erp.find(i => i.id === itemId);
                 if (!item) return;
 
                 erpSelectedItemId = itemId;
+                erpHistoryEditMode = false; // 모달을 열 때는 항상 편집 모드를 비활성화로 초기화
+                
+                const editBtn = document.getElementById('erp_history_edit_toggle');
+                if (editBtn) {
+                    editBtn.style.borderColor = 'var(--text-secondary)';
+                    editBtn.style.color = 'var(--text-secondary)';
+                }
                 
                 // 모달 텍스트 매핑
                 document.getElementById('erp_detail_category').innerText = `${item.category} > ${item.category_sub || '기타'}`;
@@ -5996,25 +6031,25 @@
                 const item = appData.erp.find(i => i.id === itemId);
                 if (!item) return;
 
-                const tableBody = document.getElementById('erp_history_table_body');
+                const tbody = document.getElementById('erp_history_table_body');
                 const totalConsumeEl = document.getElementById('erp_total_consume');
                 const totalAddEl = document.getElementById('erp_total_add');
                 const totalDiscardEl = document.getElementById('erp_total_discard');
 
-                if (!tableBody || !totalConsumeEl || !totalAddEl || !totalDiscardEl) return;
+                if (!tbody || !totalConsumeEl || !totalAddEl || !totalDiscardEl) return;
 
                 const history = item.history || [];
                 const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
 
                 if (history.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-secondary);">변동 이력이 없습니다.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-secondary);">변동 이력이 없습니다.</td></tr>';
                     totalConsumeEl.innerText = `0${unit}`;
                     totalAddEl.innerText = `0${unit}`;
                     totalDiscardEl.innerText = `0${unit}`;
                     return;
                 }
 
-                let html = '';
+                let bodyHtml = '';
                 let totalAdd = 0;
                 let totalConsume = 0;
                 let totalDiscard = 0;
@@ -6035,33 +6070,57 @@
                         totalDiscard += log.quantity;
                     }
 
-                    // 엑셀 스타일 격자 테두리 적용 및 삭제 버튼 열 추가
-                    html += `
+                    // 편집 모드 여부에 따라 날짜(일시) 셀 좌측에 X 삭제 버튼 추가
+                    let dateColHtml = '';
+                    if (erpHistoryEditMode) {
+                        dateColHtml = `
+                        <div style="display:inline-flex; align-items:center; gap:6px;">
+                            <button onclick="openErpDeleteConfirmModal(${itemId}, ${index})" style="margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;">X</button>
+                            <span>${log.date}</span>
+                        </div>`;
+                    } else {
+                        dateColHtml = `<span>${log.date}</span>`;
+                    }
+
+                    // 엑셀 스타일 격자 테두리 적용
+                    bodyHtml += `
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
-                        <td style="padding:6px 4px; border-right:1px solid var(--border-color); color:var(--text-secondary); font-size:0.7rem; line-height:1.2;">${log.date}</td>
+                        <td style="padding:6px 4px; border-right:1px solid var(--border-color); color:var(--text-secondary); font-size:0.7rem; line-height:1.2; text-align:left; padding-left:8px;">${dateColHtml}</td>
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${consumeCol}</td>
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${addCol}</td>
-                        <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${discardCol}</td>
-                        <td style="padding:6px 4px;"><button class="danger" style="margin:0; padding:2px 4px; font-size:0.65rem; width:auto; border-radius:4px;" onclick="deleteErpHistory(${itemId}, ${index})">❌</button></td>
+                        <td style="padding:6px 4px;">${discardCol}</td>
                     </tr>`;
                 });
 
-                tableBody.innerHTML = html;
+                tbody.innerHTML = bodyHtml;
                 totalConsumeEl.innerText = `${totalConsume}${unit}`;
                 totalAddEl.innerText = `${totalAdd}${unit}`;
                 totalDiscardEl.innerText = `${totalDiscard}${unit}`;
             }
 
-            function deleteErpHistory(itemId, historyIndex) {
+            function openErpDeleteConfirmModal(itemId, historyIndex) {
+                const modal = document.getElementById('erp-delete-confirm-modal');
+                const confirmBtn = document.getElementById('erp_delete_confirm_btn');
+                if (modal && confirmBtn) {
+                    confirmBtn.onclick = () => {
+                        executeErpHistoryDeletion(itemId, historyIndex);
+                        closeErpDeleteConfirmModal();
+                    };
+                    modal.style.display = 'flex';
+                }
+            }
+
+            function closeErpDeleteConfirmModal() {
+                const modal = document.getElementById('erp-delete-confirm-modal');
+                if (modal) modal.style.display = 'none';
+            }
+
+            function executeErpHistoryDeletion(itemId, historyIndex) {
                 const item = appData.erp.find(i => i.id === itemId);
                 if (!item) return;
 
                 const log = item.history[historyIndex];
                 if (!log) return;
-
-                if (!confirm("이 변동 이력을 삭제하시겠습니까?\n(삭제 시 당시 변동 수량이 자동으로 반대 계산되어 롤백됩니다.)")) {
-                    return;
-                }
 
                 // 기존 보유량 숫자 추출
                 const numbers = item.quantity.match(/[0-9]+/);
