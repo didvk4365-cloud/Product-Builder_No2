@@ -6070,22 +6070,20 @@
                         totalDiscard += log.quantity;
                     }
 
-                    // 편집 모드 여부에 따라 날짜(일시) 셀 좌측에 X 삭제 버튼 추가
+                    // 편집 모드 여부에 따라 날짜(일시) 셀 좌측에 X 삭제 버튼 추가 (absolute 절대 좌표 배치로 날짜 중앙정렬 흔들림 원천방지)
                     let dateColHtml = '';
                     if (erpHistoryEditMode) {
                         dateColHtml = `
-                        <div style="display:inline-flex; align-items:center; gap:6px;">
-                            <button onclick="openErpDeleteConfirmModal(${itemId}, ${index})" style="margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;">X</button>
-                            <span>${log.date}</span>
-                        </div>`;
+                        <button onclick="openErpDeleteConfirmModal(${itemId}, ${index})" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;">X</button>
+                        <span>${log.date}</span>`;
                     } else {
                         dateColHtml = `<span>${log.date}</span>`;
                     }
 
-                    // 엑셀 스타일 격자 테두리 적용
+                    // 엑셀 스타일 격자 테두리 적용 (td에 position:relative 및 text-align:center 부여)
                     bodyHtml += `
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
-                        <td style="padding:6px 4px; border-right:1px solid var(--border-color); color:var(--text-secondary); font-size:0.7rem; line-height:1.2; text-align:left; padding-left:8px;">${dateColHtml}</td>
+                        <td style="position:relative; padding:6px 4px; border-right:1px solid var(--border-color); color:var(--text-secondary); font-size:0.7rem; line-height:1.2; text-align:center;">${dateColHtml}</td>
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${consumeCol}</td>
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${addCol}</td>
                         <td style="padding:6px 4px;">${discardCol}</td>
