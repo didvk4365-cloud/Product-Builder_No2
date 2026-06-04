@@ -817,6 +817,15 @@
             flex: 1;
         }
 
+        /* 스크롤바 숨기기 클래스 (스크롤링 기능은 유지) */
+        .scrollbar-hidden::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hidden {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
         .erp-name {
             font-size: 1.1rem;
             font-weight: bold;
@@ -1883,7 +1892,7 @@
                 <!-- 엑셀 스타일 격자 변동 이력 목록 -->
                 <div>
                     <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px;">📋 소모 및 추가 변동 이력</label>
-                    <div style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color);">
+                    <div class="scrollbar-hidden" style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color);">
                         <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed;">
                             <thead>
                                 <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
