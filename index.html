@@ -2540,6 +2540,23 @@
                 </div>
             </div>
 
+            <!-- 유통기한 임박 및 경과 물자 관리 레이어 -->
+            <div class="card" id="erp_expiry_alert_card" style="background: rgba(255, 152, 0, 0.08); border: 1.5px dashed var(--primary-color); display: none;">
+                <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:0; color: var(--primary-color);"
+                    onclick="toggleErpExpiryAlert(event)">
+                    <span style="margin:0; display:inline-flex; align-items:center; gap:6px;">⚠️ 유통기한 경과 및 임박 물자 <span id="erp_expiry_badge" style="font-size:0.75rem; background:var(--danger-color); color:#fff; padding:1px 6px; border-radius:10px; font-weight:bold;">0</span></span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button class="secondary" onclick="setErpExpiryThreshold(event)" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal; border-color: var(--primary-color); color: var(--primary-color);">⚙️ 기준 설정</button>
+                        <button class="secondary" id="erp_expiry_toggle_btn" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal; border-color: var(--primary-color); color: var(--primary-color);">접기 ▲</button>
+                    </div>
+                </h3>
+                <div id="erp_expiry_alert_body" style="display: block; margin-top: 10px;">
+                    <div id="erp_expiry_alert_list" style="display: flex; flex-direction: column; gap: 8px;">
+                        <!-- JS로 렌더링 -->
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
                     <div
@@ -2991,6 +3008,8 @@
                 }
 
                 appData.userAgreed = !!appData.userAgreed;
+                if (appData.erpExpiryThreshold === undefined) appData.erpExpiryThreshold = 30;
+                if (appData.erpExpiryAlertCollapsed === undefined) appData.erpExpiryAlertCollapsed = false;
 
                 // 배열 자료형 데이터 정밀 검증 및 자가 복구
                 if (!Array.isArray(appData.alarms)) appData.alarms = [];
@@ -5703,12 +5722,155 @@
                 });
                 container.innerHTML = html;
 
-                // 경고 알림 (전체 보기일 때만 실제 전체 카운트를 기반으로 경고)
-                if (filterMainVal === '전체' && warningCount > 0 && warningCount !== appData.lastWarningCount) {
-                    appData.lastWarningCount = warningCount;
-                    showToast(`⚠️ 유통기한 임박(30일 이내) 물품이 ${warningCount}개 있습니다.`);
-                    saveInputs();
+                // 유통기한 임박 및 경과 물자 관리 레이어 렌더링 호출
+                renderErpExpiryAlerts();
+            }
+
+            // === 유통기한 임박 및 경과 물자 관리 레이어 함수 ===
+            function toggleErpExpiryAlert(event) {
+                if (event) event.stopPropagation();
+                appData.erpExpiryAlertCollapsed = !appData.erpExpiryAlertCollapsed;
+                saveInputs();
+                renderErpExpiryAlerts();
+            }
+
+            function setErpExpiryThreshold(event) {
+                if (event) event.stopPropagation();
+                const newThreshold = prompt("유통기한 임박으로 간주할 기준 일수를 입력하세요 (예: 30):", appData.erpExpiryThreshold);
+                if (newThreshold !== null) {
+                    const parsed = parseInt(newThreshold.trim());
+                    if (!isNaN(parsed) && parsed >= 0) {
+                        appData.erpExpiryThreshold = parsed;
+                        saveInputs();
+                        renderErpItems(); // 전체 렌더링에 이어서 renderErpExpiryAlerts가 호출됨
+                    } else {
+                        alert("올바른 숫자를 입력해 주세요 (0 이상의 정수).");
+                    }
                 }
+            }
+
+            function consumeErpItemOne(id) {
+                const item = appData.erp.find(i => i.id === id);
+                if (!item) return;
+
+                // 숫자를 추출하여 1 차감
+                const numbers = item.quantity.match(/[0-9]+/);
+                if (numbers) {
+                    let qtyNum = parseInt(numbers[0]);
+                    qtyNum--;
+                    
+                    const unit = item.quantity.replace(/[0-9]/g, '').trim();
+                    if (qtyNum <= 0) {
+                        if (confirm(`'${item.name}'의 수량이 0이 됩니다. 목록에서 삭제하시겠습니까?`)) {
+                            appData.erp = appData.erp.filter(i => i.id !== id);
+                        }
+                    } else {
+                        item.quantity = qtyNum + unit;
+                    }
+                } else {
+                    // 수량 문자열에 숫자가 없는 경우 (예: "약간", "가득") 직접 0개 취급하거나 삭제 유도
+                    if (confirm(`수량을 차감할 수 없는 단위입니다. 목록에서 삭제하시겠습니까?`)) {
+                        appData.erp = appData.erp.filter(i => i.id !== id);
+                    }
+                }
+
+                saveInputs();
+                renderErpItems(); // 전체 리스트 및 알림 리스트 동시 갱신
+            }
+
+            function renderErpExpiryAlerts() {
+                const card = document.getElementById('erp_expiry_alert_card');
+                const listContainer = document.getElementById('erp_expiry_alert_list');
+                const badge = document.getElementById('erp_expiry_badge');
+                const toggleBtn = document.getElementById('erp_expiry_toggle_btn');
+                const body = document.getElementById('erp_expiry_alert_body');
+
+                if (!card || !listContainer) return;
+
+                const erpList = appData.erp || [];
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                const threshold = appData.erpExpiryThreshold || 30;
+
+                // 임박/경과 대상 선별
+                const alertItems = [];
+                erpList.forEach(item => {
+                    if (item.expiry_date) {
+                        const expiryDate = new Date(item.expiry_date).getTime();
+                        const diffTime = expiryDate - today;
+                        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (daysLeft <= threshold) {
+                            alertItems.push({ item, daysLeft });
+                        }
+                    }
+                });
+
+                // 임박 물품이 없으면 경고 카드 전체 숨김
+                if (alertItems.length === 0) {
+                    card.style.display = 'none';
+                    return;
+                }
+
+                // 임박 물품이 존재하면 노출
+                card.style.display = 'block';
+                badge.innerText = alertItems.length;
+
+                // 접기/펼치기 상태 반영
+                if (appData.erpExpiryAlertCollapsed) {
+                    body.style.display = 'none';
+                    toggleBtn.innerText = '펼치기 ▼';
+                    card.style.marginBottom = '0';
+                } else {
+                    body.style.display = 'block';
+                    toggleBtn.innerText = '접기 ▲';
+                    card.style.marginBottom = '15px';
+                }
+
+                // 렌더링
+                let html = '';
+                // 기한이 가장 적게 남은 것(경과된 것 포함) 순으로 정렬
+                alertItems.sort((a, b) => a.daysLeft - b.daysLeft);
+
+                alertItems.forEach(({ item, daysLeft }) => {
+                    let badgeHtml = '';
+                    let itemClass = 'erp-item';
+                    let expiryColor = '';
+
+                    if (daysLeft < 0) {
+                        badgeHtml = `<span style="font-size:0.7rem; background:var(--danger-color); color:#fff; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">기한 초과 ⚠️</span>`;
+                        itemClass += ' warning';
+                        expiryColor = 'color: var(--danger-color); font-weight: bold;';
+                    } else if (daysLeft === 0) {
+                        badgeHtml = `<span style="font-size:0.7rem; background:var(--primary-color); color:#000; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">D-Day 🔥</span>`;
+                        expiryColor = 'color: var(--primary-color); font-weight: bold;';
+                    } else {
+                        badgeHtml = `<span style="font-size:0.7rem; background:var(--primary-color); color:#000; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">임박 ⏳</span>`;
+                        expiryColor = 'color: var(--primary-color);';
+                    }
+
+                    const daysLeftStr = daysLeft < 0 ? `D+${Math.abs(daysLeft)}` : (daysLeft === 0 ? 'D-Day' : `D-${daysLeft}`);
+
+                    html += `
+                    <div class="${itemClass}" style="background:var(--surface-color); border:1px solid var(--border-color); padding:8px 10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:8px;">
+                        <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:0;">
+                            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                                ${badgeHtml}
+                                <strong style="color:var(--text-primary); font-size:0.9rem; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${item.name}</strong>
+                                <span style="font-size:0.7rem; color:var(--text-secondary);">(${item.category} &gt; ${item.category_sub || '기타'})</span>
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary);">
+                                기한: <span style="${expiryColor}">${item.expiry_date} (${daysLeftStr})</span>
+                                <span style="margin-left:12px;">수량: <strong style="color:var(--text-primary);">${item.quantity}</strong></span>
+                            </div>
+                        </div>
+                        <div style="flex-shrink:0; display:flex; gap:4px;">
+                            <button class="secondary" style="margin:0; padding:4px 8px; font-size:0.7rem; width:auto; border-color:var(--primary-color); color:var(--primary-color); white-space:nowrap;" onclick="consumeErpItemOne(${item.id})">🥄 1개 소비</button>
+                        </div>
+                    </div>`;
+                });
+
+                listContainer.innerHTML = html;
             }
 
             function editErpItem(id) {
