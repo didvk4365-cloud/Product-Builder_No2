@@ -5838,14 +5838,14 @@
                     let expiryColor = '';
 
                     if (daysLeft < 0) {
-                        badgeHtml = `<span style="font-size:0.7rem; background:var(--danger-color); color:#fff; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">기한 초과 ⚠️</span>`;
+                        badgeHtml = `<span style="font-size:0.7rem; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); padding:1px 5px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">⚠️ 초과</span>`;
                         itemClass += ' warning';
                         expiryColor = 'color: var(--danger-color); font-weight: bold;';
                     } else if (daysLeft === 0) {
-                        badgeHtml = `<span style="font-size:0.7rem; background:var(--primary-color); color:#000; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">D-Day 🔥</span>`;
+                        badgeHtml = `<span style="font-size:0.7rem; background:var(--primary-color); color:#000; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">🔥 D-Day</span>`;
                         expiryColor = 'color: var(--primary-color); font-weight: bold;';
                     } else {
-                        badgeHtml = `<span style="font-size:0.7rem; background:transparent; border:1px solid var(--primary-color); color:var(--primary-color); padding:1px 5px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">임박 ⏳</span>`;
+                        badgeHtml = `<span style="font-size:0.7rem; background:transparent; border:1px solid var(--primary-color); color:var(--primary-color); padding:1px 5px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">⏳ 임박</span>`;
                         expiryColor = 'color: var(--primary-color);';
                     }
 
