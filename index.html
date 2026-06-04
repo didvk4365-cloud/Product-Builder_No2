@@ -2544,9 +2544,9 @@
             <div class="card" id="erp_expiry_alert_card" style="background: rgba(255, 152, 0, 0.08); border: 1.5px dashed var(--primary-color); display: none;">
                 <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:0; color: var(--primary-color);"
                     onclick="toggleErpExpiryAlert(event)">
-                    <span style="margin:0; display:inline-flex; align-items:center; gap:6px;">⚠️ 유통기한 경과 및 임박 물자 <span id="erp_expiry_badge" style="font-size:0.75rem; background:var(--danger-color); color:#fff; padding:1px 6px; border-radius:10px; font-weight:bold;">0</span></span>
+                    <span style="margin:0; display:inline-flex; align-items:center; gap:6px;">⚠️ 유통기한 관리 <span id="erp_expiry_badge" style="font-size:0.75rem; background:var(--danger-color); color:#fff; padding:1px 6px; border-radius:10px; font-weight:bold;">0</span></span>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <button class="secondary" onclick="setErpExpiryThreshold(event)" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal; border-color: var(--primary-color); color: var(--primary-color);">⚙️ 기준 설정</button>
+                        <button class="secondary" onclick="setErpExpiryThreshold(event)" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal; border-color: var(--primary-color); color: var(--primary-color);">⚙️ 설정</button>
                         <button class="secondary" id="erp_expiry_toggle_btn" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal; border-color: var(--primary-color); color: var(--primary-color);">접기 ▲</button>
                     </div>
                 </h3>
@@ -5845,7 +5845,7 @@
                         badgeHtml = `<span style="font-size:0.7rem; background:var(--primary-color); color:#000; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">D-Day 🔥</span>`;
                         expiryColor = 'color: var(--primary-color); font-weight: bold;';
                     } else {
-                        badgeHtml = `<span style="font-size:0.7rem; background:var(--primary-color); color:#000; padding:2px 6px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">임박 ⏳</span>`;
+                        badgeHtml = `<span style="font-size:0.7rem; background:transparent; border:1px solid var(--primary-color); color:var(--primary-color); padding:1px 5px; border-radius:4px; font-weight:bold; margin-right:6px; flex-shrink:0;">임박 ⏳</span>`;
                         expiryColor = 'color: var(--primary-color);';
                     }
 
@@ -5861,10 +5861,10 @@
                             </div>
                             <div style="font-size:0.8rem; color:var(--text-secondary);">
                                 기한: <span style="${expiryColor}">${item.expiry_date} (${daysLeftStr})</span>
-                                <span style="margin-left:12px;">수량: <strong style="color:var(--text-primary);">${item.quantity}</strong></span>
                             </div>
                         </div>
-                        <div style="flex-shrink:0; display:flex; gap:4px;">
+                        <div style="flex-shrink:0; display:flex; align-items:center; gap:12px;">
+                            <span style="font-size:0.85rem; color:var(--text-secondary); white-space:nowrap;">수량: <strong style="color:var(--text-primary);">${item.quantity}</strong></span>
                             <button class="secondary" style="margin:0; padding:4px 8px; font-size:0.7rem; width:auto; border-color:var(--primary-color); color:var(--primary-color); white-space:nowrap;" onclick="consumeErpItemOne(${item.id})">🥄 1개 소비</button>
                         </div>
                     </div>`;
