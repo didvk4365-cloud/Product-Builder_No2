@@ -1833,7 +1833,7 @@
             <!-- 모달 헤더 -->
             <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start;">
                 <div style="min-width: 0; flex: 1;">
-                    <span id="erp_detail_category" style="font-size: 0.75rem; color: var(--text-secondary); background: var(--bg-color); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;"></span>
+                    <span id="erp_detail_category" style="font-size: 0.75rem; color: var(--text-secondary); background: var(--bg-color); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; white-space: nowrap;"></span>
                     <h3 id="erp_detail_name" style="margin: 0; font-size: 1.15rem; color: var(--primary-color); font-weight: bold; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></h3>
                 </div>
                 <button onclick="closeErpDetailModal()" style="background: transparent; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; padding: 0 5px; line-height: 1; margin: 0;">✕</button>
@@ -1846,31 +1846,52 @@
                     <div id="erp_detail_qty" style="font-size: 1.6rem; font-weight: bold; color: var(--text-primary); margin-top: 4px;">0</div>
                 </div>
 
-                <!-- 수량 수동 조정 입력 폼 -->
+                <!-- 수량 수동 조정 입력 폼 (한줄 배치 및 아웃라인 버튼) -->
                 <div>
                     <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">수량 조정</label>
-                    <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-                        <input type="number" id="erp_adjust_qty" min="1" value="1" style="flex: 1.5; text-align: center; font-size: 1.1rem; font-weight: bold; padding: 8px; margin: 0; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none;">
-                        <span id="erp_detail_unit" style="align-self: center; font-size: 0.9rem; color: var(--text-secondary); padding: 0 4px; flex-shrink: 0;">개</span>
-                    </div>
-                    <div style="display: flex; gap: 6px;">
-                        <button onclick="adjustErpQuantity('consume')" style="flex: 1; padding: 10px 6px; margin: 0; font-size: 0.85rem; font-weight: bold; background: var(--primary-color); color: #000; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🥄 소모</button>
-                        <button onclick="adjustErpQuantity('add')" style="flex: 1; padding: 10px 6px; margin: 0; font-size: 0.85rem; font-weight: bold; background: #4caf50; color: #fff; border: 1px solid #4caf50; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">➕ 추가</button>
-                        <button class="danger" onclick="adjustErpQuantity('discard')" style="flex: 1; padding: 10px 6px; margin: 0; font-size: 0.85rem; font-weight: bold; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">🗑️ 폐기</button>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <!-- 수량 입력란 (가로폭 축소) -->
+                        <div style="display: flex; align-items: center; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 2px 6px; width: 95px; flex-shrink: 0; box-sizing: border-box;">
+                            <input type="number" id="erp_adjust_qty" min="1" value="1" style="width: 100%; text-align: center; font-size: 1rem; font-weight: bold; border: none; background: transparent; color: var(--text-primary); outline: none; padding: 6px 0; margin: 0;">
+                            <span id="erp_detail_unit" style="font-size: 0.8rem; color: var(--text-secondary); padding-left: 2px; flex-shrink: 0; white-space: nowrap;">개</span>
+                        </div>
+                        
+                        <!-- 버튼 3개 (아웃라인 스타일, 채우기 없음, 3글자 폭) -->
+                        <div style="display: flex; gap: 4px; flex: 1; min-width: 0;">
+                            <button onclick="adjustErpQuantity('consume')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">🥄소모</button>
+                            <button onclick="adjustErpQuantity('add')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid #4caf50; color: #4caf50; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">➕추가</button>
+                            <button onclick="adjustErpQuantity('discard')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">🗑️폐기</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 변경 이력 목록 -->
+                <!-- 엑셀 스타일 격자 변동 이력 목록 -->
                 <div>
-                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">📋 소모 및 추가 변동 이력</label>
-                    <div id="erp_history_list" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-top: 6px;">
-                        <!-- JS 렌더링 -->
+                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px;">📋 소모 및 추가 변동 이력</label>
+                    <div style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color);">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed;">
+                            <thead>
+                                <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); width: 43%;">일시</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 19%;">소모</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: #4caf50; width: 19%;">추가</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; color: var(--danger-color); width: 19%;">폐기</th>
+                                </tr>
+                            </thead>
+                            <tbody id="erp_history_table_body">
+                                <!-- JS 렌더링 -->
+                            </tbody>
+                            <tfoot style="position: sticky; bottom: 0; z-index: 2; background-color: var(--surface-color); border-top: 2px solid var(--border-color); font-weight: bold;">
+                                <tr>
+                                    <td style="padding: 8px 4px; border-right: 1px solid var(--border-color);">합계</td>
+                                    <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color);">0</td>
+                                    <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: #4caf50;">0</td>
+                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color);">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
-            </div>
-            <!-- 모달 푸터 (총 합계 누적 기록) -->
-            <div id="erp_history_summary" style="padding: 12px 16px; background: var(--bg-color); border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
-                <!-- JS 렌더링 -->
             </div>
         </div>
     </div>
@@ -5973,16 +5994,21 @@
                 const item = appData.erp.find(i => i.id === itemId);
                 if (!item) return;
 
-                const historyList = document.getElementById('erp_history_list');
-                const historySummary = document.getElementById('erp_history_summary');
-                if (!historyList || !historySummary) return;
+                const tableBody = document.getElementById('erp_history_table_body');
+                const totalConsumeEl = document.getElementById('erp_total_consume');
+                const totalAddEl = document.getElementById('erp_total_add');
+                const totalDiscardEl = document.getElementById('erp_total_discard');
+
+                if (!tableBody || !totalConsumeEl || !totalAddEl || !totalDiscardEl) return;
 
                 const history = item.history || [];
                 const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
 
                 if (history.length === 0) {
-                    historyList.innerHTML = '<div style="text-align:center; padding:15px; color:var(--text-secondary); font-size:0.8rem;">변동 이력이 없습니다.</div>';
-                    historySummary.innerHTML = `<div>누적 추가: 0${unit}</div><div>누적 소모: 0${unit}</div><div>누적 폐기: 0${unit}</div>`;
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-secondary);">변동 이력이 없습니다.</td></tr>';
+                    totalConsumeEl.innerText = `0${unit}`;
+                    totalAddEl.innerText = `0${unit}`;
+                    totalDiscardEl.innerText = `0${unit}`;
                     return;
                 }
 
@@ -5992,37 +6018,35 @@
                 let totalDiscard = 0;
 
                 history.forEach(log => {
-                    let typeBadge = '';
-                    let qtyStyle = '';
-                    
-                    if (log.type === 'add') {
-                        typeBadge = '<span style="color:#4caf50; font-weight:bold;">[추가]</span>';
-                        qtyStyle = 'color:#4caf50;';
-                        totalAdd += log.quantity;
-                    } else if (log.type === 'consume') {
-                        typeBadge = '<span style="color:var(--primary-color); font-weight:bold;">[소모]</span>';
-                        qtyStyle = 'color:var(--primary-color);';
+                    let consumeCol = '-';
+                    let addCol = '-';
+                    let discardCol = '-';
+
+                    if (log.type === 'consume') {
+                        consumeCol = `<span style="color:var(--primary-color); font-weight:bold;">${log.quantity}${unit}</span>`;
                         totalConsume += log.quantity;
+                    } else if (log.type === 'add') {
+                        addCol = `<span style="color:#4caf50; font-weight:bold;">${log.quantity}${unit}</span>`;
+                        totalAdd += log.quantity;
                     } else if (log.type === 'discard') {
-                        typeBadge = '<span style="color:var(--danger-color); font-weight:bold;">[폐기]</span>';
-                        qtyStyle = 'color:var(--danger-color);';
+                        discardCol = `<span style="color:var(--danger-color); font-weight:bold;">${log.quantity}${unit}</span>`;
                         totalDiscard += log.quantity;
                     }
 
-                    // 연월일 시분초를 우측으로 정렬
+                    // 엑셀 스타일 격자 테두리 적용
                     html += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:6px 10px; border-radius:4px; font-size:0.8rem; border-bottom:1px solid rgba(255,255,255,0.02);">
-                        <div>${typeBadge} <strong style="${qtyStyle}">${log.quantity}</strong>${unit}</div>
-                        <div style="color:var(--text-secondary); font-size:0.75rem;">${log.date}</div>
-                    </div>`;
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+                        <td style="padding:6px 4px; border-right:1px solid var(--border-color); color:var(--text-secondary); font-size:0.7rem; line-height:1.2;">${log.date}</td>
+                        <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${consumeCol}</td>
+                        <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${addCol}</td>
+                        <td style="padding:6px 4px;">${discardCol}</td>
+                    </tr>`;
                 });
 
-                historyList.innerHTML = html;
-                historySummary.innerHTML = `
-                    <div>누적 추가: <strong style="color:#4caf50;">${totalAdd}</strong>${unit}</div>
-                    <div>누적 소모: <strong style="color:var(--primary-color);">${totalConsume}</strong>${unit}</div>
-                    <div>누적 폐기: <strong style="color:var(--danger-color);">${totalDiscard}</strong>${unit}</div>
-                `;
+                tableBody.innerHTML = html;
+                totalConsumeEl.innerText = `${totalConsume}${unit}`;
+                totalAddEl.innerText = `${totalAdd}${unit}`;
+                totalDiscardEl.innerText = `${totalDiscard}${unit}`;
             }
 
             function consumeErpItemOne(id) {
