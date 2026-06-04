@@ -1836,11 +1836,13 @@
             </div>
             <!-- 모달 본문 (스크롤 영역) -->
             <div style="padding: 12px 16px 16px 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 15px;">
-                <!-- 현재 수량 카드 (카테고리 정보가 안으로 들어가고 세로 높이가 대폭 컴팩트해짐) -->
-                <div style="background: rgba(255, 152, 0, 0.04); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                    <span id="erp_detail_category" style="font-size: 0.7rem; color: var(--text-secondary); background: var(--bg-color); padding: 2px 6px; border-radius: 4px; display: inline-block; white-space: nowrap;"></span>
-                    <span style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">현재 보유량</span>
-                    <div id="erp_detail_qty" style="font-size: 1.4rem; font-weight: bold; color: var(--text-primary);">0</div>
+                <!-- 현재 수량 카드 (카테고리 정보가 현재보유량 글자 좌측에 위치하도록 수정) -->
+                <div style="background: rgba(255, 152, 0, 0.04); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <span id="erp_detail_category" style="font-size: 0.7rem; color: var(--text-secondary); background: var(--bg-color); padding: 2px 6px; border-radius: 4px; display: inline-block; white-space: nowrap;"></span>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">현재 보유량</span>
+                    </div>
+                    <div id="erp_detail_qty" style="font-size: 1.4rem; font-weight: bold; color: var(--text-primary); line-height: 1.1;">0</div>
                 </div>
 
                 <!-- 수량 수동 조정 입력 폼 (한줄 배치 및 아웃라인 버튼) -->
@@ -1869,10 +1871,11 @@
                         <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed;">
                             <thead>
                                 <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
-                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); width: 43%;">일시</th>
-                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 19%;">소모</th>
-                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: #4caf50; width: 19%;">추가</th>
-                                    <th style="padding: 8px 4px; font-weight: bold; color: var(--danger-color); width: 19%;">폐기</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); width: 40%;">일시</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 16%;">소모</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: #4caf50; width: 16%;">추가</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--danger-color); width: 16%;">폐기</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; color: var(--text-secondary); width: 12%;">삭제</th>
                                 </tr>
                             </thead>
                             <tbody id="erp_history_table_body">
@@ -1883,7 +1886,8 @@
                                     <td style="padding: 8px 4px; border-right: 1px solid var(--border-color);">합계</td>
                                     <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color);">0</td>
                                     <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: #4caf50;">0</td>
-                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color);">0</td>
+                                    <td id="erp_total_discard" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--danger-color);">0</td>
+                                    <td style="padding: 8px 4px; color: var(--text-secondary);">-</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -6002,7 +6006,7 @@
                 const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
 
                 if (history.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-secondary);">변동 이력이 없습니다.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-secondary);">변동 이력이 없습니다.</td></tr>';
                     totalConsumeEl.innerText = `0${unit}`;
                     totalAddEl.innerText = `0${unit}`;
                     totalDiscardEl.innerText = `0${unit}`;
@@ -6014,7 +6018,7 @@
                 let totalConsume = 0;
                 let totalDiscard = 0;
 
-                history.forEach(log => {
+                history.forEach((log, index) => {
                     let consumeCol = '-';
                     let addCol = '-';
                     let discardCol = '-';
@@ -6030,13 +6034,14 @@
                         totalDiscard += log.quantity;
                     }
 
-                    // 엑셀 스타일 격자 테두리 적용
+                    // 엑셀 스타일 격자 테두리 적용 및 삭제 버튼 열 추가
                     html += `
                     <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color); color:var(--text-secondary); font-size:0.7rem; line-height:1.2;">${log.date}</td>
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${consumeCol}</td>
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${addCol}</td>
-                        <td style="padding:6px 4px;">${discardCol}</td>
+                        <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${discardCol}</td>
+                        <td style="padding:6px 4px;"><button class="danger" style="margin:0; padding:2px 4px; font-size:0.65rem; width:auto; border-radius:4px;" onclick="deleteErpHistory(${itemId}, ${index})">❌</button></td>
                     </tr>`;
                 });
 
@@ -6044,6 +6049,50 @@
                 totalConsumeEl.innerText = `${totalConsume}${unit}`;
                 totalAddEl.innerText = `${totalAdd}${unit}`;
                 totalDiscardEl.innerText = `${totalDiscard}${unit}`;
+            }
+
+            function deleteErpHistory(itemId, historyIndex) {
+                const item = appData.erp.find(i => i.id === itemId);
+                if (!item) return;
+
+                const log = item.history[historyIndex];
+                if (!log) return;
+
+                if (!confirm("이 변동 이력을 삭제하시겠습니까?\n(삭제 시 당시 변동 수량이 자동으로 반대 계산되어 롤백됩니다.)")) {
+                    return;
+                }
+
+                // 기존 보유량 숫자 추출
+                const numbers = item.quantity.match(/[0-9]+/);
+                let currentNum = numbers ? parseInt(numbers[0]) : 0;
+                const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
+
+                let rolledBackNum = currentNum;
+
+                if (log.type === 'consume' || log.type === 'discard') {
+                    // 소모 또는 폐기를 취소(삭제) -> 수량을 원래 수량으로 복구하므로 더함
+                    rolledBackNum = currentNum + log.quantity;
+                } else if (log.type === 'add') {
+                    // 추가를 취소(삭제) -> 수량을 원래 수량으로 복구하므로 뺌
+                    if (currentNum < log.quantity) {
+                        alert("이 이력을 삭제하면 보유 수량이 0보다 작아집니다. 삭제할 수 없습니다.");
+                        return;
+                    }
+                    rolledBackNum = currentNum - log.quantity;
+                }
+
+                // 이력 배열에서 해당 항목 제거
+                item.history.splice(historyIndex, 1);
+
+                // 수량 반영
+                item.quantity = rolledBackNum + unit;
+
+                // UI 리렌더링
+                document.getElementById('erp_detail_qty').innerText = item.quantity;
+                renderErpHistory(itemId);
+
+                saveInputs();
+                renderErpItems();
             }
 
             function consumeErpItemOne(id) {
