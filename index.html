@@ -819,23 +819,43 @@
             flex: 1;
         }
 
-        /* 스크롤바 커스텀 클래스 (얇고 세련된 회색 스크롤바) */
-        .scrollbar-hidden::-webkit-scrollbar {
+        /* 스크롤바 커스텀 클래스 (얇고 세련된 회색 스크롤바 - 이력목록, 매뉴얼/행동강령, 각 메인 탭 영역 일괄 적용) */
+        .scrollbar-hidden::-webkit-scrollbar,
+        .tab-content::-webkit-scrollbar,
+        #wiki-layer::-webkit-scrollbar,
+        #wiki_read_content::-webkit-scrollbar,
+        textarea::-webkit-scrollbar {
             width: 5px;
             height: 5px;
         }
-        .scrollbar-hidden::-webkit-scrollbar-track {
+        .scrollbar-hidden::-webkit-scrollbar-track,
+        .tab-content::-webkit-scrollbar-track,
+        #wiki-layer::-webkit-scrollbar-track,
+        #wiki_read_content::-webkit-scrollbar-track,
+        textarea::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);
             border-radius: 10px;
         }
-        .scrollbar-hidden::-webkit-scrollbar-thumb {
+        .scrollbar-hidden::-webkit-scrollbar-thumb,
+        .tab-content::-webkit-scrollbar-thumb,
+        #wiki-layer::-webkit-scrollbar-thumb,
+        #wiki_read_content::-webkit-scrollbar-thumb,
+        textarea::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.15);
             border-radius: 10px;
         }
-        .scrollbar-hidden::-webkit-scrollbar-thumb:hover {
+        .scrollbar-hidden::-webkit-scrollbar-thumb:hover,
+        .tab-content::-webkit-scrollbar-thumb:hover,
+        #wiki-layer::-webkit-scrollbar-thumb:hover,
+        #wiki_read_content::-webkit-scrollbar-thumb:hover,
+        textarea::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.3);
         }
-        .scrollbar-hidden {
+        .scrollbar-hidden,
+        .tab-content,
+        #wiki-layer,
+        #wiki_read_content,
+        textarea {
             -ms-overflow-style: auto;
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
