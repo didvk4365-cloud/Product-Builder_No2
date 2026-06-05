@@ -1819,10 +1819,185 @@
                 margin-bottom: 0 !important;
             }
         }
+
+        /* 커스텀 셀렉트 트리거 스타일 */
+        .custom-select-trigger {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-color) !important;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary) !important;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            font-family: inherit;
+            min-height: 45px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .custom-select-trigger:hover, .custom-select-trigger:focus {
+            border-color: var(--primary-color);
+        }
+        .custom-select-arrow {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-left: 8px;
+            transition: transform 0.2s;
+        }
+
+        /* 커스텀 셀렉트 모달 */
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10008;
+            animation: fadeIn 0.2s ease-out;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .custom-modal-content {
+            background-color: var(--surface-color);
+            border: 1.5px solid var(--primary-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            overflow: hidden;
+            animation: slideUp 0.25s ease-out;
+            display: flex;
+            flex-direction: column;
+            max-height: 80vh;
+        }
+
+        .custom-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .custom-modal-header h4 {
+            margin: 0;
+            font-size: 1.15rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .custom-modal-close {
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .custom-modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .custom-modal-body {
+            padding: 15px 20px;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .custom-modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-modal-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-modal-body::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .custom-option-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .custom-option-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .custom-option-item:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(255, 152, 0, 0.05);
+        }
+
+        .custom-option-item.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(255, 152, 0, 0.1);
+            font-weight: bold;
+        }
+
+        :root.red-mode .custom-option-item:hover {
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        :root.red-mode .custom-option-item.selected {
+            background-color: rgba(220, 53, 69, 0.15);
+        }
+
+        .custom-option-check {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 
 <body>
+    <!-- 커스텀 드롭다운 선택 모달 -->
+    <div id="custom-select-modal" class="custom-modal-overlay" onclick="closeCustomSelectModal(event)" style="display: none;">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h4 id="custom-modal-title">선택</h4>
+                <span class="custom-modal-close" onclick="hideCustomSelectModal()">&times;</span>
+            </div>
+            <div class="custom-modal-body" id="custom-modal-options">
+                <!-- 옵션들이 동적으로 렌더링됩니다 -->
+            </div>
+        </div>
+    </div>
+
     <!-- 유통기한 설정 모달 -->
     <div id="erp-threshold-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10005; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;">
         <div style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
@@ -2388,7 +2563,7 @@
                 <div class="flex-row" style="margin-top: 4px;">
                     <div class="form-group" style="flex:1;">
                         <label>활동 소리</label>
-                        <select id="t_sound" onchange="saveInputs()">
+                        <select id="t_sound" onchange="saveInputs()" style="display: none;">
                             <option value="none">음소거</option>
                             <option value="siren" selected>사이렌</option>
                             <option value="beep_fast">빠른 비프 A</option>
@@ -2396,10 +2571,14 @@
                             <option value="beep_slow">느린 비프 A</option>
                             <option value="beep_slow2">느린 비프 B</option>
                         </select>
+                        <div class="custom-select-trigger" id="trigger_t_sound" onclick="openCustomSelectModal('t_sound', '활동 소리')">
+                            <span class="custom-select-val">음소거</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                     <div class="form-group" style="flex:1;">
                         <label>활동 진동</label>
-                        <select id="t_vibe" onchange="saveInputs()">
+                        <select id="t_vibe" onchange="saveInputs()" style="display: none;">
                             <option value="none">진동 끄기</option>
                             <option value="long" selected>긴 진동 A</option>
                             <option value="long2">긴 진동 B</option>
@@ -2407,6 +2586,10 @@
                             <option value="short2">짧은 진동 B</option>
                             <option value="sos">SOS 패턴</option>
                         </select>
+                        <div class="custom-select-trigger" id="trigger_t_vibe" onclick="openCustomSelectModal('t_vibe', '활동 진동')">
+                            <span class="custom-select-val">진동 끄기</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                 </div>
 
@@ -2437,7 +2620,7 @@
                 <div class="flex-row" style="margin-top: 4px;">
                     <div class="form-group" style="flex:1;">
                         <label>휴식 종료 소리</label>
-                        <select id="ri_sound" onchange="saveInputs()">
+                        <select id="ri_sound" onchange="saveInputs()" style="display: none;">
                             <option value="none">음소거</option>
                             <option value="siren">사이렌</option>
                             <option value="beep_fast" selected>빠른 비프 A</option>
@@ -2445,10 +2628,14 @@
                             <option value="beep_slow">느린 비프 A</option>
                             <option value="beep_slow2">느린 비프 B</option>
                         </select>
+                        <div class="custom-select-trigger" id="trigger_ri_sound" onclick="openCustomSelectModal('ri_sound', '휴식 종료 소리')">
+                            <span class="custom-select-val">빠른 비프 A</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                     <div class="form-group" style="flex:1;">
                         <label>휴식 종료 진동</label>
-                        <select id="ri_vibe" onchange="saveInputs()">
+                        <select id="ri_vibe" onchange="saveInputs()" style="display: none;">
                             <option value="none">진동 끄기</option>
                             <option value="long">긴 진동 A</option>
                             <option value="long2">긴 진동 B</option>
@@ -2456,6 +2643,10 @@
                             <option value="short2">짧은 진동 B</option>
                             <option value="sos">SOS 패턴</option>
                         </select>
+                        <div class="custom-select-trigger" id="trigger_ri_vibe" onclick="openCustomSelectModal('ri_vibe', '휴식 종료 진동')">
+                            <span class="custom-select-val">짧은 진동 A</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                 </div>
 
@@ -2489,7 +2680,7 @@
                 <div class="flex-row" style="margin-top: 4px;">
                     <div class="form-group" style="flex:1; margin-bottom: 0;">
                         <label>소리</label>
-                        <select id="a_sound" onchange="saveInputs()">
+                        <select id="a_sound" onchange="saveInputs()" style="display: none;">
                             <option value="none">음소거</option>
                             <option value="siren">사이렌</option>
                             <option value="beep_fast" selected>빠른 비프 A</option>
@@ -2497,10 +2688,14 @@
                             <option value="beep_slow">느린 비프 A</option>
                             <option value="beep_slow2">느린 비프 B</option>
                         </select>
+                        <div class="custom-select-trigger" id="trigger_a_sound" onclick="openCustomSelectModal('a_sound', '알람 소리')">
+                            <span class="custom-select-val">빠른 비프 A</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                     <div class="form-group" style="flex:1; margin-bottom: 0;">
                         <label>진동</label>
-                        <select id="a_vibe" onchange="saveInputs()">
+                        <select id="a_vibe" onchange="saveInputs()" style="display: none;">
                             <option value="none">진동 끄기</option>
                             <option value="long">긴 진동 A</option>
                             <option value="long2">긴 진동 B</option>
@@ -2508,6 +2703,10 @@
                             <option value="short2">짧은 진동 B</option>
                             <option value="sos">SOS 패턴</option>
                         </select>
+                        <div class="custom-select-trigger" id="trigger_a_vibe" onclick="openCustomSelectModal('a_vibe', '알람 진동')">
+                            <span class="custom-select-val">짧은 진동 A</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                 </div>
                 <div class="flex-row">
@@ -3087,6 +3286,98 @@
             setInterval(updateClock, 1000);
             updateClock();
 
+            // === 커스텀 셀렉트 모달 관련 함수 ===
+            let currentTargetSelectId = null;
+
+            function openCustomSelectModal(selectId, titleText) {
+                currentTargetSelectId = selectId;
+                const selectEl = document.getElementById(selectId);
+                if (!selectEl) return;
+                
+                // 모달 타이틀 설정
+                const titleEl = document.getElementById('custom-modal-title');
+                if (titleEl) titleEl.textContent = titleText || '선택하세요';
+                
+                // 옵션 목록 생성
+                const optionsContainer = document.getElementById('custom-modal-options');
+                if (optionsContainer) {
+                    optionsContainer.innerHTML = '';
+                    
+                    const options = selectEl.options;
+                    const currentValue = selectEl.value;
+                    
+                    for (let i = 0; i < options.length; i++) {
+                        const opt = options[i];
+                        const item = document.createElement('div');
+                        item.className = 'custom-option-item';
+                        if (opt.value === currentValue) {
+                            item.classList.add('selected');
+                        }
+                        
+                        const textSpan = document.createElement('span');
+                        textSpan.textContent = opt.textContent;
+                        item.appendChild(textSpan);
+                        
+                        if (opt.value === currentValue) {
+                            const checkSpan = document.createElement('span');
+                            checkSpan.className = 'custom-option-check';
+                            checkSpan.textContent = '✓';
+                            item.appendChild(checkSpan);
+                        }
+                        
+                        // 클릭 이벤트
+                        item.onclick = (function(val) {
+                            return function() {
+                                selectOption(val);
+                            };
+                        })(opt.value);
+                        
+                        optionsContainer.appendChild(item);
+                    }
+                }
+                
+                // 모달 표시
+                const modalEl = document.getElementById('custom-select-modal');
+                if (modalEl) modalEl.style.display = 'flex';
+            }
+
+            function hideCustomSelectModal() {
+                const modalEl = document.getElementById('custom-select-modal');
+                if (modalEl) modalEl.style.display = 'none';
+                currentTargetSelectId = null;
+            }
+
+            function closeCustomSelectModal(event) {
+                if (event.target.id === 'custom-select-modal') {
+                    hideCustomSelectModal();
+                }
+            }
+
+            function selectOption(value) {
+                if (!currentTargetSelectId) return;
+                const selectEl = document.getElementById(currentTargetSelectId);
+                if (selectEl) {
+                    selectEl.value = value;
+                    selectEl.dispatchEvent(new Event('change'));
+                    syncCustomSelectTriggers();
+                }
+                hideCustomSelectModal();
+            }
+
+            function syncCustomSelectTriggers() {
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe'];
+                ids.forEach(id => {
+                    const selectEl = document.getElementById(id);
+                    const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
+                    if (selectEl && triggerValEl) {
+                        const selectedOption = selectEl.options[selectEl.selectedIndex];
+                        if (selectedOption) {
+                            triggerValEl.textContent = selectedOption.textContent;
+                        }
+                    }
+                });
+            }
+
             // === 상태 관리 (LocalStorage) ===
             let appData = {};
             const DATA_KEY = 'survival_data';
@@ -3195,6 +3486,7 @@
                 renderAlarms();
                 renderErpItems();
                 updateToggleLabels();
+                syncCustomSelectTriggers();
             }
 
             function updateToggleLabels() {
