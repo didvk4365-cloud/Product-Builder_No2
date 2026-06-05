@@ -6255,7 +6255,8 @@
                 document.getElementById('erp_detail_category').innerText = `${item.category} > ${item.category_sub || '기타'}`;
                 document.getElementById('erp_detail_name').innerText = item.name;
                 document.getElementById('erp_detail_qty').innerText = item.quantity;
-                document.getElementById('erp_detail_created_at').innerText = `최초 등록: ${item.created_at || '기록 없음'}`;
+                const displayCreatedAt = item.created_at ? (item.created_at.length > 16 ? item.created_at.substring(0, 16) : item.created_at) : '기록 없음';
+                document.getElementById('erp_detail_created_at').innerText = `최초 등록: ${displayCreatedAt}`;
                 
                 // 기본 단위 추출 (수량 문자열에서 숫자를 제외한 부분)
                 const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
@@ -6318,15 +6319,14 @@
                     actionName = '폐기';
                 }
 
-                // 시간 기록용 포맷팅 (YYYY-MM-DD HH:mm:ss)
+                // 시간 기록용 포맷팅 (YYYY-MM-DD HH:mm)
                 const now = new Date();
                 const year = now.getFullYear();
                 const month = String(now.getMonth() + 1).padStart(2, '0');
                 const date = String(now.getDate()).padStart(2, '0');
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                const dateStr = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+                const dateStr = `${year}-${month}-${date} ${hours}:${minutes}`;
 
                 // 히스토리 항목 추가 (삭제 시 오차 없게 고유 ID 추가 생성)
                 if (!Array.isArray(item.history)) item.history = [];
@@ -6412,12 +6412,13 @@
                     // 편집 모드 여부에 따라 날짜(일시) 셀 좌측에 X 삭제 버튼 추가 (absolute 절대 좌표 배치로 날짜 중앙정렬 흔들림 원천방지)
                     // 삭제 버튼 클릭 시 고유 log.id를 넘겨 인덱스 정렬 시에도 꼬이지 않도록 보호
                     let dateColHtml = '';
+                    const displayLogDate = log.date ? (log.date.length > 16 ? log.date.substring(0, 16) : log.date) : '';
                     if (erpHistoryEditMode) {
                         dateColHtml = `
                         <button onclick="openErpDeleteConfirmModal(${itemId}, '${log.id}')" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;">X</button>
-                        <span>${log.date}</span>`;
+                        <span>${displayLogDate}</span>`;
                     } else {
-                        dateColHtml = `<span>${log.date}</span>`;
+                        dateColHtml = `<span>${displayLogDate}</span>`;
                     }
 
                     // 엑셀 스타일 격자 테두리 적용 (td에 position:relative 및 text-align:center 부여)
@@ -6715,8 +6716,7 @@
                     const date = String(now.getDate()).padStart(2, '0');
                     const hours = String(now.getHours()).padStart(2, '0');
                     const minutes = String(now.getMinutes()).padStart(2, '0');
-                    const seconds = String(now.getSeconds()).padStart(2, '0');
-                    const dateStr = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+                    const dateStr = `${year}-${month}-${date} ${hours}:${minutes}`;
 
                     const newItem = {
                         id: Date.now(),
