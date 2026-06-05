@@ -3302,7 +3302,25 @@
             // === 커스텀 셀렉트 모달 관련 함수 ===
             let currentTargetSelectId = null;
 
+            function checkAndRestoreBodyScroll() {
+                const detailModal = document.getElementById('erp-detail-modal');
+                const thresholdModal = document.getElementById('erp-threshold-modal');
+                const deleteModal = document.getElementById('erp-delete-confirm-modal');
+                const customSelectModal = document.getElementById('custom-select-modal');
+                
+                const isAnyModalOpen = 
+                    (detailModal && detailModal.style.display === 'flex') ||
+                    (thresholdModal && thresholdModal.style.display === 'flex') ||
+                    (deleteModal && deleteModal.style.display === 'flex') ||
+                    (customSelectModal && customSelectModal.style.display === 'flex');
+                    
+                if (!isAnyModalOpen) {
+                    document.body.style.overflow = '';
+                }
+            }
+
             function openCustomSelectModal(selectId, titleText) {
+                document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
                 currentTargetSelectId = selectId;
                 const selectEl = document.getElementById(selectId);
                 if (!selectEl) return;
@@ -3358,6 +3376,7 @@
                 const modalEl = document.getElementById('custom-select-modal');
                 if (modalEl) modalEl.style.display = 'none';
                 currentTargetSelectId = null;
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
             function closeCustomSelectModal(event) {
@@ -6166,6 +6185,7 @@
                 if (modal && input) {
                     input.value = appData.erpExpiryThreshold || 30;
                     modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
                     setTimeout(() => input.focus(), 100);
                 }
             }
@@ -6173,6 +6193,7 @@
             function closeErpThresholdModal() {
                 const modal = document.getElementById('erp-threshold-modal');
                 if (modal) modal.style.display = 'none';
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
             function saveErpThresholdModal() {
@@ -6283,11 +6304,13 @@
 
                 // 모달 열기
                 document.getElementById('erp-detail-modal').style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
             }
 
             function closeErpDetailModal() {
                 document.getElementById('erp-detail-modal').style.display = 'none';
                 erpSelectedItemId = null;
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
             function adjustErpQuantity(actionType) {
@@ -6485,12 +6508,14 @@
                         closeErpDeleteConfirmModal();
                     };
                     modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
                 }
             }
 
             function closeErpDeleteConfirmModal() {
                 const modal = document.getElementById('erp-delete-confirm-modal');
                 if (modal) modal.style.display = 'none';
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
             function executeErpHistoryDeletion(itemId, logId) {
