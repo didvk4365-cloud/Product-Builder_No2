@@ -6031,6 +6031,24 @@
 
                 let erpList = appData.erp || [];
 
+                // 유통기한 임박/경과 상태인 중분류 수집
+                const urgentSubCategories = new Set();
+                const nowTime = new Date();
+                const todayTime = new Date(nowTime.getFullYear(), nowTime.getMonth(), nowTime.getDate()).getTime();
+                const expiryThresholdVal = appData.erpExpiryThreshold || 30;
+
+                erpList.forEach(item => {
+                    if (item.expiry_date) {
+                        const parts = item.expiry_date.split('-');
+                        const expiryDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])).getTime();
+                        const diffTime = expiryDate - todayTime;
+                        const daysLeft = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                        if (daysLeft <= expiryThresholdVal) {
+                            urgentSubCategories.add(`${item.category}|${item.category_sub || '기타'}`);
+                        }
+                    }
+                });
+
                 // Dashboard Data
                 let catCount = {};
                 let subCatCount = {};
@@ -6072,7 +6090,19 @@
                             let hasSub = false;
                             for (let sub in subCatCount[cat]) {
                                 if (subCatCount[cat][sub] > 0) {
-                                    subHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span>${sub}</span><span style="color:var(--text-primary);">${subCatCount[cat][sub]}</span></div>`;
+                                    const key = `${cat}|${sub}`;
+                                    const isSubUrgent = urgentSubCategories.has(key);
+                                    let subLabel = sub;
+                                    let labelStyle = '';
+                                    if (isSubUrgent) {
+                                        subLabel = `${sub} ⚠️`;
+                                        labelStyle = 'color: var(--danger-color, #f44336); font-weight: bold;';
+                                    }
+                                    subHtml += `
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                                        <span style="${labelStyle}">${subLabel}</span>
+                                        <span style="color:var(--text-primary);">${subCatCount[cat][sub]}</span>
+                                    </div>`;
                                     hasSub = true;
                                 }
                             }
@@ -6179,17 +6209,12 @@
                         else daysLeftStr = ` (D-${daysLeft})`;
                     }
 
-                    let subCatHtml = item.category_sub || '기타';
-                    if (isUrgent) {
-                        subCatHtml = `<span style="color:var(--danger-color, #f44336); font-weight:bold;">⚠️${subCatHtml}</span>`;
-                    }
-
                     html += `
                 <div class="erp-item ${warningClass}" style="cursor:pointer;" ontouchstart="handleErpTouchStart(event)" ontouchmove="handleErpTouchMove(event)" onclick="handleErpItemClick(${item.id})">
                     <div class="erp-info" style="display:flex; flex-direction:column; gap:4px;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <div class="erp-name" style="margin-bottom:0;">${item.name}</div>
-                            <span style="font-size:0.75rem; color:var(--text-secondary); background:var(--surface-color); padding:2px 6px; border-radius:4px; margin-left:10px; white-space:nowrap;">${item.category} &gt; ${subCatHtml}</span>
+                            <span style="font-size:0.75rem; color:var(--text-secondary); background:var(--surface-color); padding:2px 6px; border-radius:4px; margin-left:10px; white-space:nowrap;">${item.category} &gt; ${item.category_sub || '기타'}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div class="erp-meta">수량: <strong style="color:var(--text-primary); font-size:0.9rem;">${item.quantity}</strong></div>
