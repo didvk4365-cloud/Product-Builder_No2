@@ -819,11 +819,13 @@
             flex: 1;
         }
 
-        /* 스크롤바 커스텀 클래스 (얇고 세련된 회색 스크롤바 - 이력목록, 매뉴얼/행동강령, 각 메인 탭 영역 일괄 적용) */
+        /* 스크롤바 커스텀 클래스 (얇고 세련된 회색 스크롤바 - 이력목록, 매뉴얼/행동강령, 서약서, 각 메인 탭 영역 일괄 적용) */
         .scrollbar-hidden::-webkit-scrollbar,
         .tab-content::-webkit-scrollbar,
         #wiki-layer::-webkit-scrollbar,
         #wiki_read_content::-webkit-scrollbar,
+        #agreement-scroll-box::-webkit-scrollbar,
+        .agreement-body::-webkit-scrollbar,
         textarea::-webkit-scrollbar {
             width: 5px;
             height: 5px;
@@ -832,6 +834,8 @@
         .tab-content::-webkit-scrollbar-track,
         #wiki-layer::-webkit-scrollbar-track,
         #wiki_read_content::-webkit-scrollbar-track,
+        #agreement-scroll-box::-webkit-scrollbar-track,
+        .agreement-body::-webkit-scrollbar-track,
         textarea::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.05);
             border-radius: 10px;
@@ -840,6 +844,8 @@
         .tab-content::-webkit-scrollbar-thumb,
         #wiki-layer::-webkit-scrollbar-thumb,
         #wiki_read_content::-webkit-scrollbar-thumb,
+        #agreement-scroll-box::-webkit-scrollbar-thumb,
+        .agreement-body::-webkit-scrollbar-thumb,
         textarea::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.15);
             border-radius: 10px;
@@ -848,6 +854,8 @@
         .tab-content::-webkit-scrollbar-thumb:hover,
         #wiki-layer::-webkit-scrollbar-thumb:hover,
         #wiki_read_content::-webkit-scrollbar-thumb:hover,
+        #agreement-scroll-box::-webkit-scrollbar-thumb:hover,
+        .agreement-body::-webkit-scrollbar-thumb:hover,
         textarea::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.3);
         }
@@ -855,6 +863,8 @@
         .tab-content,
         #wiki-layer,
         #wiki_read_content,
+        #agreement-scroll-box,
+        .agreement-body,
         textarea {
             -ms-overflow-style: auto;
             scrollbar-width: thin;
@@ -3327,12 +3337,14 @@
                 const thresholdModal = document.getElementById('erp-threshold-modal');
                 const deleteModal = document.getElementById('erp-delete-confirm-modal');
                 const customSelectModal = document.getElementById('custom-select-modal');
+                const agreementModal = document.getElementById('agreement-modal');
                 
                 const isAnyModalOpen = 
                     (detailModal && detailModal.style.display === 'flex') ||
                     (thresholdModal && thresholdModal.style.display === 'flex') ||
                     (deleteModal && deleteModal.style.display === 'flex') ||
-                    (customSelectModal && customSelectModal.style.display === 'flex');
+                    (customSelectModal && customSelectModal.style.display === 'flex') ||
+                    (agreementModal && agreementModal.style.display === 'flex');
                     
                 if (!isAnyModalOpen) {
                     document.body.style.overflow = '';
@@ -8096,6 +8108,7 @@
                 const scrollBox = document.getElementById('agreement-scroll-box');
 
                 modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
                 scrollBox.scrollTop = 0; // 스크롤 리셋
 
                 if (isReviewMode) {
@@ -8138,6 +8151,7 @@
                 modal.style.display = 'none';
                 const scrollBox = document.getElementById('agreement-scroll-box');
                 scrollBox.onscroll = null; // 이벤트 핸들러 해제
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
             // === 스플래시 스크린 초기화 및 나침반 눈금 생성 ===
