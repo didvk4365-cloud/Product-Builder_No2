@@ -2032,10 +2032,10 @@
             <div style="padding: 18px 16px 8px 16px; text-align: center;">
                 <h3 id="erp_detail_name" style="margin: 0; font-size: 1.25rem; color: var(--primary-color); font-weight: bold; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></h3>
             </div>
-            <!-- 모달 본문 (스크롤 영역) -->
-            <div style="padding: 12px 16px 16px 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 15px;">
+            <!-- 모달 본문 (하단 여백 일치 조절을 위해 사방 패딩 16px 균일 설정 및 내부 flex 적용) -->
+            <div style="padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 15px; min-height: 0; overflow: hidden;">
                 <!-- 현재 수량 카드 (카테고리 정보와 최초 등록일이 왼쪽에, 보유량이 오른쪽에 배치되도록 최적화) -->
-                <div style="background: rgba(255, 152, 0, 0.04); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; gap: 10px;">
+                <div style="background: rgba(255, 152, 0, 0.04); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; gap: 10px; flex-shrink: 0;">
                     <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0;">
                         <span id="erp_detail_category" style="font-size: 0.7rem; color: var(--text-secondary); background: var(--bg-color); padding: 2px 6px; border-radius: 4px; display: inline-block; white-space: nowrap; flex-shrink: 0;"></span>
                         <span id="erp_detail_created_at" style="font-size: 0.65rem; color: var(--text-secondary); white-space: nowrap; margin-top: 2px;"></span>
@@ -2047,7 +2047,7 @@
                 </div>
 
                 <!-- 수량 수동 조정 입력 폼 (한줄 배치 및 아웃라인 버튼, ⚙️설정 기어 추가) -->
-                <div>
+                <div style="flex-shrink: 0;">
                     <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">수량 조정</label>
                     <div style="display: flex; gap: 6px; align-items: center;">
                         <!-- 수량 입력란 (가로폭 축소) -->
@@ -2066,10 +2066,10 @@
                     </div>
                 </div>
 
-                <!-- 엑셀 스타일 격자 변동 이력 목록 -->
-                <div>
-                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px;">📋 소모 및 추가 변동 이력</label>
-                    <div class="scrollbar-hidden" style="height: 260px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color);">
+                <!-- 엑셀 스타일 격자 변동 이력 목록 (flex: 1로 늘려서 하부 여백을 좌우 패딩인 16px에 정확히 일치시킴) -->
+                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px; flex-shrink: 0;">📋 소모 및 추가 변동 이력</label>
+                    <div class="scrollbar-hidden" style="flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); min-height: 0;">
                         <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed;">
                             <thead>
                                 <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
@@ -2082,12 +2082,12 @@
                             <tbody id="erp_history_table_body">
                                 <!-- JS 동적 렌더링 -->
                             </tbody>
-                            <tfoot style="position: sticky; bottom: 0; z-index: 2; background-color: var(--surface-color); border-top: 2px solid var(--border-color); font-weight: bold;">
+                            <tfoot style="position: sticky; bottom: 0; z-index: 2; font-weight: bold;">
                                 <tr>
-                                    <td style="padding: 8px 4px; border-right: 1px solid var(--border-color);">합계</td>
-                                    <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color);">0</td>
-                                    <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--success-color);">0</td>
-                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color);">0</td>
+                                    <td style="padding: 8px 4px; border-right: 1px solid var(--border-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">합계</td>
+                                    <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
+                                    <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--success-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
+                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
                                 </tr>
                             </tfoot>
                         </table>
