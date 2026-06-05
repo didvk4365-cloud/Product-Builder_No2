@@ -6410,16 +6410,14 @@
 
                 if (history.length === 0) {
                     let bodyHtml = '';
-                    const minRows = 7;
-                    for (let i = 0; i < minRows; i++) {
-                        bodyHtml += `
-                        <tr style="height: 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
-                            <td style="padding: 6px 4px; border-right: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.7rem; text-align: center;">${i === 0 ? '변동 이력 없음' : '&nbsp;'}</td>
-                            <td style="padding: 6px 4px; border-right: 1px solid var(--border-color);">&nbsp;</td>
-                            <td style="padding: 6px 4px; border-right: 1px solid var(--border-color);">&nbsp;</td>
-                            <td style="padding: 6px 4px;">&nbsp;</td>
-                        </tr>`;
-                    }
+                    // 모바일 화면 비율 스크롤바 방지를 위해 빈 칸은 딱 1개 행만 렌더링
+                    bodyHtml += `
+                    <tr style="height: 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+                        <td style="padding: 6px 4px; border-right: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.7rem; text-align: center;">변동 이력 없음</td>
+                        <td style="padding: 6px 4px; border-right: 1px solid var(--border-color);">&nbsp;</td>
+                        <td style="padding: 6px 4px; border-right: 1px solid var(--border-color);">&nbsp;</td>
+                        <td style="padding: 6px 4px;">&nbsp;</td>
+                    </tr>`;
                     tbody.innerHTML = bodyHtml;
                     totalConsumeEl.innerText = `0${unit}`;
                     totalAddEl.innerText = `0${unit}`;
@@ -6478,20 +6476,14 @@
                     </tr>`;
                 });
 
-                // 부족한 줄수만큼 격자 빈 행 채워주기
-                const minRows = 7;
-                if (historyCopy.length < minRows) {
-                    const emptyCount = minRows - historyCopy.length;
-                    for (let i = 0; i < emptyCount; i++) {
-                        bodyHtml += `
-                        <tr style="height: 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
-                            <td style="padding: 6px 4px; border-right: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.7rem; text-align: center;">&nbsp;</td>
-                            <td style="padding: 6px 4px; border-right: 1px solid var(--border-color);">&nbsp;</td>
-                            <td style="padding: 6px 4px; border-right: 1px solid var(--border-color);">&nbsp;</td>
-                            <td style="padding: 6px 4px;">&nbsp;</td>
-                        </tr>`;
-                    }
-                }
+                // 구분선 연장 마감을 위해 빈 격자 1행 추가
+                bodyHtml += `
+                <tr style="height: 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+                    <td style="padding: 6px 4px; border-right: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.7rem; text-align: center;">&nbsp;</td>
+                    <td style="padding: 6px 4px; border-right: 1px solid var(--border-color);">&nbsp;</td>
+                    <td style="padding: 6px 4px; border-right: 1px solid var(--border-color);">&nbsp;</td>
+                    <td style="padding: 6px 4px;">&nbsp;</td>
+                </tr>`;
 
                 tbody.innerHTML = bodyHtml;
                 totalConsumeEl.innerText = `${totalConsume}${unit}`;
