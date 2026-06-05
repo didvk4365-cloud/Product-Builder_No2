@@ -2069,25 +2069,31 @@
                 <!-- 엑셀 스타일 격자 변동 이력 목록 (flex: 1로 늘려서 하부 여백을 좌우 패딩인 16px에 정확히 일치시킴) -->
                 <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                     <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px; flex-shrink: 0;">📋 소모 및 추가 변동 이력</label>
-                    <div class="scrollbar-hidden" style="flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); min-height: 0;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed; height: 100%;">
-                            <thead>
-                                <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
-                                    <th onclick="toggleErpHistorySort()" style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); width: 43%; cursor: pointer; user-select: none;">일시 <span id="erp_history_sort_btn">▼</span></th>
-                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 19%;">소모</th>
-                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--success-color); width: 19%;">추가</th>
-                                    <th style="padding: 8px 4px; font-weight: bold; color: var(--danger-color); width: 19%;">폐기</th>
-                                </tr>
-                            </thead>
-                            <tbody id="erp_history_table_body">
-                                <!-- JS 동적 렌더링 -->
-                            </tbody>
-                            <tfoot style="position: sticky; bottom: 0; z-index: 2; font-weight: bold;">
+                    <div style="flex: 1; display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); min-height: 0; overflow: hidden;">
+                        <!-- 이력 목록 스크롤 영역 -->
+                        <div class="scrollbar-hidden" style="flex: 1; overflow-y: auto; min-height: 0;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed;">
+                                <thead>
+                                    <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
+                                        <th onclick="toggleErpHistorySort()" style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); width: 43%; cursor: pointer; user-select: none;">일시 <span id="erp_history_sort_btn">▼</span></th>
+                                        <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 19%;">소모</th>
+                                        <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--success-color); width: 19%;">추가</th>
+                                        <th style="padding: 8px 4px; font-weight: bold; color: var(--danger-color); width: 19%;">폐기</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="erp_history_table_body">
+                                    <!-- JS 동적 렌더링 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- 합계 행 테이블 (최하단 영구 고정 배치로 데이터 유동성 대응) -->
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed; border-top: 2px solid var(--border-color); background-color: var(--surface-color); font-weight: bold; flex-shrink: 0; z-index: 3;">
+                            <tfoot>
                                 <tr>
-                                    <td style="padding: 8px 4px; border-right: 1px solid var(--border-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">합계</td>
-                                    <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
-                                    <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--success-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
-                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
+                                    <td style="padding: 8px 4px; border-right: 1px solid var(--border-color); width: 43%;">합계</td>
+                                    <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 19%;">0</td>
+                                    <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--success-color); width: 19%;">0</td>
+                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color);">0</td>
                                 </tr>
                             </tfoot>
                         </table>
