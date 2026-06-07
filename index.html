@@ -6752,6 +6752,18 @@
 
                 document.getElementById('tab-erp').scrollTop = 0;
                 window.scrollTo(0, 0);
+
+                // 물품 등록 폼을 강제로 펼침
+                const f = document.getElementById('erp_form_body');
+                const btn = document.getElementById('btn_erp_form_toggle');
+                const formTitle = document.getElementById('erp_form_title');
+                if (f && f.style.display === 'none') {
+                    f.style.display = 'block';
+                    if (btn) btn.innerHTML = '접기 ▲';
+                    if (formTitle && formTitle.parentElement) {
+                        formTitle.parentElement.style.marginBottom = '10px';
+                    }
+                }
             }
 
             function getFormattedExpiryDate() {
