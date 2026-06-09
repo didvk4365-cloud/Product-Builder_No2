@@ -3000,36 +3000,42 @@
                             style="margin:0; margin-left:4px; font-size:1.1rem; font-weight:bold; color:var(--text-primary);">
                             📦 물자 리스트</h3>
                     </div>
-                    <div class="erp-toolbar">
-                        <div class="erp-toolbar-sort">
-                            <select id="erp_sort" class="erp-sort-select" onchange="renderErpItems()" style="display: none;">
-                                <option value="expiry">⏳유통기한</option>
-                                <option value="name_kr">🔠 가나다</option>
-                                <option value="name_en">🔤 ABCD</option>
-                                <option value="name_num">🔢 0123</option>
-                            </select>
-                            <div class="custom-select-trigger" id="trigger_erp_sort" onclick="openCustomSelectModal('erp_sort', '정렬 기준')">
-                                <span class="custom-select-val">⏳유통기한</span>
-                                <span class="custom-select-arrow">▼</span>
+                    <div class="erp-toolbar" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                        <!-- 1층: 정렬 -->
+                        <div style="display: flex; gap: 8px; width: 100%;">
+                            <div class="erp-toolbar-sort" style="flex: 1; display: flex; align-items: center; min-width: 0;">
+                                <select id="erp_sort" class="erp-sort-select" onchange="renderErpItems()" style="display: none;">
+                                    <option value="expiry">⏳유통기한</option>
+                                    <option value="name_kr">🔠 가나다</option>
+                                    <option value="name_en">🔤 ABCD</option>
+                                    <option value="name_num">🔢 0123</option>
+                                </select>
+                                <div class="custom-select-trigger" id="trigger_erp_sort" onclick="openCustomSelectModal('erp_sort', '정렬 기준')" style="flex: 1; min-width: 0;">
+                                    <span class="custom-select-val">⏳유통기한</span>
+                                    <span class="custom-select-arrow">▼</span>
+                                </div>
+                                <button id="erp_sort_dir" class="erp-sort-btn"
+                                    onclick="window.erpSortAsc = window.erpSortAsc === false ? true : false; this.textContent = window.erpSortAsc ? '🔼' : '🔽'; renderErpItems();" style="margin-left: 8px;">🔼</button>
                             </div>
-                            <button id="erp_sort_dir" class="erp-sort-btn"
-                                onclick="window.erpSortAsc = window.erpSortAsc === false ? true : false; this.textContent = window.erpSortAsc ? '🔼' : '🔽'; renderErpItems();">🔼</button>
                         </div>
-                        <div class="erp-toolbar-filter">
-                            <select id="erp_filter_main" onchange="updateFilterSubCats()" style="display: none;">
-                                <option value="전체">전체보기</option>
-                            </select>
-                            <div class="custom-select-trigger" id="trigger_erp_filter_main" onclick="openCustomSelectModal('erp_filter_main', '분류 필터')">
-                                <span class="custom-select-val">전체보기</span>
-                                <span class="custom-select-arrow">▼</span>
-                            </div>
-                            
-                            <select id="erp_filter_sub" onchange="renderErpItems()" disabled style="display: none;">
-                                <option value="전체">전체보기</option>
-                            </select>
-                            <div class="custom-select-trigger" id="trigger_erp_filter_sub" onclick="if(!document.getElementById('erp_filter_sub').disabled) openCustomSelectModal('erp_filter_sub', '상세 분류')" style="opacity: 0.5;">
-                                <span class="custom-select-val">전체보기</span>
-                                <span class="custom-select-arrow">▼</span>
+                        <!-- 2층: 필터 -->
+                        <div style="display: flex; gap: 8px; width: 100%;">
+                            <div class="erp-toolbar-filter" style="flex: 1; display: flex; gap: 8px; min-width: 0;">
+                                <select id="erp_filter_main" onchange="updateFilterSubCats()" style="display: none;">
+                                    <option value="전체">전체보기</option>
+                                </select>
+                                <div class="custom-select-trigger" id="trigger_erp_filter_main" onclick="openCustomSelectModal('erp_filter_main', '분류 필터')" style="flex: 1; min-width: 0;">
+                                    <span class="custom-select-val">전체보기</span>
+                                    <span class="custom-select-arrow">▼</span>
+                                </div>
+                                
+                                <select id="erp_filter_sub" onchange="renderErpItems()" disabled style="display: none;">
+                                    <option value="전체">전체보기</option>
+                                </select>
+                                <div class="custom-select-trigger" id="trigger_erp_filter_sub" onclick="if(!document.getElementById('erp_filter_sub').disabled) openCustomSelectModal('erp_filter_sub', '상세 분류')" style="opacity: 0.5; flex: 1; min-width: 0;">
+                                    <span class="custom-select-val">전체보기</span>
+                                    <span class="custom-select-arrow">▼</span>
+                                </div>
                             </div>
                         </div>
                     </div>
