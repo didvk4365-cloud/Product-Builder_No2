@@ -2592,19 +2592,27 @@
             <div class="card">
                 <h3 style="margin-bottom: 8px;">단위 변환기</h3>
                 <div class="form-group" style="margin-top: 0;">
-                    <select id="c_category" onchange="updateUnitOptions()">
+                    <select id="c_category" onchange="updateUnitOptions()" style="display: none;">
                         <option value="temp">온도 (Temperature)</option>
                         <option value="length">거리 (Length)</option>
                         <option value="weight">무게 (Weight)</option>
                         <option value="volume">부피 (Volume)</option>
                     </select>
+                    <div class="custom-select-trigger" id="trigger_c_category" onclick="openCustomSelectModal('c_category', '변환 종류')">
+                        <span class="custom-select-val">온도 (Temperature)</span>
+                        <span class="custom-select-arrow">▼</span>
+                    </div>
                 </div>
                 <div class="flex-row" style="align-items: center;">
                     <div class="form-group" style="margin-bottom:0; flex:1;">
                         <input type="text" id="c_val_from" placeholder="값" inputmode="decimal" oninput="handleUnitValueInput(this)">
                     </div>
                     <div class="form-group" style="margin-bottom:0; flex:1;">
-                        <select id="c_unit_from" onchange="convertUnit()"></select>
+                        <select id="c_unit_from" onchange="convertUnit()" style="display: none;"></select>
+                        <div class="custom-select-trigger" id="trigger_c_unit_from" onclick="openCustomSelectModal('c_unit_from', '변환 전 단위')">
+                            <span class="custom-select-val">-</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                 </div>
                 <div style="text-align:center; padding: 10px 0; color:var(--primary-color);">▼</div>
@@ -2614,7 +2622,11 @@
                             style="background-color:var(--surface-color);">
                     </div>
                     <div class="form-group" style="margin-bottom:0; flex:1;">
-                        <select id="c_unit_to" onchange="convertUnit()"></select>
+                        <select id="c_unit_to" onchange="convertUnit()" style="display: none;"></select>
+                        <div class="custom-select-trigger" id="trigger_c_unit_to" onclick="openCustomSelectModal('c_unit_to', '변환 후 단위')">
+                            <span class="custom-select-val">-</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3064,9 +3076,13 @@
 
                     <div style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
                         <select id="wiki_filter_select" onchange="renderWikiList()"
-                            style="width:100%; padding:8px; border-radius:4px; background:var(--bg-color); color:var(--text-primary); border:1px solid var(--border-color);">
+                            style="display: none;">
                             <!-- 동적 생성 -->
                         </select>
+                        <div class="custom-select-trigger" id="trigger_wiki_filter_select" onclick="openCustomSelectModal('wiki_filter_select', '분류 필터')">
+                            <span class="custom-select-val">전체보기</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
 
                     <div id="wiki_list" style="display:flex; flex-direction:column; gap:10px;">
@@ -3079,7 +3095,11 @@
                         <input type="hidden" id="wiki_edit_id" value="">
                         <div class="form-group">
                             <label>카테고리</label>
-                            <select id="wiki_cat_select"></select>
+                            <select id="wiki_cat_select" style="display: none;"></select>
+                            <div class="custom-select-trigger" id="trigger_wiki_cat_select" onclick="openCustomSelectModal('wiki_cat_select', '카테고리 선택')">
+                                <span class="custom-select-val">-</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
                         </div>
                         <div class="form-group"
                             style="display:flex; align-items:center; gap:10px; margin-top:15px; margin-bottom:15px; padding-left:12px;">
@@ -3486,7 +3506,7 @@
             }
 
             function syncCustomSelectTriggers() {
-                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe'];
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select'];
                 ids.forEach(id => {
                     const selectEl = document.getElementById(id);
                     const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
@@ -5174,6 +5194,7 @@
                     if (UNIT_DATA[cat].length > 1) toSelect.selectedIndex = 1;
                     convertUnit();
                 }
+                syncCustomSelectTriggers();
             }
 
             function formatNumberWithCommas(valueStr) {
@@ -7169,6 +7190,7 @@
                         editSel.value = oldEdit;
                     }
                 }
+                syncCustomSelectTriggers();
             }
 
             function toggleWikiCatManager() {
