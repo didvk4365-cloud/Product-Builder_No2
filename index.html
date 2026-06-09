@@ -2921,8 +2921,11 @@
                             하위)
                         </div>
                         <div style="display:flex; gap:5px; margin-bottom:10px;">
-                            <select id="cat_mgr_main_select" onchange="renderMgrSubCats()"
-                                style="flex:1.5; margin:0; padding:8px;"></select>
+                            <select id="cat_mgr_main_select" onchange="renderMgrSubCats()" style="display: none;"></select>
+                            <div class="custom-select-trigger" id="trigger_cat_mgr_main_select" onclick="openCustomSelectModal('cat_mgr_main_select', '대분류 선택')" style="flex:1.5; height: 36px; min-height: 36px; padding: 0 10px; font-size: 0.85rem; border-radius: 6px; box-sizing: border-box;">
+                                <span class="custom-select-val">-</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
                             <input type="text" id="cat_sub_input" placeholder="새 중분류" style="flex:2; margin:0;">
                             <button onclick="addSubCat()" style="flex:1; margin:0; padding:8px;">추가</button>
                         </div>
@@ -2936,11 +2939,19 @@
                     <div class="flex-row" style="margin-bottom: 10px;">
                         <div class="form-group" style="flex:1; margin-bottom:0;">
                             <label>대분류</label>
-                            <select id="erp_cat_main" onchange="updateSubCats()" style="margin:0;"></select>
+                            <select id="erp_cat_main" onchange="updateSubCats()" style="display: none; margin:0;"></select>
+                            <div class="custom-select-trigger" id="trigger_erp_cat_main" onclick="openCustomSelectModal('erp_cat_main', '대분류')" style="height: 36px; min-height: 36px; padding: 0 10px; font-size: 0.85rem; border-radius: 6px; box-sizing: border-box;">
+                                <span class="custom-select-val">-</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
                         </div>
                         <div class="form-group" style="flex:1; margin-bottom:0;">
                             <label>중분류</label>
-                            <select id="erp_cat_sub" style="margin:0;"></select>
+                            <select id="erp_cat_sub" style="display: none; margin:0;"></select>
+                            <div class="custom-select-trigger" id="trigger_erp_cat_sub" onclick="openCustomSelectModal('erp_cat_sub', '중분류')" style="height: 36px; min-height: 36px; padding: 0 10px; font-size: 0.85rem; border-radius: 6px; box-sizing: border-box;">
+                                <span class="custom-select-val">-</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex-row" style="margin-bottom: 10px;">
@@ -3327,20 +3338,28 @@
 
                 <div class="form-group" style="margin-bottom:12px; text-align:left;">
                     <label>물 상태</label>
-                    <select id="water_recipe_edit_s" style="margin:0; width:100%;">
+                    <select id="water_recipe_edit_s" style="display: none; margin:0; width:100%;">
                         <option value="1">맑은 물 (Clear)</option>
                         <option value="2">탁한 물 (Cloudy)</option>
                     </select>
+                    <div class="custom-select-trigger" id="trigger_water_recipe_edit_s" onclick="openCustomSelectModal('water_recipe_edit_s', '물 상태')" style="height: 36px; min-height: 36px; padding: 0 10px; font-size: 0.85rem; border-radius: 6px; box-sizing: border-box;">
+                        <span class="custom-select-val">맑은 물 (Clear)</span>
+                        <span class="custom-select-arrow">▼</span>
+                    </div>
                 </div>
 
                 <div class="form-group" style="margin-bottom:20px; text-align:left;">
                     <label>락스 농도 (%)</label>
-                    <select id="water_recipe_edit_c" style="margin:0; width:100%;">
+                    <select id="water_recipe_edit_c" style="display: none; margin:0; width:100%;">
                         <option value="4">4% (일반 가정용)</option>
                         <option value="5">5% (표준 가정용)</option>
                         <option value="5.25">5.25% (유한락스 등)</option>
                         <option value="10">10%</option>
                     </select>
+                    <div class="custom-select-trigger" id="trigger_water_recipe_edit_c" onclick="openCustomSelectModal('water_recipe_edit_c', '락스 농도')" style="height: 36px; min-height: 36px; padding: 0 10px; font-size: 0.85rem; border-radius: 6px; box-sizing: border-box;">
+                        <span class="custom-select-val">5.25% (유한락스 등)</span>
+                        <span class="custom-select-arrow">▼</span>
+                    </div>
                 </div>
 
                 <div style="display:flex; gap:10px; justify-content:flex-end;">
@@ -3546,7 +3565,7 @@
             }
 
             function syncCustomSelectTriggers() {
-                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c'];
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub'];
                 ids.forEach(id => {
                     const selectEl = document.getElementById(id);
                     const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
@@ -3934,6 +3953,7 @@
 
                         if (sSelect) sSelect.value = recipe.w_s || '1';
                         if (cSelect) cSelect.value = recipe.w_c || '5.25';
+                        syncCustomSelectTriggers();
 
                         modal.style.display = 'flex';
                         nameInput.focus();
@@ -5909,6 +5929,7 @@
 
                 if (keys.includes(oldSelVal)) mainSel.value = oldSelVal;
                 renderMgrSubCats();
+                syncCustomSelectTriggers();
             }
 
             function renderMgrSubCats() {
@@ -6183,6 +6204,7 @@
                     });
                     if (appData.categories[mainCat].includes(oldSub)) subSel.value = oldSub;
                 }
+                syncCustomSelectTriggers();
             }
 
             function renderErpItems() {
@@ -7019,6 +7041,7 @@
                 document.getElementById('erp_cat_main').value = item.category || '기타';
                 updateSubCats(item.category);
                 document.getElementById('erp_cat_sub').value = item.category_sub || '기타';
+                syncCustomSelectTriggers();
                 document.getElementById('erp_name').value = item.name;
                 document.getElementById('erp_quantity').value = item.quantity;
                 
@@ -7106,6 +7129,7 @@
                 document.getElementById('erp_form_title').innerText = "📦 물품 등록";
                 document.getElementById('btn_erp_save').innerText = "추가하기";
                 document.getElementById('btn_erp_cancel').style.display = "none";
+                syncCustomSelectTriggers();
             }
 
             function addErpItem() {
