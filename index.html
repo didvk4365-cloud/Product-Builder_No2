@@ -2087,6 +2087,18 @@
         </div>
     </div>
 
+    <!-- 메모 삭제 확인 자체 모달 -->
+    <div id="memo-delete-confirm-modal" onclick="closeMemoDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10008; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 경고</h4>
+            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">선택한 메모를 삭제하시겠습니까?<br><span style="color: var(--danger-color); font-weight: bold;">이 작업은 되돌릴 수 없습니다.</span></p>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeMemoDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="danger" id="memo_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 물자 상세 및 소모/추가/폐기 히스토리 모달 -->
     <div id="erp-detail-modal" onclick="closeErpDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10002; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px 16px; box-sizing: border-box;">
         <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid #ff9800; border-radius: 12px; max-width: 450px; width: 100%; height: 63vh; height: 63dvh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow: hidden; box-sizing: border-box;">
@@ -7697,7 +7709,7 @@
 
             // 활성 메모 삭제 (툴바 🗑️ 버튼)
             function deleteActiveMemo() {
-                if (appData.activeMemoId) deleteMemo(appData.activeMemoId);
+                if (appData.activeMemoId) openMemoDeleteConfirmModal(appData.activeMemoId);
             }
 
             function renderMemos() {
@@ -7740,8 +7752,26 @@
                 if (textarea) { textarea.disabled = false; textarea.value = ''; textarea.focus(); }
             }
 
-            function deleteMemo(id) {
-                if (!confirm('정말 이 메모를 삭제하시겠습니까?')) return;
+            function openMemoDeleteConfirmModal(id) {
+                const modal = document.getElementById('memo-delete-confirm-modal');
+                const confirmBtn = document.getElementById('memo_delete_confirm_btn');
+                if (modal && confirmBtn) {
+                    confirmBtn.onclick = () => {
+                        executeMemoDeletion(id);
+                        closeMemoDeleteConfirmModal();
+                    };
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
+                }
+            }
+
+            function closeMemoDeleteConfirmModal() {
+                const modal = document.getElementById('memo-delete-confirm-modal');
+                if (modal) modal.style.display = 'none';
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
+            }
+
+            function executeMemoDeletion(id) {
                 appData.memos = (appData.memos || []).filter(m => m.id !== id);
                 if (appData.activeMemoId === id) {
                     const sorted = [...appData.memos].sort((a, b) => b.updatedAt - a.updatedAt);
@@ -7840,7 +7870,7 @@
                     deleteBtn.title = '메모 삭제';
                     deleteBtn.onclick = (e) => {
                         e.stopPropagation();
-                        deleteMemo(memo.id);
+                        openMemoDeleteConfirmModal(memo.id);
                     };
                     
                     metaEl.appendChild(dateEl);
