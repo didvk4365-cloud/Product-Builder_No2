@@ -2071,8 +2071,8 @@
     <!-- 물자 상세 및 소모/추가/폐기 히스토리 모달 -->
     <div id="erp-detail-modal" onclick="closeErpDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10002; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px 16px; box-sizing: border-box;">
         <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid #ff9800; border-radius: 12px; max-width: 450px; width: 100%; height: 63vh; height: 63dvh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow: hidden; box-sizing: border-box;">
-            <!-- 모달 헤더 (심플한 중앙 타이틀, X버튼과 구분선 없음) -->
-            <div style="padding: 18px 16px 8px 16px; text-align: center;">
+            <!-- 모달 헤더 (심플한 중앙 타이틀, X버튼과 구분선 없음, 여백 축소) -->
+            <div style="padding: 10px 16px 2px 16px; text-align: center;">
                 <h3 id="erp_detail_name" style="margin: 0; font-size: 1.25rem; color: var(--primary-color); font-weight: bold; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></h3>
             </div>
             <!-- 모달 본문 (하단 여백 일치 조절을 위해 사방 패딩 16px 균일 설정 및 내부 flex 적용) -->
@@ -2091,7 +2091,6 @@
 
                 <!-- 수량 수동 조정 입력 폼 (한줄 배치 및 아웃라인 버튼, ⚙️설정 기어 추가) -->
                 <div style="flex-shrink: 0;">
-                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">수량 조정</label>
                     <div style="display: flex; gap: 6px; align-items: center;">
                         <!-- 수량 입력란 (가로폭 축소) -->
                         <div style="display: flex; align-items: center; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 2px 6px; width: 90px; flex-shrink: 0; box-sizing: border-box;">
