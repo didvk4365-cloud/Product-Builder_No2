@@ -1484,10 +1484,6 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             cursor: default;
-            transition: background 0.15s, border-color 0.15s;
-        }
-        .water-recipe-item:hover {
-            background: rgba(255, 255, 255, 0.06) !important;
         }
         .water-recipe-item .recipe-del-btn:hover {
             color: var(--danger-color) !important;
@@ -2360,7 +2356,7 @@
                         <div id="water_result_text" style="flex: 1; text-align: left; line-height: 1.45;">
                             물의 양을 입력하세요.
                         </div>
-                        <button id="water_result_save_btn" onclick="saveCurrentWaterRecipe()" title="이 계산 결과로 레시피 저장" style="width: 29px; height: 29px; padding: 0; margin: 0; font-size: 0.95rem; border-radius: 6px; border: 1px solid rgba(255, 152, 0, 0.5); background: transparent; color: var(--text-primary); cursor: pointer; display: none; align-items: center; justify-content: center; flex-shrink: 0; outline: none; transition: all 0.15s; box-sizing: border-box;" onmouseover="this.style.background='rgba(255, 152, 0, 0.15)'" onmouseout="this.style.background='transparent'">
+                        <button id="water_result_save_btn" onclick="saveCurrentWaterRecipe()" title="이 계산 결과로 레시피 저장" style="width: 29px; height: 29px; padding: 0; margin: 0; font-size: 0.95rem; border-radius: 6px; border: 1px solid rgba(255, 152, 0, 0.5); background: transparent; color: var(--text-primary); cursor: pointer; display: none; align-items: center; justify-content: center; flex-shrink: 0; outline: none; box-sizing: border-box;">
                             💾
                         </button>
                     </div>
@@ -3789,14 +3785,14 @@
                         : '';
 
                     html += `
-                    <div class="water-recipe-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; transition:background 0.15s, border-color 0.15s; margin-bottom:2px; gap:12px;">
+                    <div class="water-recipe-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; margin-bottom:2px; gap:12px;">
                         <!-- 1. 좌측: 레시피 제목 -->
                         <div style="display:flex; align-items:center; text-align:left; flex:1.1; min-width:0;">
                             <span style="font-weight:bold; font-size:0.88rem; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.3; white-space:pre-wrap;">${r.name}</span>
                         </div>
                         
                         <!-- 2. 중앙: 조건 상세 (용량 / 물상태 | 농도) -->
-                        <div style="display:flex; flex-direction:column; gap:2px; text-align:left; flex:1.2; font-size:0.75rem; border-left:1px solid rgba(255,255,255,0.08); padding-left:12px; min-width:0;">
+                        <div style="display:flex; flex-direction:column; gap:2px; text-align:left; flex:1.2; font-size:0.75rem; border-left:1px solid var(--text-secondary); padding-left:12px; min-width:0;">
                             <span style="color:var(--text-primary); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${volText}</span>
                             <span style="color:var(--text-secondary); font-size:0.7rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${stateText} | 락스 ${r.w_c}%</span>
                         </div>
