@@ -2356,8 +2356,13 @@
                         </select>
                     </div>
 
-                    <div class="result-box" id="water_result" style="margin-top: 15px;">
-                        물의 양을 입력하세요.
+                    <div class="result-box" id="water_result" style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box;">
+                        <div id="water_result_text" style="flex: 1; text-align: left; line-height: 1.45;">
+                            물의 양을 입력하세요.
+                        </div>
+                        <button id="water_result_save_btn" onclick="saveCurrentWaterRecipe()" title="이 계산 결과로 레시피 저장" style="width: 29px; height: 29px; padding: 0; margin: 0; font-size: 0.95rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-primary); cursor: pointer; display: none; align-items: center; justify-content: center; flex-shrink: 0; outline: none; transition: background 0.15s; box-sizing: border-box;">
+                            💾
+                        </button>
                     </div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px; margin-bottom:0;">* 주의: 향료나 계면활성제가 없는 순수
                         차아염소산나트륨(락스)만 사용. 반드시 30분 대기 후 냄새 확인.</p>
@@ -2371,9 +2376,6 @@
                     <div style="display:flex; gap:6px; align-items:center;">
                         <button id="btn_water_recipe_edit" onclick="toggleWaterRecipeEditMode()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold; color:var(--text-secondary); border:1.5px solid var(--text-secondary); background:transparent;">
                             ✏️ 수정
-                        </button>
-                        <button onclick="saveCurrentWaterRecipe()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold; color:var(--text-secondary); border:1.5px solid var(--text-secondary); background:transparent;">
-                            💾 저장
                         </button>
                     </div>
                 </div>
@@ -3713,8 +3715,12 @@
                     localStorage.setItem(DATA_KEY, JSON.stringify(appData));
                 }
 
+                const resText = document.getElementById('water_result_text');
+                const resSaveBtn = document.getElementById('water_result_save_btn');
+
                 if (v <= 0) {
-                    document.getElementById('water_result').innerHTML = "물의 양을 입력하세요.";
+                    if (resText) resText.innerHTML = "물의 양을 입력하세요.";
+                    if (resSaveBtn) resSaveBtn.style.display = 'none';
                     return;
                 }
 
@@ -3728,9 +3734,14 @@
                 const mlNeeded = (v * targetPPM) / (conc * 10);
                 const dropsNeeded = mlNeeded * 20; // 1ml ≒ 20 drops
 
-                document.getElementById('water_result').innerHTML =
-                    '<strong>총 물의 양:</strong> ' + v.toFixed(2) + ' L<br>' +
-                    '<strong>필요 락스 양:</strong> 약 ' + dropsNeeded.toFixed(1) + ' 방울 (' + mlNeeded.toFixed(2) + ' ml)';
+                if (resText) {
+                    resText.innerHTML =
+                        '<strong>총 물의 양:</strong> ' + v.toFixed(2) + ' L<br>' +
+                        '<strong>필요 락스 양:</strong> 약 ' + dropsNeeded.toFixed(1) + ' 방울 (' + mlNeeded.toFixed(2) + ' ml)';
+                }
+                if (resSaveBtn) {
+                    resSaveBtn.style.display = 'flex';
+                }
             }
 
             function toggleWaterRecipeEditMode() {
