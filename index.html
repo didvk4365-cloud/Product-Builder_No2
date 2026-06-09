@@ -6553,18 +6553,23 @@
                     const displayLogDate = log.date ? (log.date.length > 16 ? log.date.substring(0, 16) : log.date) : '';
                     if (erpHistoryEditMode) {
                         dateColHtml = `
-                        <div style="position:absolute; left:4px; top:50%; transform:translateY(-50%); display:flex; gap:3px;">
-                            <button onclick="openErpDeleteConfirmModal(${itemId}, '${log.id}')" style="margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;" title="삭제">X</button>
-                            <button onclick="openErpHistoryEditModal(${itemId}, '${log.id}', ${log.quantity})" style="margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--primary-color); color:var(--primary-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;" title="수정">✏️</button>
-                        </div>
-                        <span style="padding-left:36px;">${displayLogDate}</span>`;
+                        <button onclick="event.stopPropagation(); openErpDeleteConfirmModal(${itemId}, '${log.id}')" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;" title="삭제">X</button>
+                        <span style="padding-left:22px;">${displayLogDate}</span>`;
                     } else {
                         dateColHtml = `<span>${displayLogDate}</span>`;
                     }
 
+                    // 편집 모드일 때만 행 전체에 포인터 커서와 클릭 수정 핸들러 부여
+                    let trAttrs = '';
+                    if (erpHistoryEditMode) {
+                        trAttrs = `onclick="openErpHistoryEditModal(${itemId}, '${log.id}', ${log.quantity})" style="height: 32px; border-bottom:1px solid rgba(255,255,255,0.08); cursor:pointer;"`;
+                    } else {
+                        trAttrs = `style="height: 32px; border-bottom:1px solid rgba(255,255,255,0.08);"`;
+                    }
+
                     // 엑셀 스타일 격자 테두리 적용 (td에 position:relative 및 text-align:center 부여)
                     bodyHtml += `
-                    <tr style="height: 32px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                    <tr ${trAttrs}>
                         <td style="position:relative; padding:6px 4px; border-right:1px solid var(--border-color); color:var(--text-secondary); font-size:0.7rem; line-height:1.2; text-align:center;">${dateColHtml}</td>
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${consumeCol}</td>
                         <td style="padding:6px 4px; border-right:1px solid var(--border-color);">${addCol}</td>
