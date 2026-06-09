@@ -1038,6 +1038,14 @@
             border-color: var(--primary-color) !important;
             outline: none !important;
         }
+        .erp-toolbar .custom-select-trigger {
+            height: 32px !important;
+            min-height: 32px !important;
+            padding: 0 8px !important;
+            font-size: 0.8rem !important;
+            border-radius: 6px !important;
+            flex: 1 !important;
+        }
 
         .erp-toolbar button.erp-sort-btn {
             height: 32px !important;
@@ -2976,22 +2984,35 @@
                     </div>
                     <div class="erp-toolbar">
                         <div class="erp-toolbar-sort">
-                            <select id="erp_sort" class="erp-sort-select" onchange="renderErpItems()">
+                            <select id="erp_sort" class="erp-sort-select" onchange="renderErpItems()" style="display: none;">
                                 <option value="expiry">⏳유통기한</option>
                                 <option value="name_kr">🔠 가나다</option>
                                 <option value="name_en">🔤 ABCD</option>
                                 <option value="name_num">🔢 0123</option>
                             </select>
+                            <div class="custom-select-trigger" id="trigger_erp_sort" onclick="openCustomSelectModal('erp_sort', '정렬 기준')">
+                                <span class="custom-select-val">⏳유통기한</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
                             <button id="erp_sort_dir" class="erp-sort-btn"
                                 onclick="window.erpSortAsc = window.erpSortAsc === false ? true : false; this.textContent = window.erpSortAsc ? '🔼' : '🔽'; renderErpItems();">🔼</button>
                         </div>
                         <div class="erp-toolbar-filter">
-                            <select id="erp_filter_main" onchange="updateFilterSubCats()">
+                            <select id="erp_filter_main" onchange="updateFilterSubCats()" style="display: none;">
                                 <option value="전체">전체보기</option>
                             </select>
-                            <select id="erp_filter_sub" onchange="renderErpItems()" disabled style="opacity: 0.5;">
+                            <div class="custom-select-trigger" id="trigger_erp_filter_main" onclick="openCustomSelectModal('erp_filter_main', '분류 필터')">
+                                <span class="custom-select-val">전체보기</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
+                            
+                            <select id="erp_filter_sub" onchange="renderErpItems()" disabled style="display: none;">
                                 <option value="전체">전체보기</option>
                             </select>
+                            <div class="custom-select-trigger" id="trigger_erp_filter_sub" onclick="if(!document.getElementById('erp_filter_sub').disabled) openCustomSelectModal('erp_filter_sub', '상세 분류')" style="opacity: 0.5;">
+                                <span class="custom-select-val">전체보기</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
                         </div>
                     </div>
                     <div id="erp_list_container">
@@ -3502,7 +3523,7 @@
             }
 
             function syncCustomSelectTriggers() {
-                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select'];
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub'];
                 ids.forEach(id => {
                     const selectEl = document.getElementById(id);
                     const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
@@ -6083,6 +6104,7 @@
                 const activeMainVal = mainSel ? mainSel.value : null;
                 updateSubCats(activeMainVal);
                 updateFilterSubCats(true);
+                syncCustomSelectTriggers();
             }
 
             function updateFilterSubCats(skipRender = false) {
@@ -6090,14 +6112,21 @@
                 const subSel = document.getElementById('erp_filter_sub');
                 if (!mainSel || !subSel) return;
 
+                const triggerSub = document.getElementById('trigger_erp_filter_sub');
                 const mainCat = mainSel.value;
                 if (mainCat === '전체') {
                     subSel.disabled = true;
                     subSel.style.opacity = '0.5';
+                    if (triggerSub) {
+                        triggerSub.style.opacity = '0.5';
+                    }
                     subSel.innerHTML = '<option value="전체">전체보기</option>';
                 } else {
                     subSel.disabled = false;
                     subSel.style.opacity = '1';
+                    if (triggerSub) {
+                        triggerSub.style.opacity = '1';
+                    }
                     const oldSub = subSel.value;
                     subSel.innerHTML = '<option value="전체">전체보기</option>';
                     if (appData.categories[mainCat]) {
@@ -6111,6 +6140,7 @@
                     }
                 }
                 if (!skipRender) renderErpItems();
+                syncCustomSelectTriggers();
             }
 
             function updateSubCats(forceMainCat = null) {
