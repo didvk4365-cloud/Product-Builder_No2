@@ -7559,7 +7559,7 @@
                 const filtered = (appData.todoItems || []).filter(item => item.catId === currentTodoCatId);
                 
                 if (filtered.length === 0) {
-                    listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">등록된 할 일이 없습니다. 새로운 할 일을 추가해보세요!</div>';
+                    listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">등록된 일정이 없습니다.</div>';
                     return;
                 }
                 
