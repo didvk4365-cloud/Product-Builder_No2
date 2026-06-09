@@ -2099,6 +2099,18 @@
         </div>
     </div>
 
+    <!-- 매뉴얼 분류 삭제 확인 자체 모달 -->
+    <div id="wiki-cat-delete-confirm-modal" onclick="closeWikiCatDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10009; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 분류 삭제</h4>
+            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;"><span id="wiki_cat_delete_target_name" style="color: var(--primary-color); font-weight: bold;"></span> 분류를 삭제하시겠습니까?<br><span style="color: var(--danger-color); font-weight: bold;">해당 분류의 매뉴얼들은 '기타' 분류로 자동 전환됩니다.</span></p>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeWikiCatDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="danger" id="wiki_cat_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 물자 상세 및 소모/추가/폐기 히스토리 모달 -->
     <div id="erp-detail-modal" onclick="closeErpDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10002; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px 16px; box-sizing: border-box;">
         <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid #ff9800; border-radius: 12px; max-width: 450px; width: 100%; height: 63vh; height: 63dvh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow: hidden; box-sizing: border-box;">
@@ -7179,7 +7191,7 @@
                     delBtn.className = "danger";
                     delBtn.style.cssText = "padding:2px 6px; margin:0; font-size:0.7rem; width:auto; flex-shrink:0;";
                     delBtn.innerText = "X";
-                    delBtn.onclick = () => deleteWikiCat(cat);
+                    delBtn.onclick = () => openWikiCatDeleteConfirmModal(cat);
 
                     itemDiv.appendChild(mainLeftWrapper);
                     itemDiv.appendChild(delBtn);
@@ -7199,20 +7211,40 @@
                 }
             }
 
-            function deleteWikiCat(cat) {
-                if (confirm(`'${cat}' 분류를 삭제하시겠습니까?\n이 분류를 사용하던 매뉴얼은 '기타'로 자동 변경됩니다.`)) {
-                    appData.wikiCategories = appData.wikiCategories.filter(c => c !== cat);
-                    if (!appData.wikiCategories.includes('기타')) {
-                        appData.wikiCategories.push('기타');
-                    }
-                    appData.wiki.forEach(item => {
-                        if (item.category === cat) item.category = '기타';
-                    });
-                    saveInputs();
-                    renderWikiCatManager();
-                    updateWikiCatDropdowns();
-                    renderWikiList();
+            function openWikiCatDeleteConfirmModal(cat) {
+                const modal = document.getElementById('wiki-cat-delete-confirm-modal');
+                const nameSpan = document.getElementById('wiki_cat_delete_target_name');
+                const confirmBtn = document.getElementById('wiki_cat_delete_confirm_btn');
+                
+                if (modal && confirmBtn) {
+                    if (nameSpan) nameSpan.innerText = `'${cat}'`;
+                    confirmBtn.onclick = () => {
+                        executeWikiCatDeletion(cat);
+                        closeWikiCatDeleteConfirmModal();
+                    };
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
                 }
+            }
+
+            function closeWikiCatDeleteConfirmModal() {
+                const modal = document.getElementById('wiki-cat-delete-confirm-modal');
+                if (modal) modal.style.display = 'none';
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
+            }
+
+            function executeWikiCatDeletion(cat) {
+                appData.wikiCategories = appData.wikiCategories.filter(c => c !== cat);
+                if (!appData.wikiCategories.includes('기타')) {
+                    appData.wikiCategories.push('기타');
+                }
+                appData.wiki.forEach(item => {
+                    if (item.category === cat) item.category = '기타';
+                });
+                saveInputs();
+                renderWikiCatManager();
+                updateWikiCatDropdowns();
+                renderWikiList();
             }
 
             function changeWikiCat(oldCat, newName) {
