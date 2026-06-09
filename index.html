@@ -3142,10 +3142,7 @@
                             <div style="display:flex; gap:8px; padding:10px 12px; border-bottom:1px solid var(--border-color); background:rgba(0,0,0,0.12); flex-wrap:wrap; box-sizing:border-box; align-items:center;">
                                 <input type="text" id="memo-search-input" placeholder="메모 검색 (제목, 내용)..." onkeyup="renderMemoListOnly()" style="flex:1; min-width:120px; font-size:0.8rem; padding:6px 10px; margin:0; box-sizing:border-box; border-radius:6px; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); outline:none;">
                                 <div style="display:flex; gap:4px; align-items:center; flex-shrink:0;">
-                                    <select id="memo-sort-select" onchange="renderMemoListOnly()" style="width:65px; font-size:0.8rem; padding:4px 0; margin:0; border-radius:6px; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); outline:none; height:29px; text-align:center; text-align-last:center; -webkit-appearance:none; -moz-appearance:none; appearance:none; cursor:pointer; box-sizing:border-box;">
-                                        <option value="date">날짜</option>
-                                        <option value="name">제목</option>
-                                    </select>
+                                    <button id="memo-sort-criteria-btn" onclick="cycleMemoSortCriteria()" style="width:65px; font-size:0.8rem; padding:0; margin:0; border-radius:6px; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); outline:none; height:29px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-weight:bold; box-sizing:border-box;">📅 날짜</button>
                                     <button id="memo-sort-dir-btn" onclick="toggleMemoSortDir()" style="margin:0; padding:0; font-size:0.75rem; width:29px; height:29px; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-primary); border-radius:6px; cursor:pointer; font-weight:bold; outline:none; box-sizing:border-box;">▼</button>
                                 </div>
                             </div>
@@ -7662,12 +7659,27 @@
                 if (dirBtn) dirBtn.innerText = '▼';
                 
                 // 정렬 기준 초기화 (기본 날짜)
-                const sortSelect = document.getElementById('memo-sort-select');
-                if (sortSelect) sortSelect.value = 'date';
+                window.memoSortCriteria = 'date';
+                const criteriaBtn = document.getElementById('memo-sort-criteria-btn');
+                if (criteriaBtn) criteriaBtn.innerText = '📅 날짜';
                 
                 renderMemoListOnly();
                 const popup = document.getElementById('memo-list-popup');
                 if (popup) popup.style.display = 'flex';
+            }
+
+            function cycleMemoSortCriteria() {
+                const btn = document.getElementById('memo-sort-criteria-btn');
+                if (!btn) return;
+                
+                if (window.memoSortCriteria === 'date') {
+                    window.memoSortCriteria = 'name';
+                    btn.innerText = '🔤 제목';
+                } else {
+                    window.memoSortCriteria = 'date';
+                    btn.innerText = '📅 날짜';
+                }
+                renderMemoListOnly();
             }
 
             function toggleMemoSortDir() {
@@ -7782,8 +7794,7 @@
                 }
                 
                 // 2. 실시간 오름차순/내림차순 정렬
-                const sortSelect = document.getElementById('memo-sort-select');
-                const sortVal = sortSelect ? sortSelect.value : 'date';
+                const sortVal = window.memoSortCriteria || 'date';
                 const sortAsc = window.memoSortAsc === true;
                 const sortDir = sortAsc ? 1 : -1;
 
