@@ -1,4 +1,4 @@
-const CACHE_NAME = 'survival-tool-v141';
+const CACHE_NAME = 'survival-tool-v142';
 const urlsToCache = [
   './',
   './index.html',
