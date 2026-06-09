@@ -2341,19 +2341,27 @@
                     <!-- 수질 정화 설정 섹션 -->
                     <div class="form-group" style="margin-bottom: 6px;">
                         <label>물 상태</label>
-                        <select id="w_s" onchange="saveAndCalcWater()" style="margin: 0;">
+                        <select id="w_s" onchange="saveAndCalcWater()" style="display: none; margin: 0;">
                             <option value="1">맑은 물 (Clear)</option>
                             <option value="2">탁한 물 (Cloudy)</option>
                         </select>
+                        <div class="custom-select-trigger" id="trigger_w_s" onclick="openCustomSelectModal('w_s', '물 상태')">
+                            <span class="custom-select-val">맑은 물 (Clear)</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>락스 농도 (%)</label>
-                        <select id="w_c" onchange="saveAndCalcWater()" style="margin: 0;">
+                        <select id="w_c" onchange="saveAndCalcWater()" style="display: none; margin: 0;">
                             <option value="4">4% (일반 가정용)</option>
                             <option value="5">5% (표준 가정용)</option>
                             <option value="5.25" selected>5.25% (유한락스 등)</option>
                             <option value="10">10%</option>
                         </select>
+                        <div class="custom-select-trigger" id="trigger_w_c" onclick="openCustomSelectModal('w_c', '락스 농도')">
+                            <span class="custom-select-val">5.25% (유한락스 등)</span>
+                            <span class="custom-select-arrow">▼</span>
+                        </div>
                     </div>
 
                     <div class="result-box" id="water_result" style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-sizing: border-box;">
@@ -3523,7 +3531,7 @@
             }
 
             function syncCustomSelectTriggers() {
-                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub'];
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c'];
                 ids.forEach(id => {
                     const selectEl = document.getElementById(id);
                     const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
