@@ -1046,6 +1046,11 @@
             border-radius: 6px !important;
             flex: 1 !important;
         }
+        .erp-toolbar .custom-select-trigger .custom-select-arrow {
+            height: 12px !important;
+            margin-left: 6px !important;
+            padding-left: 6px !important;
+        }
 
         .erp-toolbar button.erp-sort-btn {
             height: 32px !important;
@@ -1870,7 +1875,7 @@
             cursor: pointer;
             user-select: none;
             width: 100%;
-            padding: 12px;
+            padding: 10px 12px;
             background-color: var(--bg-color) !important;
             border: 1px solid var(--border-color);
             color: var(--text-primary) !important;
@@ -1881,10 +1886,15 @@
             min-height: 45px;
         }
         .custom-select-arrow {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            margin-left: 8px;
-            transition: transform 0.2s;
+            margin-left: 12px;
+            padding-left: 10px;
+            border-left: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            height: 18px;
+            line-height: 1;
         }
 
         /* 커스텀 셀렉트 모달 */
