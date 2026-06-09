@@ -2369,11 +2369,6 @@
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h4 style="margin:0; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">💧 Recipe</h4>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <button id="btn_water_recipe_edit" onclick="toggleWaterRecipeEditMode()" style="width:auto; margin:0; padding:4px 10px; font-size:0.75rem; height:28px; display:inline-flex; align-items:center; gap:4px; font-weight:bold; color:var(--text-secondary); border:1.5px solid var(--text-secondary); background:transparent;">
-                            ✏️ 수정
-                        </button>
-                    </div>
                 </div>
                 <div id="water_recipe_list" style="display:flex; flex-direction:column; gap:8px;">
                     <!-- JS로 동적 생성 -->
@@ -3740,36 +3735,20 @@
                 }
             }
 
-            function toggleWaterRecipeEditMode() {
-                isWaterRecipeEditMode = !isWaterRecipeEditMode;
-                const btn = document.getElementById('btn_water_recipe_edit');
-                if (btn) {
-                    if (isWaterRecipeEditMode) {
-                        btn.innerText = '✏️ 완료';
-                        btn.style.backgroundColor = 'transparent';
-                        btn.style.borderColor = 'var(--primary-color)';
-                        btn.style.color = 'var(--primary-color)';
-                    } else {
-                        btn.innerText = '✏️ 수정';
-                        btn.style.backgroundColor = 'transparent';
-                        btn.style.borderColor = 'var(--text-secondary)';
-                        btn.style.color = 'var(--text-secondary)';
-                    }
-                }
-                renderWaterRecipes();
-            }
+
 
             function renderWaterRecipes() {
                 const listContainer = document.getElementById('water_recipe_list');
                 if (!listContainer) return;
 
                 const recipes = appData.waterRecipes || [];
+                listContainer.innerHTML = '';
+
                 if (recipes.length === 0) {
                     listContainer.innerHTML = '<div style="text-align:center; padding:15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px;">저장된 정화 레시피가 없습니다.</div>';
                     return;
                 }
 
-                let html = '';
                 recipes.forEach(r => {
                     let volText = '';
                     if (r.w_w && r.w_l && r.w_h) {
@@ -3780,37 +3759,78 @@
                     
                     const stateText = parseInt(r.w_s) === 2 ? "탁한 물" : "맑은 물";
                     
-                    const editBtnHtml = isWaterRecipeEditMode
-                        ? `<button onclick="editWaterRecipe(${r.id}, event)" class="recipe-edit-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.0rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s; opacity:0.65;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.65'">✏️</button>`
-                        : '';
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'water-recipe-item';
+                    itemDiv.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; margin-bottom:2px; gap:12px; user-select:none; -webkit-user-select:none;";
 
-                    html += `
-                    <div class="water-recipe-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; cursor:default; margin-bottom:2px; gap:12px;">
+                    // 롱프레스 (Long Press) 이벤트 설정
+                    let pressTimer = null;
+                    const startPress = () => {
+                        if (pressTimer === null) {
+                            pressTimer = setTimeout(() => {
+                                editWaterRecipe(r.id);
+                                pressTimer = null;
+                            }, 600);
+                        }
+                    };
+                    const cancelPress = () => {
+                        if (pressTimer !== null) {
+                            clearTimeout(pressTimer);
+                            pressTimer = null;
+                        }
+                    };
+
+                    // 마우스 이벤트
+                    itemDiv.addEventListener('mousedown', startPress);
+                    itemDiv.addEventListener('mouseup', cancelPress);
+                    itemDiv.addEventListener('mouseleave', cancelPress);
+
+                    // 터치 이벤트 (모바일 대응)
+                    itemDiv.addEventListener('touchstart', (e) => {
+                        startPress();
+                    }, { passive: true });
+                    itemDiv.addEventListener('touchend', cancelPress, { passive: true });
+                    itemDiv.addEventListener('touchmove', cancelPress, { passive: true });
+                    itemDiv.addEventListener('touchcancel', cancelPress, { passive: true });
+
+                    itemDiv.innerHTML = `
                         <!-- 1. 좌측: 레시피 제목 -->
-                        <div style="display:flex; align-items:center; text-align:left; flex:1.1; min-width:0;">
+                        <div style="display:flex; align-items:center; text-align:left; flex:1.1; min-width:0; pointer-events:none;">
                             <span style="font-weight:bold; font-size:0.88rem; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.3; white-space:pre-wrap;">${r.name}</span>
                         </div>
                         
                         <!-- 2. 중앙: 조건 상세 (용량 / 물상태 | 농도) -->
-                        <div style="display:flex; flex-direction:column; gap:2px; text-align:left; flex:1.2; font-size:0.75rem; border-left:1px solid var(--text-secondary); padding-left:12px; min-width:0;">
+                        <div style="display:flex; flex-direction:column; gap:2px; text-align:left; flex:1.2; font-size:0.75rem; border-left:1px solid var(--text-secondary); padding-left:12px; min-width:0; pointer-events:none;">
                             <span style="color:var(--text-primary); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${volText}</span>
                             <span style="color:var(--text-secondary); font-size:0.7rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${stateText} | 락스 ${r.w_c}%</span>
                         </div>
                         
                         <!-- 3. 우측: 필요 락스량 -->
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px; min-width:75px; flex-shrink:0;">
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px; min-width:75px; flex-shrink:0; pointer-events:none;">
                             <span style="font-weight:bold; font-size:0.95rem; color:var(--primary-color); white-space:nowrap;">약 ${r.drops || '0.0'} 방울</span>
                             <span style="font-size:0.72rem; color:var(--text-primary); white-space:nowrap;">(${r.ml || '0.00'} ml)</span>
                         </div>
                         
-                        <!-- 4. 수정 및 삭제 버튼 -->
+                        <!-- 4. 삭제 버튼 -->
                         <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
-                            ${editBtnHtml}
-                            <button onclick="deleteWaterRecipe(${r.id}, event)" class="recipe-del-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s;">×</button>
+                            <button class="recipe-del-btn" style="width:22px; height:22px; padding:0; margin:0; border:none; background:transparent; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color 0.15s;">×</button>
                         </div>
-                    </div>`;
+                    `;
+
+                    // 삭제 버튼 바인딩
+                    const delBtn = itemDiv.querySelector('.recipe-del-btn');
+                    if (delBtn) {
+                        delBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            cancelPress();
+                            deleteWaterRecipe(r.id, e);
+                        });
+                        delBtn.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+                        delBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+                    }
+
+                    listContainer.appendChild(itemDiv);
                 });
-                listContainer.innerHTML = html;
             }
 
             function editWaterRecipe(id, event) {
