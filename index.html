@@ -2068,6 +2068,22 @@
         </div>
     </div>
 
+    <!-- 이력 수량 수정 자체 모달 -->
+    <div id="erp-history-edit-modal" onclick="closeErpHistoryEditModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10007; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--primary-color); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary-color); font-weight: bold;">✏️ 변동 이력 수정</h4>
+            <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">수정할 이력의 새로운 수량을 입력하세요.</p>
+            <div class="form-group" style="margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 6px;">
+                <input type="number" id="erp_history_edit_qty_input" min="1" style="width: 120px; text-align: center; font-size: 1.2rem; font-weight: bold; padding: 8px 12px; margin: 0; box-sizing: border-box; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none;">
+                <span id="erp_history_edit_qty_unit" style="font-size: 0.95rem; color: var(--text-secondary); font-weight: bold;">개</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeErpHistoryEditModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="primary" id="erp_history_edit_save_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">수정</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 물자 상세 및 소모/추가/폐기 히스토리 모달 -->
     <div id="erp-detail-modal" onclick="closeErpDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10002; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px 16px; box-sizing: border-box;">
         <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid #ff9800; border-radius: 12px; max-width: 450px; width: 100%; height: 63vh; height: 63dvh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow: hidden; box-sizing: border-box;">
@@ -6529,8 +6545,11 @@
                     const displayLogDate = log.date ? (log.date.length > 16 ? log.date.substring(0, 16) : log.date) : '';
                     if (erpHistoryEditMode) {
                         dateColHtml = `
-                        <button onclick="openErpDeleteConfirmModal(${itemId}, '${log.id}')" style="position:absolute; left:6px; top:50%; transform:translateY(-50%); margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;">X</button>
-                        <span>${displayLogDate}</span>`;
+                        <div style="position:absolute; left:4px; top:50%; transform:translateY(-50%); display:flex; gap:3px;">
+                            <button onclick="openErpDeleteConfirmModal(${itemId}, '${log.id}')" style="margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--danger-color); color:var(--danger-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;" title="삭제">X</button>
+                            <button onclick="openErpHistoryEditModal(${itemId}, '${log.id}', ${log.quantity})" style="margin:0; padding:1px 4px; font-size:0.65rem; width:auto; height:16px; border-radius:3px; background:transparent; border:1px solid var(--primary-color); color:var(--primary-color); font-weight:bold; cursor:pointer; line-height:1; display:inline-flex; align-items:center; justify-content:center;" title="수정">✏️</button>
+                        </div>
+                        <span style="padding-left:36px;">${displayLogDate}</span>`;
                     } else {
                         dateColHtml = `<span>${displayLogDate}</span>`;
                     }
@@ -6577,6 +6596,88 @@
                 const modal = document.getElementById('erp-delete-confirm-modal');
                 if (modal) modal.style.display = 'none';
                 checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
+            }
+
+            function openErpHistoryEditModal(itemId, logId, currentQty) {
+                const modal = document.getElementById('erp-history-edit-modal');
+                const input = document.getElementById('erp_history_edit_qty_input');
+                const unitSpan = document.getElementById('erp_history_edit_qty_unit');
+                const saveBtn = document.getElementById('erp_history_edit_save_btn');
+                
+                const item = appData.erp.find(i => i.id === itemId);
+                if (!item) return;
+                const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
+
+                if (modal && input && saveBtn) {
+                    input.value = currentQty;
+                    if (unitSpan) unitSpan.innerText = unit;
+                    
+                    saveBtn.onclick = () => {
+                        const newQty = parseInt(input.value.trim());
+                        if (isNaN(newQty) || newQty <= 0) {
+                            alert("1 이상의 올바른 숫자를 입력하세요.");
+                            return;
+                        }
+                        executeErpHistoryEdit(itemId, logId, newQty);
+                        closeErpHistoryEditModal();
+                    };
+                    
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
+                    setTimeout(() => input.focus(), 100);
+                }
+            }
+
+            function closeErpHistoryEditModal() {
+                const modal = document.getElementById('erp-history-edit-modal');
+                if (modal) modal.style.display = 'none';
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
+            }
+
+            function executeErpHistoryEdit(itemId, logId, newQty) {
+                const item = appData.erp.find(i => i.id === itemId);
+                if (!item) return;
+
+                const log = item.history.find(log => log.id === logId);
+                if (!log) return;
+
+                // 기존 보유량 숫자 추출
+                const numbers = item.quantity.match(/[0-9]+/);
+                let currentNum = numbers ? parseInt(numbers[0]) : 0;
+                const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
+
+                // 1단계: 기존 이력의 효과 롤백
+                let rolledBackNum = currentNum;
+                if (log.type === 'consume' || log.type === 'discard') {
+                    rolledBackNum = currentNum + log.quantity;
+                } else if (log.type === 'add') {
+                    rolledBackNum = currentNum - log.quantity;
+                }
+
+                // 2단계: 새로운 이력의 효과 적용
+                let newNum = rolledBackNum;
+                if (log.type === 'consume' || log.type === 'discard') {
+                    newNum = rolledBackNum - newQty;
+                } else if (log.type === 'add') {
+                    newNum = rolledBackNum + newQty;
+                }
+
+                // 음수 보유량 검사
+                if (newNum < 0) {
+                    alert("이 이력을 수정하면 보유 수량이 0보다 작아집니다. 수정할 수 없습니다.");
+                    return;
+                }
+
+                // 3단계: 이력 수량 및 전체 물품 수량 반영
+                log.quantity = newQty;
+                item.quantity = newNum + unit;
+
+                // UI 리렌더링
+                document.getElementById('erp_detail_qty').innerText = item.quantity;
+                renderErpHistory(itemId);
+
+                saveInputs();
+                renderErpItems();
             }
 
             function executeErpHistoryDeletion(itemId, logId) {
