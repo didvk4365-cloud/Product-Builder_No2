@@ -1601,11 +1601,6 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        .memo-item-row:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: var(--primary-color);
         }
         .memo-item-row.memo-item-active {
             background: rgba(255, 152, 0, 0.12);
@@ -3142,6 +3137,16 @@
                             <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border-color);">
                                 <span style="font-weight:bold; font-size:0.95rem; color:var(--primary-color);">📋 메모 목록</span>
                                 <button onclick="closeMemoListPopup()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
+                            </div>
+                            <!-- 검색 및 정렬 툴바 추가 -->
+                            <div style="display:flex; gap:8px; padding:10px 12px; border-bottom:1px solid var(--border-color); background:rgba(0,0,0,0.12); flex-wrap:wrap; box-sizing:border-box; align-items:center;">
+                                <input type="text" id="memo-search-input" placeholder="메모 검색 (제목, 내용)..." onkeyup="renderMemoListOnly()" style="flex:1; min-width:120px; font-size:0.8rem; padding:6px 10px; margin:0; box-sizing:border-box; border-radius:6px; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); outline:none;">
+                                <select id="memo-sort-select" onchange="renderMemoListOnly()" style="width:115px; font-size:0.8rem; padding:6px; margin:0; border-radius:6px; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); outline:none; height:29px; box-sizing:border-box;">
+                                    <option value="date-desc">날짜 최신순</option>
+                                    <option value="date-asc">날짜 오래된순</option>
+                                    <option value="name-asc">이름 가나다순</option>
+                                    <option value="name-desc">이름 역순</option>
+                                </select>
                             </div>
                             <div id="memo-list-items" class="memo-list-items" style="overflow-y:auto; flex:1; padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
                                 <!-- JS로 렌더링 -->
@@ -7647,6 +7652,8 @@
 
             // 팝업 열기/닫기
             function openMemoListPopup() {
+                const searchInput = document.getElementById('memo-search-input');
+                if (searchInput) searchInput.value = '';
                 renderMemoListOnly();
                 const popup = document.getElementById('memo-list-popup');
                 if (popup) popup.style.display = 'flex';
@@ -7741,9 +7748,45 @@
                     listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">작성된 메모가 없습니다.<br>새 메모를 추가해보세요.</div>';
                     return;
                 }
+
+                // 1. 실시간 검색 필터링
+                const searchInput = document.getElementById('memo-search-input');
+                const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+                let filteredMemos = [...memos];
+                if (query) {
+                    filteredMemos = memos.filter(memo => {
+                        const titleMatch = (memo.title || '').toLowerCase().includes(query);
+                        const contentMatch = (memo.content || '').toLowerCase().includes(query);
+                        return titleMatch || contentMatch;
+                    });
+                }
                 
-                const sortedMemos = [...memos].sort((a, b) => b.updatedAt - a.updatedAt);
-                sortedMemos.forEach(memo => {
+                // 2. 실시간 오름차순/내림차순 정렬
+                const sortSelect = document.getElementById('memo-sort-select');
+                const sortVal = sortSelect ? sortSelect.value : 'date-desc';
+                filteredMemos.sort((a, b) => {
+                    if (sortVal === 'date-desc') {
+                        return (b.updatedAt || 0) - (a.updatedAt || 0);
+                    } else if (sortVal === 'date-asc') {
+                        return (a.updatedAt || 0) - (b.updatedAt || 0);
+                    } else if (sortVal === 'name-asc') {
+                        const titleA = a.title || '새 메모';
+                        const titleB = b.title || '새 메모';
+                        return titleA.localeCompare(titleB, 'ko-KR', { numeric: true });
+                    } else if (sortVal === 'name-desc') {
+                        const titleA = a.title || '새 메모';
+                        const titleB = b.title || '새 메모';
+                        return titleB.localeCompare(titleA, 'ko-KR', { numeric: true });
+                    }
+                    return 0;
+                });
+
+                if (filteredMemos.length === 0) {
+                    listItems.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary); font-size:0.9rem;">검색 결과와 일치하는<br>메모가 없습니다.</div>';
+                    return;
+                }
+                
+                filteredMemos.forEach(memo => {
                     const row = document.createElement('div');
                     row.className = 'memo-item-row' + (appData.activeMemoId === memo.id ? ' memo-item-active' : '');
                     row.onclick = () => selectMemo(memo.id);
