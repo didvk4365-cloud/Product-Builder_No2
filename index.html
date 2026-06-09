@@ -2032,232 +2032,6 @@
 </head>
 
 <body>
-    <!-- 커스텀 드롭다운 선택 모달 -->
-    <div id="custom-select-modal" class="custom-modal-overlay" onclick="closeCustomSelectModal(event)" style="display: none;">
-        <div class="custom-modal-content">
-            <div class="custom-modal-header">
-                <h4 id="custom-modal-title">선택</h4>
-                <span class="custom-modal-close" onclick="hideCustomSelectModal()">&times;</span>
-            </div>
-            <div class="custom-modal-body" id="custom-modal-options">
-                <!-- 옵션들이 동적으로 렌더링됩니다 -->
-            </div>
-        </div>
-    </div>
-
-    <!-- 유통기한 설정 모달 -->
-    <div id="erp-threshold-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10005; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
-        <div style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary-color); font-weight: bold;">⚙️ 유통기한 알림 설정</h4>
-            <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">유통기한 임박으로 감주할<br>기준 남은 일수를 설정합니다.</p>
-            <div class="form-group" style="margin-bottom: 20px;">
-                <input type="number" id="erp_threshold_input" min="0" max="999" placeholder="예: 30" style="width: 100%; text-align: center; font-size: 1.2rem; font-weight: bold; padding: 8px 12px; margin: 0; box-sizing: border-box; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none;">
-            </div>
-            <div style="display: flex; gap: 8px;">
-                <button class="secondary" onclick="closeErpThresholdModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
-                <button class="primary" onclick="saveErpThresholdModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">저장</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 이력 삭제 확인 자체 모달 -->
-    <div id="erp-delete-confirm-modal" onclick="closeErpDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10006; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
-        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 경고</h4>
-            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">선택한 변동 이력을 삭제하시겠습니까?<br><span style="color: var(--primary-color); font-weight: bold;">처리된 수량이 원래대로 자동 롤백 복원됩니다.</span></p>
-            <div style="display: flex; gap: 8px;">
-                <button class="secondary" onclick="closeErpDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
-                <button class="danger" id="erp_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 이력 수량 및 타입 수정 자체 모달 -->
-    <div id="erp-history-edit-modal" onclick="closeErpHistoryEditModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10007; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
-        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--primary-color); border-radius: 12px; max-width: 340px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary-color); font-weight: bold;">✏️ 변동 이력 수정</h4>
-            <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">이력의 변동 유형과 수량을 변경할 수 있습니다.</p>
-            
-            <!-- 타입 선택 버튼 세트 -->
-            <div style="display: flex; gap: 6px; margin-bottom: 15px;">
-                <button id="erp_history_edit_type_consume" onclick="setHistoryEditType('consume')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">🥄 소모</button>
-                <button id="erp_history_edit_type_add" onclick="setHistoryEditType('add')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">➕ 추가</button>
-                <button id="erp_history_edit_type_discard" onclick="setHistoryEditType('discard')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">🗑️ 폐기</button>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 6px;">
-                <input type="number" id="erp_history_edit_qty_input" min="1" style="width: 120px; text-align: center; font-size: 1.2rem; font-weight: bold; padding: 8px 12px; margin: 0; box-sizing: border-box; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none;">
-                <span id="erp_history_edit_qty_unit" style="font-size: 0.95rem; color: var(--text-secondary); font-weight: bold;">개</span>
-            </div>
-            <div style="display: flex; gap: 8px;">
-                <button class="secondary" onclick="closeErpHistoryEditModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
-                <button class="primary" id="erp_history_edit_save_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">수정</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 메모 삭제 확인 자체 모달 -->
-    <div id="memo-delete-confirm-modal" onclick="closeMemoDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10008; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
-        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 경고</h4>
-            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">선택한 메모를 삭제하시겠습니까?<br><span style="color: var(--danger-color); font-weight: bold;">이 작업은 되돌릴 수 없습니다.</span></p>
-            <div style="display: flex; gap: 8px;">
-                <button class="secondary" onclick="closeMemoDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
-                <button class="danger" id="memo_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 매뉴얼 분류 삭제 확인 자체 모달 -->
-    <div id="wiki-cat-delete-confirm-modal" onclick="closeWikiCatDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10009; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
-        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 분류 삭제</h4>
-            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;"><span id="wiki_cat_delete_target_name" style="color: var(--primary-color); font-weight: bold;"></span> 분류를 삭제하시겠습니까?<br><span style="color: var(--danger-color); font-weight: bold;">해당 분류의 매뉴얼들은 '기타' 분류로 자동 전환됩니다.</span></p>
-            <div style="display: flex; gap: 8px;">
-                <button class="secondary" onclick="closeWikiCatDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
-                <button class="danger" id="wiki_cat_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- To-Do 삭제 확인 자체 모달 -->
-    <div id="todo-delete-confirm-modal" onclick="closeTodoDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10010; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
-        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 할 일 삭제</h4>
-            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;"><span id="todo_delete_target_text" style="color: var(--primary-color); font-weight: bold; word-break: break-all;"></span><br>할 일을 삭제하시겠습니까?</p>
-            <div style="display: flex; gap: 8px;">
-                <button class="secondary" onclick="closeTodoDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
-                <button class="danger" id="todo_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 물자 상세 및 소모/추가/폐기 히스토리 모달 -->
-    <div id="erp-detail-modal" onclick="closeErpDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10002; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px 16px; box-sizing: border-box;">
-        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid #ff9800; border-radius: 12px; max-width: 450px; width: 100%; height: 63vh; height: 63dvh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow: hidden; box-sizing: border-box;">
-            <!-- 모달 헤더 (심플한 중앙 타이틀, X버튼과 구분선 없음, 여백 축소) -->
-            <div style="padding: 10px 16px 2px 16px; text-align: center;">
-                <h3 id="erp_detail_name" style="margin: 0; font-size: 1.25rem; color: var(--primary-color); font-weight: bold; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></h3>
-            </div>
-            <!-- 모달 본문 (하단 여백 일치 조절을 위해 사방 패딩 16px 균일 설정 및 내부 flex 적용) -->
-            <div style="padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 15px; min-height: 0; overflow: hidden;">
-                <!-- 현재 수량 카드 (카테고리 정보와 최초 등록일이 왼쪽에, 보유량이 오른쪽에 배치되도록 최적화) -->
-                <div style="background: rgba(255, 152, 0, 0.04); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; gap: 10px; flex-shrink: 0;">
-                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0;">
-                        <span id="erp_detail_category" style="font-size: 0.7rem; color: var(--text-secondary); background: var(--bg-color); padding: 2px 6px; border-radius: 4px; display: inline-block; white-space: nowrap; flex-shrink: 0;"></span>
-                        <span id="erp_detail_created_at" style="font-size: 0.65rem; color: var(--text-secondary); white-space: nowrap; margin-top: 2px;"></span>
-                    </div>
-                    <div style="text-align: right; min-width: 0;">
-                        <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; line-height: 1;">현재 보유량</span>
-                        <div id="erp_detail_qty" style="font-size: 1.35rem; font-weight: bold; color: var(--text-primary); margin-top: 4px; line-height: 1;">0</div>
-                    </div>
-                </div>
-
-                <!-- 수량 수동 조정 입력 폼 (한줄 배치 및 아웃라인 버튼, ⚙️설정 기어 추가) -->
-                <div style="flex-shrink: 0;">
-                    <div style="display: flex; gap: 6px; align-items: center;">
-                        <!-- 수량 입력란 (가로폭 축소) -->
-                        <div style="display: flex; align-items: center; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 2px 6px; width: 90px; flex-shrink: 0; box-sizing: border-box;">
-                            <input type="number" id="erp_adjust_qty" min="1" value="1" style="width: 100%; text-align: center; font-size: 1rem; font-weight: bold; border: none; background: transparent; color: var(--text-primary); outline: none; padding: 6px 0; margin: 0;">
-                            <span id="erp_detail_unit" style="font-size: 0.8rem; color: var(--text-secondary); padding-left: 2px; flex-shrink: 0; white-space: nowrap;">개</span>
-                        </div>
-                        
-                        <!-- 버튼 4개 (아웃라인 스타일, 채우기 없음, 3글자 폭 + ⚙️ 편집모드기어 추가) -->
-                        <div style="display: flex; gap: 4px; flex: 1; min-width: 0;">
-                            <button onclick="adjustErpQuantity('consume')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">🥄소모</button>
-                            <button onclick="adjustErpQuantity('add')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--success-color); color: var(--success-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">➕추가</button>
-                            <button onclick="adjustErpQuantity('discard')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">🗑️폐기</button>
-                            <button id="erp_history_edit_toggle" onclick="toggleErpHistoryEditMode()" style="width: 36px; height: 36px; padding: 0; margin: 0; font-size: 0.95rem; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; flex-shrink: 0; box-sizing: border-box;">⚙️</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 엑셀 스타일 격자 변동 이력 목록 (flex: 1로 늘려서 하부 여백을 좌우 패딩인 16px에 정확히 일치시킴) -->
-                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px; flex-shrink: 0;">📋 소모 및 추가 변동 이력</label>
-                    <div class="scrollbar-hidden" style="flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); min-height: 0;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed; height: 100%;">
-                            <thead>
-                                <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
-                                    <th onclick="toggleErpHistorySort()" style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); width: 43%; cursor: pointer; user-select: none;">일시 <span id="erp_history_sort_btn">▼</span></th>
-                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 19%;">소모</th>
-                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--success-color); width: 19%;">추가</th>
-                                    <th style="padding: 8px 4px; font-weight: bold; color: var(--danger-color); width: 19%;">폐기</th>
-                                </tr>
-                            </thead>
-                            <tbody id="erp_history_table_body">
-                                <!-- JS 동적 렌더링 -->
-                            </tbody>
-                            <tfoot style="position: sticky; bottom: 0; z-index: 2; font-weight: bold;">
-                                <tr>
-                                    <td style="padding: 8px 4px; border-right: 1px solid var(--border-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">합계</td>
-                                    <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
-                                    <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--success-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
-                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 생존 서약서 모달 -->
-    <div id="agreement-modal" style="display: none;">
-        <div class="agreement-content-wrapper">
-            <h2 class="agreement-title">생존 행동 강령 및 사용자 서약</h2>
-            <div class="agreement-sub-title">The Survivalist Code of Conduct</div>
-            <div id="agreement-scroll-box" class="agreement-body">
-                <p>본 앱(Survival Tool)은 예측할 수 없는 위기 상황과 인프라가 붕괴된 상황에서도 사용자에게 최소한의 안전한 생존을 돕기 위해 개발되었습니다. 본 앱을 이용하기 전, 다음 10가지 내용을 깊이 숙지하고 동의해 주시기 바랍니다.</p>
-                
-                <h3>1. 사유재산 존중 및 무단 약탈 금지</h3>
-                <p>재난 상황에서의 약탈은 어떠한 이유로도 정당화될 수 없는 매우 심각한 범죄이자 자멸 행위입니다. 타인의 자원을 무단으로 침해하는 행위는 결코 용서 받지 못할 행위이며, 스스로를 공동체의 위협 대상이될 뿐만 아니라 생존확률을 한 없이 낮추는 지름길입니다. 극단적인 위기 상황이라 할지라도 타인의 사유재산과 공공의 생존에 도움이 되는 자원을 탐하는 행위는 결코 용납되지 않으며, 반드시 정당한 대가와 상호간 합의를 통해서만 확보되어야 합니다.</p>
-                
-
-                <h3>2. 일상 휴대 장비의 올바른 활용</h3>
-                <p>일상 휴대 장비(EDC)는 평상시 문명 생활의 편의를 돕고 위기 상황에서 신속하고 유연한 대응을 가능하게 하는 도구입니다. 이러한 도구를 실용적인 목적으로 소지하고 대비하는 것은 건전한 생존주의자의 훌륭한 자질입니다. 다만, 정당한 작업 목적이나 적절한 상황이 아님에도 무분별하게 노출하여 타인에게 위압감을 주거나, 공포 분위기를 조성하는 일체의 행위를 자제합니다. 모든 도구는 평상시 안전하게 수납하며, 소지자의 성숙한 책임감 하에 통제되어야 합니다.</p>
-                
-
-                <h3>3. 상호 신뢰와 공동체 정신의 유지</h3>
-                <p>과거 수 많은 재난 및 전쟁 속에서 홀로 살아남은(Lone Wolf) 경우의 생존율보다, 신뢰를 바탕으로 뭉친 공동체의 생존율이 압도적으로 높았습니다. 위기 속에서도 이기주의를 경계하고, 이웃 및 동료와 협력하며, 취약계층을 보호하는 공동체 중심의 사고를 유지합니다. 남녀노소 차이를 두지 않고 각자가 서로를 위한 작은 행동이 공동체 전체의 생존에 긍정적인 영향을 미친다는 사실을 항상 기억해야합니다. 나아가 한계 상황의 이웃이 있다면 여력이 닿는 선에서 온정을 베푸는 인도적 연대 정신을 유지해야 합니다. 반면 맹목적인 이타주의는 모두의 생존율을 떨어뜨릴 뿐이며, 모든 구호 행위는 스스로의 안전망을 해치지 않는 범위 내에서 소지자의 자발적 판단에 의해서만 행해져야 합니다.</p>
-                
-
-                <h3>4. 정보 보안(OPSEC)의 철저한 준수</h3>
-                <p>자신을 특정하거나 자신의 생존 자원 보유 현황, 대피 경로, 아지트의 위치 등을 불필요하게 외부에 발설하지 않습니다. 필요 이상의 정보과시는 평시에는 질시를, 전시나 재난 시에는 범죄의 표적이 되는 지름길입니다. 본 툴(Tool)에 저장되는 개인적인 생존 데이터 역시 철저히 보안을 유지하여 관리되어야 합니다. 또한 본 툴(Tool)은 사용자의 개인정보를 수집하지 않습니다.</p>
-                
-
-                <h3>5. 자원의 합리적 관리 및 독점 방지</h3>
-                <p>사재기와 독점은 시장 경제를 마비시키고 공동체의 공멸을 초래합니다. 생존 자원은 필요한 만큼만 체계적으로 비축(Prepping)하고 합리적인 순환소비를 통해 대비상태를 유지합니다. 위기 상황에서 자원의 가치를 악용하여 폭리를 취하거나 타인의 궁박한 처지를 이용해 부당한 이득을 결코 취하지 않습니다. </p>
-                
-
-                <h3>6. 지속적인 지식 습득과 기술 전수</h3>
-                <p>가장 강력한 생존 도구는 배낭 속의 장비 뿐만 아니라 머릿속에 있는 지식 또한 최고의 생존 도구입니다. 오프라인 상황에서도 작동하는 본 툴(Tool)의 기능과 함께 사용자의 환경과 능력에 맞게 정리해둔 정보를 바탕으로, 실질적인 생존 기술을 끊임없이 연마하며, 신뢰할 수 있는 동료들에게 기술을 아낌없이 공유합니다.</p>
-                
-
-                <h3>7. 무분별한 공포 조장 및 유언비어 유포 경계</h3>
-                <p>재난 상황에서 왜곡된 정보와 미확인 루머는 물리적인 재해보다 더 빠르게 공동체를 무너뜨립니다. 출처가 불분명한 정보에 흔들리지 않으며, 검증된 팩트만을 바탕으로 상황을 논리적으로 판단하여 행동합니다. 또한 공포에 휩싸여 맹목적 행동은 본인과 주변 모두를 위험에 빠뜨립니다. 침착함을 유지하고 시야를 넓게 확장해야 합니다.</p>
-                
-
-                <h3>8. 생태계 보존과 자연과의 공존</h3>
-                <p>재난 장기화 시 자연은 인류의 유일한 보급처가 됩니다. 지속 가능한 생존을 위해 자연환경을 무분별하게 파괴하거나 오염시키지 않으며, 불가피한 사냥 및 채집 시에도 생태계의 복원력을 훼손하지 않는 범위 내에서 최소한의 자원만을 획득합니다. 또한 어쩔수 없이 발생하는 폐기물 및 오염물은 적절히 처리하여 생태계 환경에 미치는 영향을 최소화해야 합니다.</p>
-                
-
-                <h3>9. 공공질서 존중 및 무정부주의 경계</h3>
-                <p>인프라가 일시적, 장기적으로 마비되더라도, 사회 시스템과 법적 질서를 유지하려는 노력을 결코 포기하지 않습니다. 공권력과 방역·구호 당국의 정당한 지시에 협조하며, 시스템의 공백을 틈탄 그 어떠한 사적 제재나 무법 행위에 동조하지 않고 문명인으로서의 품위를 지킵니다.</p>
-                
-
-                <h3>10. 생존의 궁극적 목적과 인간성 수호</h3>
-                <p>우리가 생존하고자 하는 이유는 단순히 숨을 쉬며 연명하기 위함이 아니라, 위기를 극복하고 다시 번영하여 문명을 재건하기 위함입니다. 어떤 극한 상황에서도 도덕적 나침반을 잃지 않으며, 인간으로서의 존엄성과 양심을 수호할 것을 서약합니다.</p>
-
-            </div>
-            <div class="agreement-footer">
-                <button id="agreement-btn" class="primary" disabled onclick="confirmAgreement()">스크롤을 끝까지 내려주세요</button>
-                <button id="agreement-close-btn" class="secondary" style="display: none;" onclick="closeAgreementModal()">닫기</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 스플래시 스크린 -->
     <div id="splash-screen">
         <svg class="splash-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -3255,155 +3029,7 @@
                     </div>
                 </div>
 
-                <!-- 카테고리 관리 모달 -->
-                <div id="todo-cat-manage-modal" onclick="closeTodoCatManageModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.9); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10015; align-items:flex-start; justify-content:center; padding: 8vh 16px 16px 16px; box-sizing:border-box;">
-                    <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:95%; max-width:420px; box-sizing:border-box; display:flex; flex-direction:column; max-height:75vh; max-height:75dvh; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);">
-                        <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
-                            <span>카테고리 관리</span>
-                            <button onclick="closeTodoCatManageModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
-                        </h4>
-                        
-                        <!-- 카테고리 목록 리스트 -->
-                        <div id="todo-cat-manage-list" style="flex:1; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:10px; padding-right:5px;">
-                            <!-- JS로 동적 생성 -->
-                        </div>
 
-                        <!-- 새 카테고리 추가 -->
-                        <div style="border-top:1px solid var(--border-color); padding-top:15px; margin-bottom:0;">
-                            <div style="display:flex; gap:8px;">
-                                <input type="text" id="todo-cat-manage-new-name" placeholder="새 카테고리 이름 입력..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleTodoCatManageAddKey(event)">
-                                <button onclick="submitTodoCatManageAdd()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 카테고리 삭제 확인 모달 -->
-                <div id="todo-cat-del-modal" onclick="closeTodoCatDelModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.9); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10016; align-items:flex-start; justify-content:center; padding:18vh 16px 16px 16px; box-sizing:border-box;">
-                    <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);">
-                        <h4 style="margin-top:0; color:var(--danger-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">카테고리 삭제</h4>
-                        <p style="margin-top:0; font-size:0.9rem; color:var(--text-primary); line-height:1.5; margin-bottom:20px; text-align:left;">
-                            정말 '<span id="todo-del-cat-name" style="font-weight:bold; color:var(--primary-color);"></span>' 카테고리를 삭제하시겠습니까?<br>
-                            이 카테고리에 포함된 모든 할 일 목록이 함께 삭제됩니다.
-                        </p>
-                        <div style="display:flex; gap:10px;">
-                            <button onclick="closeTodoCatDelModal()" class="secondary" style="margin:0; padding:8px; flex:1;">취소</button>
-                            <button id="todo-cat-del-confirm-btn" class="danger" style="margin:0; padding:8px; flex:1;">삭제</button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- 수질정화 레시피 추가 모달 -->
-        <div id="water-recipe-add-modal" onclick="closeWaterRecipeAddModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10015; align-items:center; justify-content:center;">
-            <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
-                <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">💾 정화 레시피 저장</h4>
-                <div class="form-group" style="margin-bottom:20px; text-align:left;">
-                    <label>레시피 이름</label>
-                    <textarea id="water_recipe_new_name" placeholder="예: 생수병 2L&#10;우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem; height:54px; resize:none; font-family:inherit; display:block;" onkeydown="handleWaterRecipeAddKey(event)"></textarea>
-                </div>
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button class="secondary" onclick="closeWaterRecipeAddModal()" style="margin:0; padding:8px 16px; width:auto;">취소</button>
-                    <button onclick="submitWaterRecipeAdd()" style="margin:0; padding:8px 20px; width:auto; font-weight:bold;">저장</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 수질정화 레시피 수정 모달 -->
-        <div id="water-recipe-edit-modal" onclick="closeWaterRecipeEditModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10016; align-items:center; justify-content:center;">
-            <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
-                <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">✏️ 수정</h4>
-                <input type="hidden" id="water_recipe_edit_id">
-                
-                <div class="form-group" style="margin-bottom:12px; text-align:left;">
-                    <label>레시피 이름</label>
-                    <textarea id="water_recipe_edit_name" placeholder="예: 생수병 2L&#10;우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem; height:54px; resize:none; font-family:inherit; display:block;" onkeydown="handleWaterRecipeEditKey(event)"></textarea>
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px; text-align:left;">
-                    <label>규격 입력 (cm) - 비워두면 용량 직접 입력 적용</label>
-                    <div style="display:flex; gap:8px;">
-                        <input type="number" id="water_recipe_edit_w" placeholder="가로" style="margin:0; padding:8px; font-size:0.85rem; flex:1;">
-                        <input type="number" id="water_recipe_edit_l" placeholder="세로" style="margin:0; padding:8px; font-size:0.85rem; flex:1;">
-                        <input type="number" id="water_recipe_edit_h" placeholder="높이" style="margin:0; padding:8px; font-size:0.85rem; flex:1;">
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px; text-align:left;">
-                    <label>또는 물의 양 직접 입력 (L)</label>
-                    <input type="number" id="water_recipe_edit_v" placeholder="예: 1.5" style="margin:0; padding:8px 12px; font-size:0.9rem;">
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px; text-align:left;">
-                    <label>물 상태</label>
-                    <select id="water_recipe_edit_s" style="display: none; margin:0; width:100%;">
-                        <option value="1">맑은 물 (Clear)</option>
-                        <option value="2">탁한 물 (Cloudy)</option>
-                    </select>
-                    <div class="custom-select-trigger" id="trigger_water_recipe_edit_s" onclick="openCustomSelectModal('water_recipe_edit_s', '물 상태')" style="border-radius: 6px; box-sizing: border-box;">
-                        <span class="custom-select-val">맑은 물 (Clear)</span>
-                        <span class="custom-select-arrow">▼</span>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom:20px; text-align:left;">
-                    <label>락스 농도 (%)</label>
-                    <select id="water_recipe_edit_c" style="display: none; margin:0; width:100%;">
-                        <option value="4">4% (일반 가정용)</option>
-                        <option value="5">5% (표준 가정용)</option>
-                        <option value="5.25">5.25% (유한락스 등)</option>
-                        <option value="10">10%</option>
-                    </select>
-                    <div class="custom-select-trigger" id="trigger_water_recipe_edit_c" onclick="openCustomSelectModal('water_recipe_edit_c', '락스 농도')" style="border-radius: 6px; box-sizing: border-box;">
-                        <span class="custom-select-val">5.25% (유한락스 등)</span>
-                        <span class="custom-select-arrow">▼</span>
-                    </div>
-                </div>
-
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button class="secondary" onclick="closeWaterRecipeEditModal()" style="margin:0; padding:8px 16px; width:auto;">취소</button>
-                    <button onclick="submitWaterRecipeEdit()" style="margin:0; padding:8px 20px; width:auto; font-weight:bold;">저장</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 수질정화 레시피 삭제 모달 -->
-        <div id="water-recipe-del-modal" onclick="closeWaterRecipeDelModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10017; align-items:center; justify-content:center;">
-            <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
-                <h4 style="margin-top:0; color:var(--danger-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">⚠️ 레시피 삭제</h4>
-                <input type="hidden" id="water_recipe_del_id">
-                <p style="font-size:0.9rem; color:var(--text-primary); text-align:left; margin-bottom:20px; line-height:1.4;">이 정화 레시피를 정말로 삭제하시겠습니까?</p>
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button class="secondary" onclick="closeWaterRecipeDelModal()" style="margin:0; padding:8px 16px; width:auto;">취소</button>
-                    <button class="danger" onclick="submitWaterRecipeDel()" style="margin:0; padding:8px 20px; width:auto; font-weight:bold;">삭제</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 모스 부호 프리셋 모달 -->
-        <div id="morse-preset-modal" onclick="closeMorsePresetModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10015; align-items:center; justify-content:center;">
-            <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:95%; max-width:420px; box-sizing:border-box; display:flex; flex-direction:column; max-height:85vh;">
-                <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
-                    <span>모스 부호 프리셋</span>
-                    <button onclick="closeMorsePresetModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
-                </h4>
-                
-                <!-- 프리셋 목록 리스트 -->
-                <div id="morse-preset-list" style="flex:1; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:10px; padding-right:5px;">
-                    <!-- JS로 동적 생성 -->
-                </div>
-
-                <!-- 새 프리셋 추가 -->
-                <div style="border-top:1px solid var(--border-color); padding-top:15px;">
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" id="morse-preset-new-text" placeholder="새 프리셋 텍스트 (영문/숫자)..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem; text-transform:uppercase;" onkeydown="handleMorsePresetAddKey(event)">
-                        <button onclick="addMorsePreset()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- 오디오 컨텍스트용 -->
         <script>
@@ -8830,6 +8456,383 @@
                 initApp();
             }
 
+        </script>
+
+    <!-- ========================================== -->
+    <!--          최상위 공용 모달 및 오버레이 수납소          -->
+    <!-- ========================================== -->
+    <!-- 커스텀 드롭다운 선택 모달 -->
+    <div id="custom-select-modal" class="custom-modal-overlay" onclick="closeCustomSelectModal(event)" style="display: none;">
+        <div class="custom-modal-content">
+            <div class="custom-modal-header">
+                <h4 id="custom-modal-title">선택</h4>
+                <span class="custom-modal-close" onclick="hideCustomSelectModal()">&times;</span>
+            </div>
+            <div class="custom-modal-body" id="custom-modal-options">
+                <!-- 옵션들이 동적으로 렌더링됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 유통기한 설정 모달 -->
+    <div id="erp-threshold-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10015; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary-color); font-weight: bold;">⚙️ 유통기한 알림 설정</h4>
+            <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">유통기한 임박으로 감주할<br>기준 남은 일수를 설정합니다.</p>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <input type="number" id="erp_threshold_input" min="0" max="999" placeholder="예: 30" style="width: 100%; text-align: center; font-size: 1.2rem; font-weight: bold; padding: 8px 12px; margin: 0; box-sizing: border-box; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none;">
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeErpThresholdModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="primary" onclick="saveErpThresholdModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이력 삭제 확인 자체 모달 -->
+    <div id="erp-delete-confirm-modal" onclick="closeErpDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10016; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 경고</h4>
+            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">선택한 변동 이력을 삭제하시겠습니까?<br><span style="color: var(--primary-color); font-weight: bold;">처리된 수량이 원래대로 자동 롤백 복원됩니다.</span></p>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeErpDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="danger" id="erp_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이력 수량 및 타입 수정 자체 모달 -->
+    <div id="erp-history-edit-modal" onclick="closeErpHistoryEditModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10017; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--primary-color); border-radius: 12px; max-width: 340px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary-color); font-weight: bold;">✏️ 변동 이력 수정</h4>
+            <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">이력의 변동 유형과 수량을 변경할 수 있습니다.</p>
+            
+            <!-- 타입 선택 버튼 세트 -->
+            <div style="display: flex; gap: 6px; margin-bottom: 15px;">
+                <button id="erp_history_edit_type_consume" onclick="setHistoryEditType('consume')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">🥄 소모</button>
+                <button id="erp_history_edit_type_add" onclick="setHistoryEditType('add')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">➕ 추가</button>
+                <button id="erp_history_edit_type_discard" onclick="setHistoryEditType('discard')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">🗑️ 폐기</button>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 6px;">
+                <input type="number" id="erp_history_edit_qty_input" min="1" style="width: 120px; text-align: center; font-size: 1.2rem; font-weight: bold; padding: 8px 12px; margin: 0; box-sizing: border-box; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none;">
+                <span id="erp_history_edit_qty_unit" style="font-size: 0.95rem; color: var(--text-secondary); font-weight: bold;">개</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeErpHistoryEditModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="primary" id="erp_history_edit_save_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">수정</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메모 삭제 확인 자체 모달 -->
+    <div id="memo-delete-confirm-modal" onclick="closeMemoDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10018; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 경고</h4>
+            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;">선택한 메모를 삭제하시겠습니까?<br><span style="color: var(--danger-color); font-weight: bold;">이 작업은 되돌릴 수 없습니다.</span></p>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeMemoDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="danger" id="memo_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 매뉴얼 분류 삭제 확인 자체 모달 -->
+    <div id="wiki-cat-delete-confirm-modal" onclick="closeWikiCatDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10019; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 분류 삭제</h4>
+            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;"><span id="wiki_cat_delete_target_name" style="color: var(--primary-color); font-weight: bold;"></span> 분류를 삭제하시겠습니까?<br><span style="color: var(--danger-color); font-weight: bold;">해당 분류의 매뉴얼들은 '기타' 분류로 자동 전환됩니다.</span></p>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeWikiCatDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="danger" id="wiki_cat_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- To-Do 삭제 확인 자체 모달 -->
+    <div id="todo-delete-confirm-modal" onclick="closeTodoDeleteConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10020; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--danger-color); font-weight: bold;">⚠️ 할 일 삭제</h4>
+            <p style="margin: 0 0 18px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.45;"><span id="todo_delete_target_text" style="color: var(--primary-color); font-weight: bold; word-break: break-all;"></span><br>할 일을 삭제하시겠습니까?</p>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeTodoDeleteConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="danger" id="todo_delete_confirm_btn" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 물자 상세 및 소모/추가/폐기 히스토리 모달 -->
+    <div id="erp-detail-modal" onclick="closeErpDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10012; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid #ff9800; border-radius: 12px; max-width: 450px; width: 100%; height: 63vh; height: 63dvh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow: hidden; box-sizing: border-box;">
+            <!-- 모달 헤더 (심플한 중앙 타이틀, X버튼과 구분선 없음, 여백 축소) -->
+            <div style="padding: 10px 16px 2px 16px; text-align: center;">
+                <h3 id="erp_detail_name" style="margin: 0; font-size: 1.25rem; color: var(--primary-color); font-weight: bold; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></h3>
+            </div>
+            <!-- 모달 본문 (하단 여백 일치 조절을 위해 사방 패딩 16px 균일 설정 및 내부 flex 적용) -->
+            <div style="padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 15px; min-height: 0; overflow: hidden;">
+                <!-- 현재 수량 카드 (카테고리 정보와 최초 등록일이 왼쪽에, 보유량이 오른쪽에 배치되도록 최적화) -->
+                <div style="background: rgba(255, 152, 0, 0.04); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; gap: 10px; flex-shrink: 0;">
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0;">
+                        <span id="erp_detail_category" style="font-size: 0.7rem; color: var(--text-secondary); background: var(--bg-color); padding: 2px 6px; border-radius: 4px; display: inline-block; white-space: nowrap; flex-shrink: 0;"></span>
+                        <span id="erp_detail_created_at" style="font-size: 0.65rem; color: var(--text-secondary); white-space: nowrap; margin-top: 2px;"></span>
+                    </div>
+                    <div style="text-align: right; min-width: 0;">
+                        <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; line-height: 1;">현재 보유량</span>
+                        <div id="erp_detail_qty" style="font-size: 1.35rem; font-weight: bold; color: var(--text-primary); margin-top: 4px; line-height: 1;">0</div>
+                    </div>
+                </div>
+
+                <!-- 수량 수동 조정 입력 폼 (한줄 배치 및 아웃라인 버튼, ⚙️설정 기어 추가) -->
+                <div style="flex-shrink: 0;">
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <!-- 수량 입력란 (가로폭 축소) -->
+                        <div style="display: flex; align-items: center; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 2px 6px; width: 90px; flex-shrink: 0; box-sizing: border-box;">
+                            <input type="number" id="erp_adjust_qty" min="1" value="1" style="width: 100%; text-align: center; font-size: 1rem; font-weight: bold; border: none; background: transparent; color: var(--text-primary); outline: none; padding: 6px 0; margin: 0;">
+                            <span id="erp_detail_unit" style="font-size: 0.8rem; color: var(--text-secondary); padding-left: 2px; flex-shrink: 0; white-space: nowrap;">개</span>
+                        </div>
+                        
+                        <!-- 버튼 4개 (아웃라인 스타일, 채우기 없음, 3글자 폭 + ⚙️ 편집모드기어 추가) -->
+                        <div style="display: flex; gap: 4px; flex: 1; min-width: 0;">
+                            <button onclick="adjustErpQuantity('consume')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--primary-color); color: var(--primary-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">🥄소모</button>
+                            <button onclick="adjustErpQuantity('add')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--success-color); color: var(--success-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">➕추가</button>
+                            <button onclick="adjustErpQuantity('discard')" style="flex: 1; padding: 8px 2px; margin: 0; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; gap: 2px; height: 36px;">🗑️폐기</button>
+                            <button id="erp_history_edit_toggle" onclick="toggleErpHistoryEditMode()" style="width: 36px; height: 36px; padding: 0; margin: 0; font-size: 0.95rem; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; flex-shrink: 0; box-sizing: border-box;">⚙️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 엑셀 스타일 격자 변동 이력 목록 (flex: 1로 늘려서 하부 여백을 좌우 패딩인 16px에 정확히 일치시킴) -->
+                <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                    <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 8px; flex-shrink: 0;">📋 소모 및 추가 변동 이력</label>
+                    <div class="scrollbar-hidden" style="flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); min-height: 0;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: center; table-layout: fixed; height: 100%;">
+                            <thead>
+                                <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 2; background-color: var(--surface-color);">
+                                    <th onclick="toggleErpHistorySort()" style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); width: 43%; cursor: pointer; user-select: none;">일시 <span id="erp_history_sort_btn">▼</span></th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--primary-color); width: 19%;">소모</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; border-right: 1px solid var(--border-color); color: var(--success-color); width: 19%;">추가</th>
+                                    <th style="padding: 8px 4px; font-weight: bold; color: var(--danger-color); width: 19%;">폐기</th>
+                                </tr>
+                            </thead>
+                            <tbody id="erp_history_table_body">
+                                <!-- JS 동적 렌더링 -->
+                            </tbody>
+                            <tfoot style="position: sticky; bottom: 0; z-index: 2; font-weight: bold;">
+                                <tr>
+                                    <td style="padding: 8px 4px; border-right: 1px solid var(--border-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">합계</td>
+                                    <td id="erp_total_consume" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--primary-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
+                                    <td id="erp_total_add" style="padding: 8px 4px; border-right: 1px solid var(--border-color); color: var(--success-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
+                                    <td id="erp_total_discard" style="padding: 8px 4px; color: var(--danger-color); position: sticky; bottom: 0; background-color: var(--surface-color); border-top: 2px solid var(--border-color);">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 생존 서약서 모달 -->
+    <div id="agreement-modal" style="display: none;">
+        <div class="agreement-content-wrapper">
+            <h2 class="agreement-title">생존 행동 강령 및 사용자 서약</h2>
+            <div class="agreement-sub-title">The Survivalist Code of Conduct</div>
+            <div id="agreement-scroll-box" class="agreement-body">
+                <p>본 앱(Survival Tool)은 예측할 수 없는 위기 상황과 인프라가 붕괴된 상황에서도 사용자에게 최소한의 안전한 생존을 돕기 위해 개발되었습니다. 본 앱을 이용하기 전, 다음 10가지 내용을 깊이 숙지하고 동의해 주시기 바랍니다.</p>
+                
+                <h3>1. 사유재산 존중 및 무단 약탈 금지</h3>
+                <p>재난 상황에서의 약탈은 어떠한 이유로도 정당화될 수 없는 매우 심각한 범죄이자 자멸 행위입니다. 타인의 자원을 무단으로 침해하는 행위는 결코 용서 받지 못할 행위이며, 스스로를 공동체의 위협 대상이될 뿐만 아니라 생존확률을 한 없이 낮추는 지름길입니다. 극단적인 위기 상황이라 할지라도 타인의 사유재산과 공공의 생존에 도움이 되는 자원을 탐하는 행위는 결코 용납되지 않으며, 반드시 정당한 대가와 상호간 합의를 통해서만 확보되어야 합니다.</p>
+                
+
+                <h3>2. 일상 휴대 장비의 올바른 활용</h3>
+                <p>일상 휴대 장비(EDC)는 평상시 문명 생활의 편의를 돕고 위기 상황에서 신속하고 유연한 대응을 가능하게 하는 도구입니다. 이러한 도구를 실용적인 목적으로 소지하고 대비하는 것은 건전한 생존주의자의 훌륭한 자질입니다. 다만, 정당한 작업 목적이나 적절한 상황이 아님에도 무분별하게 노출하여 타인에게 위압감을 주거나, 공포 분위기를 조성하는 일체의 행위를 자제합니다. 모든 도구는 평상시 안전하게 수납하며, 소지자의 성숙한 책임감 하에 통제되어야 합니다.</p>
+                
+
+                <h3>3. 상호 신뢰와 공동체 정신의 유지</h3>
+                <p>과거 수 많은 재난 및 전쟁 속에서 홀로 살아남은(Lone Wolf) 경우의 생존율보다, 신뢰를 바탕으로 뭉친 공동체의 생존율이 압도적으로 높았습니다. 위기 속에서도 이기주의를 경계하고, 이웃 및 동료와 협력하며, 취약계층을 보호하는 공동체 중심의 사고를 유지합니다. 남녀노소 차이를 두지 않고 각자가 서로를 위한 작은 행동이 공동체 전체의 생존에 긍정적인 영향을 미친다는 사실을 항상 기억해야합니다. 나아가 한계 상황의 이웃이 있다면 여력이 닿는 선에서 온정을 베푸는 인도적 연대 정신을 유지해야 합니다. 반면 맹목적인 이타주의는 모두의 생존율을 떨어뜨릴 뿐이며, 모든 구호 행위는 스스로의 안전망을 해치지 않는 범위 내에서 소지자의 자발적 판단에 의해서만 행해져야 합니다.</p>
+                
+
+                <h3>4. 정보 보안(OPSEC)의 철저한 준수</h3>
+                <p>자신을 특정하거나 자신의 생존 자원 보유 현황, 대피 경로, 아지트의 위치 등을 불필요하게 외부에 발설하지 않습니다. 필요 이상의 정보과시는 평시에는 질시를, 전시나 재난 시에는 범죄의 표적이 되는 지름길입니다. 본 툴(Tool)에 저장되는 개인적인 생존 데이터 역시 철저히 보안을 유지하여 관리되어야 합니다. 또한 본 툴(Tool)은 사용자의 개인정보를 수집하지 않습니다.</p>
+                
+
+                <h3>5. 자원의 합리적 관리 및 독점 방지</h3>
+                <p>사재기와 독점은 시장 경제를 마비시키고 공동체의 공멸을 초래합니다. 생존 자원은 필요한 만큼만 체계적으로 비축(Prepping)하고 합리적인 순환소비를 통해 대비상태를 유지합니다. 위기 상황에서 자원의 가치를 악용하여 폭리를 취하거나 타인의 궁박한 처지를 이용해 부당한 이득을 결코 취하지 않습니다. </p>
+                
+
+                <h3>6. 지속적인 지식 습득과 기술 전수</h3>
+                <p>가장 강력한 생존 도구는 배낭 속의 장비 뿐만 아니라 머릿속에 있는 지식 또한 최고의 생존 도구입니다. 오프라인 상황에서도 작동하는 본 툴(Tool)의 기능과 함께 사용자의 환경과 능력에 맞게 정리해둔 정보를 바탕으로, 실질적인 생존 기술을 끊임없이 연마하며, 신뢰할 수 있는 동료들에게 기술을 아낌없이 공유합니다.</p>
+                
+
+                <h3>7. 무분별한 공포 조장 및 유언비어 유포 경계</h3>
+                <p>재난 상황에서 왜곡된 정보와 미확인 루머는 물리적인 재해보다 더 빠르게 공동체를 무너뜨립니다. 출처가 불분명한 정보에 흔들리지 않으며, 검증된 팩트만을 바탕으로 상황을 논리적으로 판단하여 행동합니다. 또한 공포에 휩싸여 맹목적 행동은 본인과 주변 모두를 위험에 빠뜨립니다. 침착함을 유지하고 시야를 넓게 확장해야 합니다.</p>
+                
+
+                <h3>8. 생태계 보존과 자연과의 공존</h3>
+                <p>재난 장기화 시 자연은 인류의 유일한 보급처가 됩니다. 지속 가능한 생존을 위해 자연환경을 무분별하게 파괴하거나 오염시키지 않으며, 불가피한 사냥 및 채집 시에도 생태계의 복원력을 훼손하지 않는 범위 내에서 최소한의 자원만을 획득합니다. 또한 어쩔수 없이 발생하는 폐기물 및 오염물은 적절히 처리하여 생태계 환경에 미치는 영향을 최소화해야 합니다.</p>
+                
+
+                <h3>9. 공공질서 존중 및 무정부주의 경계</h3>
+                <p>인프라가 일시적, 장기적으로 마비되더라도, 사회 시스템과 법적 질서를 유지하려는 노력을 결코 포기하지 않습니다. 공권력과 방역·구호 당국의 정당한 지시에 협조하며, 시스템의 공백을 틈탄 그 어떠한 사적 제재나 무법 행위에 동조하지 않고 문명인으로서의 품위를 지킵니다.</p>
+                
+
+                <h3>10. 생존의 궁극적 목적과 인간성 수호</h3>
+                <p>우리가 생존하고자 하는 이유는 단순히 숨을 쉬며 연명하기 위함이 아니라, 위기를 극복하고 다시 번영하여 문명을 재건하기 위함입니다. 어떤 극한 상황에서도 도덕적 나침반을 잃지 않으며, 인간으로서의 존엄성과 양심을 수호할 것을 서약합니다.</p>
+
+            </div>
+            <div class="agreement-footer">
+                <button id="agreement-btn" class="primary" disabled onclick="confirmAgreement()">스크롤을 끝까지 내려주세요</button>
+                <button id="agreement-close-btn" class="secondary" style="display: none;" onclick="closeAgreementModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카테고리 관리 모달 -->
+    <div id="todo-cat-manage-modal" onclick="closeTodoCatManageModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.9); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10015; align-items:flex-start; justify-content:center; padding: 8vh 16px 16px 16px; box-sizing:border-box;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:95%; max-width:420px; box-sizing:border-box; display:flex; flex-direction:column; max-height:75vh; max-height:75dvh; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);">
+            <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                <span>카테고리 관리</span>
+                <button onclick="closeTodoCatManageModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
+            </h4>
+            
+            <!-- 카테고리 목록 리스트 -->
+            <div id="todo-cat-manage-list" style="flex:1; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:10px; padding-right:5px;">
+                <!-- JS로 동적 생성 -->
+            </div>
+
+            <!-- 새 카테고리 추가 -->
+            <div style="border-top:1px solid var(--border-color); padding-top:15px; margin-bottom:0;">
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="todo-cat-manage-new-name" placeholder="새 카테고리 이름 입력..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem;" onkeydown="handleTodoCatManageAddKey(event)">
+                    <button onclick="submitTodoCatManageAdd()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카테고리 삭제 확인 모달 -->
+    <div id="todo-cat-del-modal" onclick="closeTodoCatDelModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.9); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10016; align-items:flex-start; justify-content:center; padding:18vh 16px 16px 16px; box-sizing:border-box;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);">
+            <h4 style="margin-top:0; color:var(--danger-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">카테고리 삭제</h4>
+            <p style="margin-top:0; font-size:0.9rem; color:var(--text-primary); line-height:1.5; margin-bottom:20px; text-align:left;">
+                정말 '<span id="todo-del-cat-name" style="font-weight:bold; color:var(--primary-color);"></span>' 카테고리를 삭제하시겠습니까?<br>
+                이 카테고리에 포함된 모든 할 일 목록이 함께 삭제됩니다.
+            </p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeTodoCatDelModal()" class="secondary" style="margin:0; padding:8px; flex:1;">취소</button>
+                <button id="todo-cat-del-confirm-btn" class="danger" style="margin:0; padding:8px; flex:1;">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 수질정화 레시피 추가 모달 -->
+    <div id="water-recipe-add-modal" onclick="closeWaterRecipeAddModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10015; align-items:center; justify-content:center;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
+            <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">💾 정화 레시피 저장</h4>
+            <div class="form-group" style="margin-bottom:20px; text-align:left;">
+                <label>레시피 이름</label>
+                <textarea id="water_recipe_new_name" placeholder="예: 생수병 2L&#10;우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem; height:54px; resize:none; font-family:inherit; display:block;" onkeydown="handleWaterRecipeAddKey(event)"></textarea>
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="secondary" onclick="closeWaterRecipeAddModal()" style="margin:0; padding:8px 16px; width:auto;">취소</button>
+                <button onclick="submitWaterRecipeAdd()" style="margin:0; padding:8px 20px; width:auto; font-weight:bold;">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 수질정화 레시피 수정 모달 -->
+    <div id="water-recipe-edit-modal" onclick="closeWaterRecipeEditModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10016; align-items:center; justify-content:center;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
+            <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">✏️ 수정</h4>
+            <input type="hidden" id="water_recipe_edit_id">
+            
+            <div class="form-group" style="margin-bottom:12px; text-align:left;">
+                <label>레시피 이름</label>
+                <textarea id="water_recipe_edit_name" placeholder="예: 생수병 2L&#10;우리집 물통" style="margin:0; padding:8px 12px; font-size:0.9rem; height:54px; resize:none; font-family:inherit; display:block;" onkeydown="handleWaterRecipeEditKey(event)"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom:12px; text-align:left;">
+                <label>규격 입력 (cm) - 비워두면 용량 직접 입력 적용</label>
+                <div style="display:flex; gap:8px;">
+                    <input type="number" id="water_recipe_edit_w" placeholder="가로" style="margin:0; padding:8px; font-size:0.85rem; flex:1;">
+                    <input type="number" id="water_recipe_edit_l" placeholder="세로" style="margin:0; padding:8px; font-size:0.85rem; flex:1;">
+                    <input type="number" id="water_recipe_edit_h" placeholder="높이" style="margin:0; padding:8px; font-size:0.85rem; flex:1;">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:12px; text-align:left;">
+                <label>또는 물의 양 직접 입력 (L)</label>
+                <input type="number" id="water_recipe_edit_v" placeholder="예: 1.5" style="margin:0; padding:8px 12px; font-size:0.9rem;">
+            </div>
+
+            <div class="form-group" style="margin-bottom:12px; text-align:left;">
+                <label>물 상태</label>
+                <select id="water_recipe_edit_s" style="display: none; margin:0; width:100%;">
+                    <option value="1">맑은 물 (Clear)</option>
+                    <option value="2">탁한 물 (Cloudy)</option>
+                </select>
+                <div class="custom-select-trigger" id="trigger_water_recipe_edit_s" onclick="openCustomSelectModal('water_recipe_edit_s', '물 상태')" style="border-radius: 6px; box-sizing: border-box;">
+                    <span class="custom-select-val">맑은 물 (Clear)</span>
+                    <span class="custom-select-arrow">▼</span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:20px; text-align:left;">
+                <label>락스 농도 (%)</label>
+                <select id="water_recipe_edit_c" style="display: none; margin:0; width:100%;">
+                    <option value="4">4% (일반 가정용)</option>
+                    <option value="5">5% (표준 가정용)</option>
+                    <option value="5.25">5.25% (유한락스 등)</option>
+                    <option value="10">10%</option>
+                </select>
+                <div class="custom-select-trigger" id="trigger_water_recipe_edit_c" onclick="openCustomSelectModal('water_recipe_edit_c', '락스 농도')" style="border-radius: 6px; box-sizing: border-box;">
+                    <span class="custom-select-val">5.25% (유한락스 등)</span>
+                    <span class="custom-select-arrow">▼</span>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="secondary" onclick="closeWaterRecipeEditModal()" style="margin:0; padding:8px 16px; width:auto;">취소</button>
+                <button onclick="submitWaterRecipeEdit()" style="margin:0; padding:8px 20px; width:auto; font-weight:bold;">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 수질정화 레시피 삭제 모달 -->
+    <div id="water-recipe-del-modal" onclick="closeWaterRecipeDelModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10017; align-items:center; justify-content:center;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:400px; box-sizing:border-box;">
+            <h4 style="margin-top:0; color:var(--danger-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">⚠️ 레시피 삭제</h4>
+            <input type="hidden" id="water_recipe_del_id">
+            <p style="font-size:0.9rem; color:var(--text-primary); text-align:left; margin-bottom:20px; line-height:1.4;">이 정화 레시피를 정말로 삭제하시겠습니까?</p>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="secondary" onclick="closeWaterRecipeDelModal()" style="margin:0; padding:8px 16px; width:auto;">취소</button>
+                <button class="danger" onclick="submitWaterRecipeDel()" style="margin:0; padding:8px 20px; width:auto; font-weight:bold;">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모스 부호 프리셋 모달 -->
+    <div id="morse-preset-modal" onclick="closeMorsePresetModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:10015; align-items:center; justify-content:center;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:95%; max-width:420px; box-sizing:border-box; display:flex; flex-direction:column; max-height:85vh;">
+            <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                <span>모스 부호 프리셋</span>
+                <button onclick="closeMorsePresetModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
+            </h4>
+            
+            <!-- 프리셋 목록 리스트 -->
+            <div id="morse-preset-list" style="flex:1; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:10px; padding-right:5px;">
+                <!-- JS로 동적 생성 -->
+            </div>
+
+            <!-- 새 프리셋 추가 -->
+            <div style="border-top:1px solid var(--border-color); padding-top:15px;">
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="morse-preset-new-text" placeholder="새 프리셋 텍스트 (영문/숫자)..." style="flex:1; margin:0; padding:8px 12px; font-size:0.9rem; text-transform:uppercase;" onkeydown="handleMorsePresetAddKey(event)">
+                    <button onclick="addMorsePreset()" style="width:auto; margin:0; padding:0 15px; font-size:0.9rem; height:36px; display:flex; align-items:center; justify-content:center;">추가</button>
+                </div>
+            </div>
+        </div>
+    </div>
         </script>
 </body>
 
