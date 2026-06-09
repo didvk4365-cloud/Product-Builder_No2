@@ -2068,11 +2068,19 @@
         </div>
     </div>
 
-    <!-- 이력 수량 수정 자체 모달 -->
+    <!-- 이력 수량 및 타입 수정 자체 모달 -->
     <div id="erp-history-edit-modal" onclick="closeErpHistoryEditModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10007; align-items: flex-start; justify-content: center; padding: 8vh 16px 16px 16px; box-sizing: border-box;">
-        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--primary-color); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--primary-color); border-radius: 12px; max-width: 340px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
             <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary-color); font-weight: bold;">✏️ 변동 이력 수정</h4>
-            <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">수정할 이력의 새로운 수량을 입력하세요.</p>
+            <p style="margin: 0 0 15px 0; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">이력의 변동 유형과 수량을 변경할 수 있습니다.</p>
+            
+            <!-- 타입 선택 버튼 세트 -->
+            <div style="display: flex; gap: 6px; margin-bottom: 15px;">
+                <button id="erp_history_edit_type_consume" onclick="setHistoryEditType('consume')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">🥄 소모</button>
+                <button id="erp_history_edit_type_add" onclick="setHistoryEditType('add')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">➕ 추가</button>
+                <button id="erp_history_edit_type_discard" onclick="setHistoryEditType('discard')" style="flex: 1; margin: 0; padding: 6px 2px; font-size: 0.8rem; font-weight: bold; background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; outline: none; box-sizing: border-box;">🗑️ 폐기</button>
+            </div>
+
             <div class="form-group" style="margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 6px;">
                 <input type="number" id="erp_history_edit_qty_input" min="1" style="width: 120px; text-align: center; font-size: 1.2rem; font-weight: bold; padding: 8px 12px; margin: 0; box-sizing: border-box; background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; outline: none;">
                 <span id="erp_history_edit_qty_unit" style="font-size: 0.95rem; color: var(--text-secondary); font-weight: bold;">개</span>
@@ -6598,6 +6606,40 @@
                 checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
+            let currentHistoryEditType = 'consume';
+
+            function setHistoryEditType(type) {
+                currentHistoryEditType = type;
+                
+                const btnConsume = document.getElementById('erp_history_edit_type_consume');
+                const btnAdd = document.getElementById('erp_history_edit_type_add');
+                const btnDiscard = document.getElementById('erp_history_edit_type_discard');
+                
+                if (!btnConsume || !btnAdd || !btnDiscard) return;
+                
+                // 기본 비활성 스타일 초기화
+                [btnConsume, btnAdd, btnDiscard].forEach(btn => {
+                    btn.style.borderColor = 'var(--text-secondary)';
+                    btn.style.color = 'var(--text-secondary)';
+                    btn.style.background = 'transparent';
+                });
+                
+                // 활성화된 타입에 따라 다른 테마 컬러 하이라이트
+                if (type === 'consume') {
+                    btnConsume.style.borderColor = 'var(--primary-color)';
+                    btnConsume.style.color = 'var(--primary-color)';
+                    btnConsume.style.background = 'rgba(255, 152, 0, 0.08)'; // primary alpha
+                } else if (type === 'add') {
+                    btnAdd.style.borderColor = 'var(--success-color)';
+                    btnAdd.style.color = 'var(--success-color)';
+                    btnAdd.style.background = 'rgba(76, 175, 80, 0.08)'; // success alpha
+                } else if (type === 'discard') {
+                    btnDiscard.style.borderColor = 'var(--danger-color)';
+                    btnDiscard.style.color = 'var(--danger-color)';
+                    btnDiscard.style.background = 'rgba(244, 67, 54, 0.08)'; // danger alpha
+                }
+            }
+
             function openErpHistoryEditModal(itemId, logId, currentQty) {
                 const modal = document.getElementById('erp-history-edit-modal');
                 const input = document.getElementById('erp_history_edit_qty_input');
@@ -6608,9 +6650,15 @@
                 if (!item) return;
                 const unit = item.quantity.replace(/[0-9]/g, '').trim() || '개';
 
+                const log = item.history.find(log => log.id === logId);
+                if (!log) return;
+
                 if (modal && input && saveBtn) {
                     input.value = currentQty;
                     if (unitSpan) unitSpan.innerText = unit;
+                    
+                    // 기존 이력의 타입으로 상태 초기 지정
+                    setHistoryEditType(log.type || 'consume');
                     
                     saveBtn.onclick = () => {
                         const newQty = parseInt(input.value.trim());
@@ -6618,7 +6666,7 @@
                             alert("1 이상의 올바른 숫자를 입력하세요.");
                             return;
                         }
-                        executeErpHistoryEdit(itemId, logId, newQty);
+                        executeErpHistoryEdit(itemId, logId, currentHistoryEditType, newQty);
                         closeErpHistoryEditModal();
                     };
                     
@@ -6634,7 +6682,7 @@
                 checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
-            function executeErpHistoryEdit(itemId, logId, newQty) {
+            function executeErpHistoryEdit(itemId, logId, newType, newQty) {
                 const item = appData.erp.find(i => i.id === itemId);
                 if (!item) return;
 
@@ -6656,9 +6704,9 @@
 
                 // 2단계: 새로운 이력의 효과 적용
                 let newNum = rolledBackNum;
-                if (log.type === 'consume' || log.type === 'discard') {
+                if (newType === 'consume' || newType === 'discard') {
                     newNum = rolledBackNum - newQty;
-                } else if (log.type === 'add') {
+                } else if (newType === 'add') {
                     newNum = rolledBackNum + newQty;
                 }
 
@@ -6668,7 +6716,8 @@
                     return;
                 }
 
-                // 3단계: 이력 수량 및 전체 물품 수량 반영
+                // 3단계: 이력 타입, 수량 및 전체 물품 수량 반영
+                log.type = newType;
                 log.quantity = newQty;
                 item.quantity = newNum + unit;
 
