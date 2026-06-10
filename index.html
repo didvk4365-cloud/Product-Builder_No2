@@ -2899,15 +2899,16 @@
                         </div>
                     </div>
 
-                    <div style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+                    <div id="wiki_filter_wrapper" style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px; display:flex; gap:10px; align-items:center;">
                         <select id="wiki_filter_select" onchange="renderWikiList()"
                             style="display: none;">
                             <!-- 동적 생성 -->
                         </select>
-                        <div class="custom-select-trigger" id="trigger_wiki_filter_select" onclick="openCustomSelectModal('wiki_filter_select', '분류 필터')">
+                        <div class="custom-select-trigger" id="trigger_wiki_filter_select" onclick="openCustomSelectModal('wiki_filter_select', '분류 필터')" style="flex:1; min-width:0; margin:0;">
                             <span class="custom-select-val">전체보기</span>
                             <span class="custom-select-arrow">▼</span>
                         </div>
+                        <button id="wiki_sort_btn" onclick="window.wikiSortAsc = window.wikiSortAsc === true ? false : true; this.textContent = window.wikiSortAsc ? '▲' : '▼'; renderWikiList();" style="margin:0; width:42px; height:42px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.9rem; font-weight:bold; box-sizing:border-box;">▼</button>
                     </div>
 
                     <div id="wiki_list" style="display:flex; flex-direction:column; gap:10px;">
@@ -6896,11 +6897,14 @@
 
             function toggleWikiCatManager() {
                 const mgr = document.getElementById('wiki_cat_manager');
+                const filterWrapper = document.getElementById('wiki_filter_wrapper');
                 if (mgr.style.display === 'none') {
                     mgr.style.display = 'block';
+                    if (filterWrapper) filterWrapper.style.display = 'none';
                     renderWikiCatManager();
                 } else {
                     mgr.style.display = 'none';
+                    if (filterWrapper) filterWrapper.style.display = 'flex';
                 }
             }
 
@@ -7109,7 +7113,11 @@
                     return;
                 }
 
-                filtered.sort((a, b) => b.date - a.date);
+                if (window.wikiSortAsc) {
+                    filtered.sort((a, b) => a.date - b.date);
+                } else {
+                    filtered.sort((a, b) => b.date - a.date);
+                }
 
                 filtered.forEach(item => {
                     let typeBadge = item.type === 'default' ? '<span style="color:var(--primary-color);">[기본]</span>' : '<span style="color:var(--text-secondary);">[내 메뉴얼]</span>';
@@ -8365,6 +8373,12 @@
                                 document.getElementById('wiki_list').style.display = 'flex';
                                 document.getElementById('wiki_reader').style.display = 'none';
                                 document.getElementById('wiki_editor').style.display = 'none';
+                                if (document.getElementById('wiki_filter_wrapper')) {
+                                    document.getElementById('wiki_filter_wrapper').style.display = 'flex';
+                                }
+                                if (document.getElementById('wiki_cat_manager')) {
+                                    document.getElementById('wiki_cat_manager').style.display = 'none';
+                                }
                                 renderWikiList();
                             }
                         } else if (hash.startsWith('#wiki-reader-')) {
@@ -8382,6 +8396,12 @@
                             document.getElementById('wiki_list').style.display = 'none';
                             document.getElementById('wiki_reader').style.display = 'block';
                             document.getElementById('wiki_editor').style.display = 'none';
+                            if (document.getElementById('wiki_filter_wrapper')) {
+                                document.getElementById('wiki_filter_wrapper').style.display = 'none';
+                            }
+                            if (document.getElementById('wiki_cat_manager')) {
+                                document.getElementById('wiki_cat_manager').style.display = 'none';
+                            }
                             
                             const item = appData.wiki.find(i => i.id === id);
                             if (item) {
@@ -8403,6 +8423,12 @@
                             document.getElementById('wiki_list').style.display = 'none';
                             document.getElementById('wiki_reader').style.display = 'none';
                             document.getElementById('wiki_editor').style.display = 'block';
+                            if (document.getElementById('wiki_filter_wrapper')) {
+                                document.getElementById('wiki_filter_wrapper').style.display = 'none';
+                            }
+                            if (document.getElementById('wiki_cat_manager')) {
+                                document.getElementById('wiki_cat_manager').style.display = 'none';
+                            }
                             
                             document.getElementById('wiki_editor_title').innerText = '새 매뉴얼 작성';
                             document.getElementById('wiki_edit_id').value = '';
@@ -8426,6 +8452,12 @@
                             document.getElementById('wiki_list').style.display = 'none';
                             document.getElementById('wiki_reader').style.display = 'none';
                             document.getElementById('wiki_editor').style.display = 'block';
+                            if (document.getElementById('wiki_filter_wrapper')) {
+                                document.getElementById('wiki_filter_wrapper').style.display = 'none';
+                            }
+                            if (document.getElementById('wiki_cat_manager')) {
+                                document.getElementById('wiki_cat_manager').style.display = 'none';
+                            }
                             
                             const item = appData.wiki.find(i => i.id === id);
                             if (item) {
