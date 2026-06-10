@@ -2899,16 +2899,16 @@
                         </div>
                     </div>
 
-                    <div id="wiki_filter_wrapper" style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px; display:flex; gap:10px; align-items:center;">
+                    <div id="wiki_filter_wrapper" style="margin-bottom:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px; display:flex; align-items:center;">
                         <select id="wiki_filter_select" onchange="renderWikiList()"
                             style="display: none;">
                             <!-- 동적 생성 -->
                         </select>
-                        <div class="custom-select-trigger" id="trigger_wiki_filter_select" onclick="openCustomSelectModal('wiki_filter_select', '분류 필터')" style="flex:1; min-width:0; margin:0;">
+                        <div class="custom-select-trigger" id="trigger_wiki_filter_select" onclick="openCustomSelectModal('wiki_filter_select', '분류 필터')" style="flex:1; min-width:0; margin:0; height:32px !important; min-height:32px !important; padding:0 8px !important; font-size:0.8rem !important; border-radius:6px !important;">
                             <span class="custom-select-val">전체보기</span>
-                            <span class="custom-select-arrow">▼</span>
+                            <span class="custom-select-arrow" style="height:12px !important; margin-left:6px !important; padding-left:6px !important;">▼</span>
                         </div>
-                        <button id="wiki_sort_btn" onclick="window.wikiSortAsc = window.wikiSortAsc === true ? false : true; this.textContent = window.wikiSortAsc ? '▲' : '▼'; renderWikiList();" style="margin:0; width:42px; min-height:42px; padding:12px 0; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1rem; font-weight:bold; box-sizing:border-box; background-color:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); border-radius:8px;">▼</button>
+                        <button id="wiki_sort_btn" onclick="window.wikiSortAsc = window.wikiSortAsc === true ? false : true; this.textContent = window.wikiSortAsc ? '▲' : '▼'; renderWikiList();" style="height:32px !important; width:32px !important; min-width:32px !important; padding:0 !important; margin:0 !important; margin-left:8px !important; font-size:0.75rem !important; font-weight:bold !important; border:1px solid var(--border-color) !important; border-radius:6px !important; background-color:var(--bg-color) !important; color:var(--text-primary) !important; box-sizing:border-box !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; flex:none !important;">▼</button>
                     </div>
 
                     <div id="wiki_list" style="display:flex; flex-direction:column; gap:10px;">
