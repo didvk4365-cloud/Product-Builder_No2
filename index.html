@@ -4070,8 +4070,11 @@
                 }
             }
 
+            let isTorchChanging = false;
             async function setTorchState(on) {
                 if (!activeVideoTrack) return;
+                if (isTorchChanging) return;
+                isTorchChanging = true;
                 try {
                     const caps = activeVideoTrack.getCapabilities ? activeVideoTrack.getCapabilities() : {};
                     await activeVideoTrack.applyConstraints({
@@ -4079,6 +4082,8 @@
                     });
                 } catch (err) {
                     console.warn("Torch applyConstraints failed:", err);
+                } finally {
+                    isTorchChanging = false;
                 }
             }
 
@@ -4254,7 +4259,7 @@
                                 overlay.classList.remove('flash');
                             }
                         }
-                        signalTimeout = setTimeout(runStrobe, 50);
+                        signalTimeout = setTimeout(runStrobe, lightType === 'flash' ? 150 : 50);
                     }
                     runStrobe();
                 }
