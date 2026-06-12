@@ -3685,10 +3685,10 @@
                     saveInputs();
                     renderWaterRecipes();
                     closeWaterRecipeEditModal();
-                    showToast("정화 레시피가 수정되었습니다.");
+                    showToast("레시피가 수정되었습니다.");
                 } catch (err) {
                     console.error("submitWaterRecipeEdit error:", err);
-                    alert("레시피를 수정하는 도중 오류가 발생했습니다: " + err.message);
+                    alert("오류가 발생했습니다: " + err.message);
                 }
             }
 
