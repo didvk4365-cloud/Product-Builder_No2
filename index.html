@@ -3372,8 +3372,9 @@
                         if (isNaN(val)) {
                             el.value = spec.defaultVal;
                         } else {
-                            if (val < spec.min) el.value = spec.min;
-                            if (val > spec.max) el.value = spec.max;
+                            if (val < spec.min) val = spec.min;
+                            if (val > spec.max) val = spec.max;
+                            el.value = val; // 앞자리 불필요한 0(예: 020) 제거를 위해 최종 정수값으로 대입
                         }
                     }
                 });
