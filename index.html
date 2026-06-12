@@ -2446,19 +2446,19 @@
                 <div class="flex-row">
                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                         <label>시</label>
-                        <input type="number" id="a_h" value="0" min="0" oninput="saveInputs()">
+                        <input type="number" id="a_h" value="0" min="0" max="99" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
                     </div>
                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                         <label>분</label>
-                        <input type="number" id="a_m" value="0" min="0" oninput="saveInputs()">
+                        <input type="number" id="a_m" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
                     </div>
                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                         <label>초</label>
-                        <input type="number" id="a_s" value="0" min="0" oninput="saveInputs()">
+                        <input type="number" id="a_s" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
                     </div>
                     <div class="form-group" style="flex: 1.5; margin-bottom: 0;">
                         <label style="white-space: nowrap;">알람길이(초)</label>
-                        <input type="number" id="t_duration" value="2" min="1" oninput="saveInputs()">
+                        <input type="number" id="t_duration" value="2" min="1" max="999" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
                     </div>
                 </div>
 
@@ -2502,19 +2502,19 @@
                     <div class="flex-row">
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
                             <label>시</label>
-                            <input type="number" id="t_h" value="0" min="0" oninput="saveInputs()">
+                            <input type="number" id="t_h" value="0" min="0" max="99" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
                         </div>
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
                             <label>분</label>
-                            <input type="number" id="t_m" value="0" min="0" oninput="saveInputs()">
+                            <input type="number" id="t_m" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
                         </div>
                         <div class="form-group" style="flex: 1; margin-bottom: 0;">
                             <label>초</label>
-                            <input type="number" id="t_s" value="0" min="0" oninput="saveInputs()">
+                            <input type="number" id="t_s" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
                         </div>
                         <div class="form-group" style="flex: 1.5; margin-bottom: 0;">
                             <label style="white-space: nowrap;">알람길이(초)</label>
-                            <input type="number" id="ri_duration" value="2" min="1" oninput="saveInputs()">
+                            <input type="number" id="ri_duration" value="2" min="1" max="999" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
                         </div>
                     </div>
                 </div>
@@ -3352,7 +3352,35 @@
                 }
             }
 
+            function validateAndFixTimerInputs() {
+                const limitSpecs = [
+                    { id: 'a_h', min: 0, max: 99, defaultVal: 0 },
+                    { id: 'a_m', min: 0, max: 59, defaultVal: 0 },
+                    { id: 'a_s', min: 0, max: 59, defaultVal: 0 },
+                    { id: 't_h', min: 0, max: 99, defaultVal: 0 },
+                    { id: 't_m', min: 0, max: 59, defaultVal: 0 },
+                    { id: 't_s', min: 0, max: 59, defaultVal: 0 },
+                    { id: 't_duration', min: 1, max: 999, defaultVal: 2 },
+                    { id: 'ri_duration', min: 1, max: 999, defaultVal: 2 }
+                ];
+
+                limitSpecs.forEach(spec => {
+                    const el = document.getElementById(spec.id);
+                    if (el) {
+                        el.value = el.value.replace(/[^0-9]/g, '');
+                        let val = parseInt(el.value);
+                        if (isNaN(val)) {
+                            el.value = spec.defaultVal;
+                        } else {
+                            if (val < spec.min) el.value = spec.min;
+                            if (val > spec.max) el.value = spec.max;
+                        }
+                    }
+                });
+            }
+
             function saveInputs() {
+                validateAndFixTimerInputs();
                 const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 
                 if (!appData || typeof appData !== 'object' || Array.isArray(appData)) {
