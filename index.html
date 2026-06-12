@@ -4245,7 +4245,7 @@
                         }
                         isFlashOn = !isFlashOn;
                         if (lightType === 'flash') {
-                            await setTorchState(isFlashOn);
+                            setTorchState(isFlashOn);
                             overlay.classList.remove('flash');
                         } else {
                             if (isFlashOn) {
