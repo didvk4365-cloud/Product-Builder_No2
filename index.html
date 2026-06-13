@@ -198,12 +198,11 @@
         }
 
         #signal-alignment-popup {
-            right: 16px;
-        }
-        @media (min-width: 800px) {
-            #signal-alignment-popup {
-                right: calc(50% - 400px + 16px) !important;
-            }
+            top: 75px !important;
+            left: 50% !important;
+            right: auto !important;
+            bottom: auto !important;
+            transform: translateX(-50%) !important;
         }
 
         .tab-content {
@@ -2190,8 +2189,8 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0;">모스부호 (Morse Code)</h3>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:4px; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1;">🎯</button>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:0; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1; display:inline-flex;">🎯</button>
                         <label class="switch-container" style="margin: 0;">
                             <span id="label_morse_flash">📱 플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
@@ -2232,8 +2231,8 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0;">긴급 스트로보 (Strobe)</h3>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:4px; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1;">🎯</button>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:0; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1; display:inline-flex;">🎯</button>
                         <label class="switch-container" style="margin: 0;">
                             <span id="label_strobe_flash">📱 플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
@@ -2252,8 +2251,8 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0;">비콘 모드 (Beacon)</h3>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:4px; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1;">🎯</button>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:0; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1; display:inline-flex;">🎯</button>
                         <label class="switch-container" style="margin: 0;">
                             <span id="label_beacon_flash">📱 플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
@@ -9234,7 +9233,7 @@
         </div>
     </div>
     <!-- 광학 신호 조준경 플로팅 팝업 -->
-    <div id="signal-alignment-popup" style="display:none; position:fixed; bottom:85px; right:16px; width:160px; height:240px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20005; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
+    <div id="signal-alignment-popup" style="display:none; position:fixed; top:75px; left:50%; transform:translateX(-50%); width:160px; height:240px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20005; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
         <!-- 상단 헤더 겸 닫기 버튼 -->
         <div style="position:absolute; top:6px; right:6px; z-index:20007;">
             <button onclick="closeAlignmentModal()" style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:50%; width:24px; height:24px; padding:0; display:flex; align-items:center; justify-content:center; font-size:0.85rem; cursor:pointer; font-weight:bold; margin:0; line-height:1;">×</button>
