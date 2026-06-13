@@ -4296,9 +4296,9 @@
                 popup.style.display = 'flex';
 
                 try {
-                    // 후면 카메라 활성화
+                    // 후면 카메라 우선 활성화 (PC 등 전면만 있는 경우 전면 우회)
                     alignmentStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: 'environment' }
+                        video: { facingMode: { ideal: 'environment' } }
                     });
                     video.srcObject = alignmentStream;
                 } catch (err) {
@@ -4384,7 +4384,7 @@
                             📏 예상 거리: <strong style="color:var(--danger-color); font-size:1.15rem;">약 ${distance.toFixed(1)}m</strong> (D-${(distance/1000).toFixed(2)}km)
                         </div>
                         <div style="font-size:0.82rem; color:var(--text-secondary);">
-                            🚶‍♂️ 도보: <strong>약 ${walkingMinutes}분</strong> (기동 가능 상태 기준)
+                            🚶‍♂️ 도보: <strong>약 ${walkingMinutes}분</strong> (속도 4km/h 기준)
                         </div>
                     `;
 
