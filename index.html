@@ -2071,16 +2071,7 @@
         <div class="splash-hint">터치하여 건너뛰기</div>
     </div>
 
-    <!-- 스트로보 전체 화면 오버레이 -->
-    <div id="strobe_overlay" class="strobe-overlay" onclick="stopSignal()">
-        <div id="strobe_text"
-            style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;">
-        </div>
-        <div
-            style="position:absolute; top:60%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;">
-            화면을 터치하면 꺼집니다.
-        </div>
-    </div>
+
 
     <header>
         <div class="header-inner">
@@ -9233,7 +9224,7 @@
         </div>
     </div>
     <!-- 광학 신호 조준경 플로팅 팝업 -->
-    <div id="signal-alignment-popup" style="display:none; position:fixed; top:75px; left:50%; transform:translateX(-50%); width:160px; height:240px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20005; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
+    <div id="signal-alignment-popup" style="display:none; position:fixed; top:75px; left:50%; transform:translateX(-50%); width:220px; height:300px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20005; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
         <!-- 상단 헤더 겸 닫기 버튼 -->
         <div style="position:absolute; top:6px; right:6px; z-index:20007;">
             <button onclick="closeAlignmentModal()" style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:50%; width:24px; height:24px; padding:0; display:flex; align-items:center; justify-content:center; font-size:0.85rem; cursor:pointer; font-weight:bold; margin:0; line-height:1;">×</button>
@@ -9251,12 +9242,23 @@
 
             <!-- 동심원 2개 조준선 가이드 (중앙 배치) -->
             <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; display:flex; align-items:center; justify-content:center; z-index:20008;">
-                <!-- 바깥 원 -->
+                <!-- 바깥 원 (36px 고정) -->
                 <div style="width:36px; height:36px; border:2px solid #00FF00; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 6px rgba(0,255,0,0.5); box-sizing:border-box;">
-                    <!-- 안쪽 원 -->
-                    <div style="width:12px; height:12px; border:2px solid #00FF00; border-radius:50%; box-sizing:border-box;"></div>
+                    <!-- 안쪽 원 (24px로 확대하여 간격을 좁힘) -->
+                    <div style="width:24px; height:24px; border:2px solid #00FF00; border-radius:50%; box-sizing:border-box;"></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 스트로보 전체 화면 오버레이 (최상위 배치로 화면 전체 블랙아웃 보장) -->
+    <div id="strobe_overlay" class="strobe-overlay" onclick="stopSignal()" style="z-index: 20010;">
+        <div id="strobe_text"
+            style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;">
+        </div>
+        <div
+            style="position:absolute; top:60%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;">
+            화면을 터치하면 꺼집니다.
         </div>
     </div>
 </body>
