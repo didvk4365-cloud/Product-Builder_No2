@@ -2178,6 +2178,15 @@
 
         <!-- 2. 신호 및 통신 -->
         <div id="tab-signal" class="tab-content">
+            <!-- 신호 지향성 조준경 유틸리티 -->
+            <div class="card" style="margin-bottom: 15px; padding: 15px; display: flex; align-items: center; justify-content: space-between; background: rgba(255, 152, 0, 0.05); border: 1px dashed var(--primary-color);">
+                <div style="display:flex; flex-direction:column; gap:2px; text-align:left;">
+                    <span style="font-weight:bold; font-size:0.95rem; color:var(--primary-color);">🎯 신호 지향성 조준경</span>
+                    <span style="font-size:0.75rem; color:var(--text-secondary);">원거리 신호 송출 시 목표지를 정확히 조준합니다.</span>
+                </div>
+                <button onclick="openAlignmentModal()" style="margin:0; width:auto; padding:8px 16px; font-weight:bold; font-size:0.85rem; display:flex; align-items:center; gap:6px;">🎯 조준경 열기</button>
+            </div>
+
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0;">모스부호 (Morse Code)</h3>
@@ -2259,6 +2268,32 @@
                 <button onclick="toggleBeacon()" id="btn_beacon">📡 Beacon Start</button>
                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 위치 표시를 위해 일정 간격으로 강력한 섬광을
                     내보냅니다.</p>
+            </div>
+
+            <!-- 음향 거리 측정기 카드 -->
+            <div class="card" style="margin-top: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0;">⚡ 음향 거리 측정기 (Range Finder)</h3>
+                </div>
+                <p style="font-size:0.78rem; color:var(--text-secondary); margin-top:0; margin-bottom:12px; text-align:left; line-height:1.4;">
+                    번쩍임(빛)을 본 순간과 폭음(소리)이 들린 순간의 시간차를 이용해 위협 요소나 조난 위치까지의 거리를 계산합니다. (온도와 습도를 반영하여 계산됩니다.)
+                </p>
+                <div class="flex-row" style="margin-bottom:12px; gap:10px;">
+                    <div class="form-group" style="flex:1; margin-bottom:0;">
+                        <label>기온 (°C)</label>
+                        <input type="number" id="rf_temp" value="20" style="margin:0; text-align:center;">
+                    </div>
+                    <div class="form-group" style="flex:1; margin-bottom:0;">
+                        <label>상대습도 (%)</label>
+                        <input type="number" id="rf_humidity" value="50" style="margin:0; text-align:center;">
+                    </div>
+                </div>
+                <div class="flex-row" style="margin-bottom:12px;">
+                    <button id="btn_rf_trigger" onclick="handleRangeFinderClick()" class="danger" style="margin:0; width:100%; height:44px; font-weight:bold; font-size:0.95rem;">⚡ 번쩍임 감지 (측정 시작)</button>
+                </div>
+                <div id="rf_result_box" class="result-box" style="display:none; font-size:0.95rem; line-height:1.5; padding:12px; text-align:left; border-radius:8px;">
+                    <!-- 결과 영역 -->
+                </div>
             </div>
         </div>
 
@@ -4248,6 +4283,123 @@
                     signalTimeout = setTimeout(runSeq, s.dur);
                 }
                 runSeq();
+            }
+
+            // === 광학 지향성 조준경 로직 ===
+            let alignmentStream = null;
+
+            async function openAlignmentModal() {
+                const modal = document.getElementById('signal-alignment-modal');
+                const video = document.getElementById('alignment_video');
+                if (!modal || !video) return;
+
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                try {
+                    // 후면 카메라 활성화
+                    alignmentStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' }
+                    });
+                    video.srcObject = alignmentStream;
+                } catch (err) {
+                    console.error("Failed to open alignment camera:", err);
+                    showToast("⚠️ 카메라 조준경 활성화 실패: 권한 승인이 필요합니다.");
+                    closeAlignmentModal();
+                }
+            }
+
+            function closeAlignmentModal() {
+                const modal = document.getElementById('signal-alignment-modal');
+                const video = document.getElementById('alignment_video');
+                if (modal) modal.style.display = 'none';
+                
+                checkAndRestoreBodyScroll();
+
+                if (video) video.srcObject = null;
+                if (alignmentStream) {
+                    alignmentStream.getTracks().forEach(track => track.stop());
+                    alignmentStream = null;
+                }
+            }
+
+            // === 음향 거리 측정기 (Range Finder) 로직 ===
+            let rfStartTime = 0;
+            let rfState = 'ready'; // 'ready', 'measuring'
+
+            function calculateSpeedOfSound(temp, humidity) {
+                // 1. 포화수증기압 e_s (hPa) 계산 (Magnus-Tetens 공식)
+                const e_s = 6.112 * Math.exp((17.67 * temp) / (temp + 243.5));
+                // 2. 실제 수증기압 e (hPa) 계산
+                const e = e_s * (humidity / 100);
+                // 3. 수증기 혼합비 w 계산 (대기압은 표준대기압 1013.25 hPa 기준)
+                const w = 0.622 * (e / (1013.25 - e));
+                // 4. 건조 기온 및 습도 혼합비를 대입한 보정 음속 계산 (m/s)
+                const soundSpeed = (331.3 + 0.606 * temp) * Math.sqrt(1 + 0.511 * w);
+                return soundSpeed;
+            }
+
+            function handleRangeFinderClick() {
+                const btn = document.getElementById('btn_rf_trigger');
+                const resultBox = document.getElementById('rf_result_box');
+                const tempEl = document.getElementById('rf_temp');
+                const humEl = document.getElementById('rf_humidity');
+                
+                if (!btn || !resultBox || !tempEl || !humEl) return;
+
+                let temp = parseFloat(tempEl.value);
+                if (isNaN(temp)) temp = 20;
+                let humidity = parseFloat(humEl.value);
+                if (isNaN(humidity)) humidity = 50;
+
+                // 극단값 방지 바운딩
+                if (temp < -50) temp = -50;
+                if (temp > 60) temp = 60;
+                if (humidity < 0) humidity = 0;
+                if (humidity > 100) humidity = 100;
+                
+                tempEl.value = temp;
+                humEl.value = humidity;
+
+                if (rfState === 'ready') {
+                    rfStartTime = performance.now();
+                    rfState = 'measuring';
+                    btn.innerText = '🔊 폭음 감지 (측정 완료)';
+                    btn.classList.remove('danger');
+                    btn.style.backgroundColor = 'var(--primary-color)';
+                    btn.style.color = '#000';
+                    resultBox.style.display = 'none';
+                } else if (rfState === 'measuring') {
+                    const rfEndTime = performance.now();
+                    const duration = (rfEndTime - rfStartTime) / 1000;
+
+                    const speed = calculateSpeedOfSound(temp, humidity);
+                    const distance = duration * speed;
+
+                    // 도보 피난 속도 역산 (분당 66.7m 이동)
+                    const walkingMinutes = Math.round(distance / 66.7);
+
+                    let resultHtml = `
+                        <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;">📍 계측 결과</div>
+                        <div style="margin-bottom:4px;">⏱️ 시간 차이: <strong style="color:var(--text-primary);">${duration.toFixed(3)}초</strong></div>
+                        <div style="margin-bottom:4px;">💨 보정 음속: <strong style="color:var(--text-primary);">${speed.toFixed(1)} m/s</strong> (기온 ${temp}°C, 습도 ${humidity}%)</div>
+                        <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
+                            📏 위협 거리: <strong style="color:var(--danger-color); font-size:1.15rem;">약 ${distance.toFixed(1)}m</strong> (D-${(distance/1000).toFixed(2)}km)
+                        </div>
+                        <div style="font-size:0.82rem; color:var(--text-secondary);">
+                            🚶‍♂️ 도보 대피 예상 시간: <strong>약 ${walkingMinutes}분</strong> (기동 가능 상태 기준)
+                        </div>
+                    `;
+
+                    resultBox.innerHTML = resultHtml;
+                    resultBox.style.display = 'block';
+
+                    rfState = 'ready';
+                    btn.innerText = '⚡ 번쩍임 감지 (측정 시작)';
+                    btn.classList.add('danger');
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
+                }
             }
 
             // Strobe Logic
@@ -9005,6 +9157,31 @@
             <div style="display:flex; gap:10px;">
                 <button onclick="submitErpZeroQtyKeep()" class="secondary" style="margin:0; padding:8px; flex:1;">아니오 (0개로 유지)</button>
                 <button onclick="submitErpZeroQtyDelete()" class="danger" style="margin:0; padding:8px; flex:1;">예 (삭제)</button>
+            </div>
+    <!-- 광학 신호 조준경 모달 -->
+    <div id="signal-alignment-modal" onclick="closeAlignmentModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0, 0, 0, 0.85); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); z-index:20005; align-items:center; justify-content:center; padding:16px; box-sizing:border-box;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; width:100%; max-width:500px; height:80vh; max-height:600px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+            <div style="padding:15px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                <h4 style="margin:0; color:var(--primary-color); font-size:1.05rem;">🎯 신호 지향성 조준경</h4>
+                <button onclick="closeAlignmentModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.3rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
+            </div>
+            
+            <div style="flex:1; position:relative; background:#000; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                <!-- 카메라 비디오 스트림 -->
+                <video id="alignment_video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
+                
+                <!-- 동심원 2개 조준선 가이드 -->
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; display:flex; align-items:center; justify-content:center;">
+                    <!-- 바깥 원 -->
+                    <div style="width:40px; height:40px; border:2px solid #00FF00; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 8px rgba(0,255,0,0.5); box-sizing:border-box;">
+                        <!-- 안쪽 원 -->
+                        <div style="width:14px; height:14px; border:2px solid #00FF00; border-radius:50%; box-sizing:border-box;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding:12px; background:var(--bg-color); text-align:center; font-size:0.75rem; color:var(--text-secondary); border-top:1px solid var(--border-color);">
+                카메라 중앙의 녹색 조준원에 대상(구조대/목표지)을 맞추어 신호를 송출하세요.
             </div>
         </div>
     </div>
