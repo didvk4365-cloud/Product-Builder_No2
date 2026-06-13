@@ -197,6 +197,15 @@
             box-sizing: border-box;
         }
 
+        #signal-alignment-popup {
+            right: 16px;
+        }
+        @media (min-width: 800px) {
+            #signal-alignment-popup {
+                right: calc(50% - 400px + 16px) !important;
+            }
+        }
+
         .tab-content {
             display: none;
         }
