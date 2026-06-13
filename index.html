@@ -2178,26 +2178,20 @@
 
         <!-- 2. 신호 및 통신 -->
         <div id="tab-signal" class="tab-content">
-            <!-- 신호 지향성 조준경 유틸리티 -->
-            <div class="card" style="margin-bottom: 15px; padding: 15px; display: flex; align-items: center; justify-content: space-between; background: rgba(255, 152, 0, 0.05); border: 1px dashed var(--primary-color);">
-                <div style="display:flex; flex-direction:column; gap:2px; text-align:left;">
-                    <span style="font-weight:bold; font-size:0.95rem; color:var(--primary-color);">🎯 신호 지향성 조준경</span>
-                    <span style="font-size:0.75rem; color:var(--text-secondary);">원거리 신호 송출 시 목표지를 정확히 조준합니다.</span>
-                </div>
-                <button onclick="openAlignmentModal()" style="margin:0; width:auto; padding:8px 16px; font-weight:bold; font-size:0.85rem; display:flex; align-items:center; gap:6px;">🎯 조준경 열기</button>
-            </div>
-
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0;">모스부호 (Morse Code)</h3>
-                    <label class="switch-container" style="margin: 0;">
-                        <span id="label_morse_flash">📱 플래쉬 off</span>
-                        <span class="toggle-switch-wrapper">
-                            <input type="checkbox" id="s_morse_flash_toggle"
-                                onchange="updateToggleLabels(); saveInputs()">
-                            <span class="switch-slider"></span>
-                        </span>
-                    </label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:4px; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1;">🎯</button>
+                        <label class="switch-container" style="margin: 0;">
+                            <span id="label_morse_flash">📱 플래쉬 off</span>
+                            <span class="toggle-switch-wrapper">
+                                <input type="checkbox" id="s_morse_flash_toggle"
+                                    onchange="updateToggleLabels(); saveInputs()">
+                                <span class="switch-slider"></span>
+                            </span>
+                        </label>
+                    </div>
                 </div>
                 <div class="form-group">
                     <div
@@ -2229,14 +2223,17 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0;">긴급 스트로보 (Strobe)</h3>
-                    <label class="switch-container" style="margin: 0;">
-                        <span id="label_strobe_flash">📱 플래쉬 off</span>
-                        <span class="toggle-switch-wrapper">
-                            <input type="checkbox" id="s_strobe_flash_toggle"
-                                onchange="updateToggleLabels(); saveInputs()">
-                            <span class="switch-slider"></span>
-                        </span>
-                    </label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:4px; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1;">🎯</button>
+                        <label class="switch-container" style="margin: 0;">
+                            <span id="label_strobe_flash">📱 플래쉬 off</span>
+                            <span class="toggle-switch-wrapper">
+                                <input type="checkbox" id="s_strobe_flash_toggle"
+                                    onchange="updateToggleLabels(); saveInputs()">
+                                <span class="switch-slider"></span>
+                            </span>
+                        </label>
+                    </div>
                 </div>
                 <button class="danger" onclick="toggleStrobe()" id="btn_strobe">🚨 SOS 스트로보 시작</button>
                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 경고: 광과민성 발작을 유발할 수 있습니다.
@@ -2246,14 +2243,17 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0;">비콘 모드 (Beacon)</h3>
-                    <label class="switch-container" style="margin: 0;">
-                        <span id="label_beacon_flash">📱 플래쉬 off</span>
-                        <span class="toggle-switch-wrapper">
-                            <input type="checkbox" id="s_beacon_flash_toggle"
-                                onchange="updateToggleLabels(); saveInputs()">
-                            <span class="switch-slider"></span>
-                        </span>
-                    </label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:4px; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1;">🎯</button>
+                        <label class="switch-container" style="margin: 0;">
+                            <span id="label_beacon_flash">📱 플래쉬 off</span>
+                            <span class="toggle-switch-wrapper">
+                                <input type="checkbox" id="s_beacon_flash_toggle"
+                                    onchange="updateToggleLabels(); saveInputs()">
+                                <span class="switch-slider"></span>
+                            </span>
+                        </label>
+                    </div>
                 </div>
                 <div class="flex-row">
                     <div class="form-group">
@@ -2266,7 +2266,7 @@
                     </div>
                 </div>
                 <button onclick="toggleBeacon()" id="btn_beacon">📡 Beacon Start</button>
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 위치 표시를 위해 일정 간격으로 강력한 섬광을
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px;">* 위치 표시 to 위해 일정 간격으로 강력한 섬광을
                     내보냅니다.</p>
             </div>
 
@@ -4289,12 +4289,11 @@
             let alignmentStream = null;
 
             async function openAlignmentModal() {
-                const modal = document.getElementById('signal-alignment-modal');
+                const popup = document.getElementById('signal-alignment-popup');
                 const video = document.getElementById('alignment_video');
-                if (!modal || !video) return;
+                if (!popup || !video) return;
 
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+                popup.style.display = 'flex';
 
                 try {
                     // 후면 카메라 활성화
@@ -4310,11 +4309,9 @@
             }
 
             function closeAlignmentModal() {
-                const modal = document.getElementById('signal-alignment-modal');
+                const popup = document.getElementById('signal-alignment-popup');
                 const video = document.getElementById('alignment_video');
-                if (modal) modal.style.display = 'none';
-                
-                checkAndRestoreBodyScroll();
+                if (popup) popup.style.display = 'none';
 
                 if (video) video.srcObject = null;
                 if (alignmentStream) {
@@ -4381,13 +4378,13 @@
 
                     let resultHtml = `
                         <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;">📍 계측 결과</div>
-                        <div style="margin-bottom:4px;">⏱️ 시간 차이: <strong style="color:var(--text-primary);">${duration.toFixed(3)}초</strong></div>
+                        <div style="margin-bottom:4px;">⏱️ 시간차: <strong style="color:var(--text-primary);">${duration.toFixed(3)}초</strong></div>
                         <div style="margin-bottom:4px;">💨 보정 음속: <strong style="color:var(--text-primary);">${speed.toFixed(1)} m/s</strong> (기온 ${temp}°C, 습도 ${humidity}%)</div>
                         <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
-                            📏 위협 거리: <strong style="color:var(--danger-color); font-size:1.15rem;">약 ${distance.toFixed(1)}m</strong> (D-${(distance/1000).toFixed(2)}km)
+                            📏 예상 거리: <strong style="color:var(--danger-color); font-size:1.15rem;">약 ${distance.toFixed(1)}m</strong> (D-${(distance/1000).toFixed(2)}km)
                         </div>
                         <div style="font-size:0.82rem; color:var(--text-secondary);">
-                            🚶‍♂️ 도보 대피 예상 시간: <strong>약 ${walkingMinutes}분</strong> (기동 가능 상태 기준)
+                            🚶‍♂️ 도보: <strong>약 ${walkingMinutes}분</strong> (기동 가능 상태 기준)
                         </div>
                     `;
 
@@ -9158,30 +9155,24 @@
                 <button onclick="submitErpZeroQtyKeep()" class="secondary" style="margin:0; padding:8px; flex:1;">아니오 (0개로 유지)</button>
                 <button onclick="submitErpZeroQtyDelete()" class="danger" style="margin:0; padding:8px; flex:1;">예 (삭제)</button>
             </div>
-    <!-- 광학 신호 조준경 모달 -->
-    <div id="signal-alignment-modal" onclick="closeAlignmentModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0, 0, 0, 0.85); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); z-index:20005; align-items:center; justify-content:center; padding:16px; box-sizing:border-box;">
-        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; width:100%; max-width:500px; height:80vh; max-height:600px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.5);">
-            <div style="padding:15px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-                <h4 style="margin:0; color:var(--primary-color); font-size:1.05rem;">🎯 신호 지향성 조준경</h4>
-                <button onclick="closeAlignmentModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.3rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
-            </div>
+    <!-- 광학 신호 조준경 플로팅 팝업 -->
+    <div id="signal-alignment-popup" style="display:none; position:fixed; bottom:85px; right:16px; width:160px; height:240px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20005; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
+        <!-- 상단 헤더 겸 닫기 버튼 -->
+        <div style="position:absolute; top:6px; right:6px; z-index:20007;">
+            <button onclick="closeAlignmentModal()" style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:50%; width:24px; height:24px; padding:0; display:flex; align-items:center; justify-content:center; font-size:0.85rem; cursor:pointer; font-weight:bold; margin:0; line-height:1;">×</button>
+        </div>
+        
+        <!-- 비디오 스트림 영역 -->
+        <div style="flex:1; position:relative; width:100%; height:100%;">
+            <video id="alignment_video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; display:block;"></video>
             
-            <div style="flex:1; position:relative; background:#000; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                <!-- 카메라 비디오 스트림 -->
-                <video id="alignment_video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
-                
-                <!-- 동심원 2개 조준선 가이드 -->
-                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; display:flex; align-items:center; justify-content:center;">
-                    <!-- 바깥 원 -->
-                    <div style="width:40px; height:40px; border:2px solid #00FF00; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 8px rgba(0,255,0,0.5); box-sizing:border-box;">
-                        <!-- 안쪽 원 -->
-                        <div style="width:14px; height:14px; border:2px solid #00FF00; border-radius:50%; box-sizing:border-box;"></div>
-                    </div>
+            <!-- 동심원 2개 조준선 가이드 (중앙 배치) -->
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; display:flex; align-items:center; justify-content:center;">
+                <!-- 바깥 원 -->
+                <div style="width:36px; height:36px; border:2px solid #00FF00; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 6px rgba(0,255,0,0.5); box-sizing:border-box;">
+                    <!-- 안쪽 원 -->
+                    <div style="width:12px; height:12px; border:2px solid #00FF00; border-radius:50%; box-sizing:border-box;"></div>
                 </div>
-            </div>
-            
-            <div style="padding:12px; background:var(--bg-color); text-align:center; font-size:0.75rem; color:var(--text-secondary); border-top:1px solid var(--border-color);">
-                카메라 중앙의 녹색 조준원에 대상(구조대/목표지)을 맞추어 신호를 송출하세요.
             </div>
         </div>
     </div>
