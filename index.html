@@ -4360,8 +4360,9 @@
                     rfState = 'measuring';
                     btn.innerText = '🔊 폭음 감지 (측정 완료)';
                     btn.classList.remove('danger');
-                    btn.style.backgroundColor = 'var(--primary-color)';
-                    btn.style.color = '#000';
+                    btn.style.backgroundColor = 'transparent';
+                    btn.style.border = '1px solid var(--primary-color)';
+                    btn.style.color = 'var(--primary-color)';
                     resultBox.style.display = 'none';
                 } else if (rfState === 'measuring') {
                     const rfEndTime = performance.now();
@@ -4392,6 +4393,7 @@
                     btn.innerText = '⚡ 번쩍임 감지 (측정 시작)';
                     btn.classList.add('danger');
                     btn.style.backgroundColor = '';
+                    btn.style.border = '';
                     btn.style.color = '';
                 }
             }
