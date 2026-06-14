@@ -9363,9 +9363,11 @@
     <!-- 스트로보 전체 화면 오버레이 (최상위 배치로 화면 전체 블랙아웃 보장) -->
     <div id="strobe_overlay" class="strobe-overlay" onclick="handleBlackScreenClick()" style="z-index: 20010;">
         <!-- 조준경 토글용 플로팅 에이밍 버튼 -->
-        <div id="strobe_alignment_trigger_container" style="position: absolute; top: 18%; left: 50%; transform: translateX(-50%); z-index: 20012; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-            <button onclick="event.stopPropagation(); toggleViewfinderFromBlackScreen();" style="width: 64px; height: 64px; border-radius: 50%; background: rgba(0, 255, 0, 0.15); border: 2px solid #00FF00; font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); margin: 0; outline: none; -webkit-tap-highlight-color: transparent;">🎯</button>
-            <span style="color: #00FF00; font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 4px #000; pointer-events: none;">조준경 정렬</span>
+        <div id="strobe_alignment_trigger_container" style="position: absolute; top: 18%; left: 50%; transform: translateX(-50%); z-index: 20012; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+            <button onclick="event.stopPropagation(); toggleViewfinderFromBlackScreen();" style="width: 52px; height: 52px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.3); font-size: 1.7rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; line-height: 1;">
+                <span style="display: block; transform: translateY(-1.5px);">🎯</span>
+            </button>
+            <span style="color: rgba(255, 255, 255, 0.75); font-size: 0.78rem; font-weight: bold; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); pointer-events: none; letter-spacing: 0.5px;">Viewfinder</span>
         </div>
 
         <div id="strobe_text"
