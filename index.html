@@ -4196,10 +4196,8 @@
 
                 const morseFlashChecked = document.getElementById('s_morse_flash_toggle').checked;
 
-                // Wake Lock 및 Audio Context 초기화
-                if (useFlash || morseFlashChecked) {
-                    requestWakeLock();
-                }
+                // 모스부호 송출 중에는 절전 방지를 위해 무조건 Wake Lock 활성화
+                requestWakeLock();
                 if (!useFlash || morseFlashChecked) {
                     initAudio();
                 }
@@ -4242,17 +4240,14 @@
                 let idx = 0;
                 const overlay = document.getElementById('strobe_overlay');
 
-                // 오버레이 노출 조건: Light 버튼을 눌렀거나, Flash 토글이 켜진 경우
-                const showOverlay = useFlash || morseFlashChecked;
-                if (showOverlay) {
-                    document.getElementById('strobe_text').innerText = txt;
-                    overlay.classList.add('active');
-                    overlay.classList.remove('flash');
-                }
+                // 소리/빛 무관하게 모스부호 송출 중에는 항상 블랙 스크린 표시하여 오작동 방지
+                document.getElementById('strobe_text').innerText = txt;
+                overlay.classList.add('active');
+                overlay.classList.remove('flash');
 
                 function runSeq() {
                     if (!isSignaling) {
-                        if (showOverlay) overlay.classList.remove('active', 'flash');
+                        overlay.classList.remove('active', 'flash');
                         return;
                     }
                     if (idx >= sequence.length) {
