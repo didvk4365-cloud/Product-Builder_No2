@@ -4353,14 +4353,23 @@
                 }
             }
 
+            let lastBlackScreenTouchTime = 0;
+
             function handleBlackScreenClick() {
                 const popup = document.getElementById('signal-alignment-popup');
                 if (popup && popup.style.display === 'flex') {
-                    // 뷰파인더가 열려있다면 뷰파인더만 닫기
+                    // 뷰파인더가 열려있다면 1회 클릭으로 뷰파인더만 닫기
                     closeAlignmentModal();
                 } else {
-                    // 뷰파인더가 닫혀있다면 전체 신호 종료
-                    stopSignal();
+                    // 뷰파인더가 닫혀있다면 더블 터치(300ms 이내) 검사하여 전체 신호 종료
+                    const now = Date.now();
+                    const timespan = now - lastBlackScreenTouchTime;
+                    if (timespan < 300) {
+                        stopSignal();
+                        lastBlackScreenTouchTime = 0;
+                    } else {
+                        lastBlackScreenTouchTime = now;
+                    }
                 }
             }
 
@@ -9303,7 +9312,7 @@
         </div>
         <div
             style="position:absolute; top:75%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:0.8rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 0.5px;">
-            화면을 터치하면 꺼집니다.
+            화면을 두 번 터치하면 꺼집니다.
         </div>
     </div>
 </body>
