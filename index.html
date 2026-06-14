@@ -4293,6 +4293,7 @@
 
             // === 광학 지향성 조준경 로직 ===
             let alignmentStream = null;
+            let reticleInterval = null;
 
             async function openAlignmentModal() {
                 const popup = document.getElementById('signal-alignment-popup');
@@ -4319,6 +4320,7 @@
                         video: { facingMode: { ideal: 'environment' } }
                     });
                     video.srcObject = alignmentStream;
+                    startReticleColorAnalysis();
                 } catch (err) {
                     console.error("Failed to open alignment camera:", err);
                     if (errBox) errBox.style.display = 'flex';
@@ -4334,6 +4336,8 @@
                 if (popup) popup.style.display = 'none';
                 if (errBox) errBox.style.display = 'none';
 
+                stopReticleColorAnalysis();
+
                 if (video) {
                     video.srcObject = null;
                     video.style.display = 'block';
@@ -4341,6 +4345,81 @@
                 if (alignmentStream) {
                     alignmentStream.getTracks().forEach(track => track.stop());
                     alignmentStream = null;
+                }
+            }
+
+            function startReticleColorAnalysis() {
+                const video = document.getElementById('alignment_video');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                const outerCircle = document.getElementById('reticle_outer');
+                const innerCircle = document.getElementById('reticle_inner');
+                
+                if (!video || !outerCircle || !innerCircle) return;
+                
+                stopReticleColorAnalysis();
+                
+                reticleInterval = setInterval(() => {
+                    if (video.paused || video.ended) return;
+                    if (video.videoWidth === 0 || video.videoHeight === 0) return;
+                    
+                    canvas.width = 30;
+                    canvas.height = 30;
+                    
+                    const srcX = video.videoWidth * 0.45;
+                    const srcY = video.videoHeight * 0.45;
+                    const srcW = video.videoWidth * 0.1;
+                    const srcH = video.videoHeight * 0.1;
+                    
+                    try {
+                        ctx.drawImage(video, srcX, srcY, srcW, srcH, 0, 0, 30, 30);
+                        const imgData = ctx.getImageData(0, 0, 30, 30);
+                        const data = imgData.data;
+                        let rSum = 0, gSum = 0, bSum = 0, count = 0;
+                        
+                        for (let i = 0; i < data.length; i += 4) {
+                            rSum += data[i];
+                            gSum += data[i+1];
+                            bSum += data[i+2];
+                            count++;
+                        }
+                        
+                        const rAvg = Math.round(rSum / count);
+                        const gAvg = Math.round(gSum / count);
+                        const bAvg = Math.round(bSum / count);
+                        
+                        let rComp = 255 - rAvg;
+                        let gComp = 255 - gAvg;
+                        let bComp = 255 - bAvg;
+                        
+                        const diff = Math.sqrt(Math.pow(rAvg - rComp, 2) + Math.pow(gAvg - gComp, 2) + Math.pow(bAvg - bComp, 2));
+                        if (diff < 80) {
+                            const luma = 0.299 * rAvg + 0.587 * gAvg + 0.114 * bAvg;
+                            if (luma < 128) {
+                                rComp = 255; gComp = 255; bComp = 0; // Yellow
+                            } else {
+                                rComp = 255; gComp = 0; bComp = 0; // Red
+                            }
+                        }
+                        
+                        const compColor = `rgb(${rComp}, ${gComp}, ${bComp})`;
+                        const shadowColor = `rgba(${rComp}, ${gComp}, ${bComp}, 0.6)`;
+                        
+                        outerCircle.style.borderColor = compColor;
+                        outerCircle.style.boxShadow = `0 0 8px ${shadowColor}`;
+                        innerCircle.style.borderColor = compColor;
+                    } catch (e) {
+                        outerCircle.style.borderColor = '#00FF00';
+                        outerCircle.style.boxShadow = '0 0 6px rgba(0, 255, 0, 0.5)';
+                        innerCircle.style.borderColor = '#00FF00';
+                    }
+                }, 150);
+            }
+
+            function stopReticleColorAnalysis() {
+                if (reticleInterval) {
+                    clearInterval(reticleInterval);
+                    reticleInterval = null;
                 }
             }
 
@@ -9244,9 +9323,9 @@
             <!-- 동심원 2개 조준선 가이드 (중앙 배치) -->
             <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; display:flex; align-items:center; justify-content:center; z-index:20008;">
                 <!-- 바깥 원 (36px 고정) -->
-                <div style="width:36px; height:36px; border:2px solid #00FF00; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 6px rgba(0,255,0,0.5); box-sizing:border-box;">
+                <div id="reticle_outer" style="width:36px; height:36px; border:2px solid #00FF00; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 6px rgba(0,255,0,0.5); box-sizing:border-box;">
                     <!-- 안쪽 원 (24px로 확대하여 간격을 좁힘) -->
-                    <div style="width:24px; height:24px; border:2px solid #00FF00; border-radius:50%; box-sizing:border-box;"></div>
+                    <div id="reticle_inner" style="width:24px; height:24px; border:2px solid #00FF00; border-radius:50%; box-sizing:border-box;"></div>
                 </div>
             </div>
         </div>
