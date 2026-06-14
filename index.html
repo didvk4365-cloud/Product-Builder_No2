@@ -9687,43 +9687,51 @@
             
             <style>
                 .morse-tree-node {
-                    fill: #141414;
-                    stroke: rgba(255,255,255,0.25);
+                    fill: #111111;
+                    stroke: rgba(255,255,255,0.22);
                     stroke-width: 1.5;
-                    transition: all 0.15s ease;
+                    transition: all 0.12s ease;
                 }
                 .morse-tree-node.active {
-                    fill: rgba(0, 255, 0, 0.25) !important;
+                    fill: rgba(0, 255, 0, 0.35) !important;
                     stroke: #00FF00 !important;
-                    filter: drop-shadow(0 0 4px rgba(0, 255, 0, 0.8));
+                    filter: drop-shadow(0 0 5px rgba(0, 255, 0, 0.9));
                 }
                 .morse-tree-node.target-highlight {
                     stroke: var(--primary-color) !important;
                     stroke-width: 2.2 !important;
-                    filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.8));
+                    filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.9));
                 }
                 .morse-tree-node.success-blink {
-                    animation: morse-node-success-ani 0.2s ease 2;
+                    animation: morse-node-success-ani 0.15s ease 2;
                 }
                 .morse-tree-node.fail-blink {
-                    animation: morse-node-fail-ani 0.2s ease 2;
+                    animation: morse-node-fail-ani 0.15s ease 2;
                 }
                 @keyframes morse-node-success-ani {
-                    0%, 100% { fill: #141414; stroke: rgba(255,255,255,0.25); }
-                    50% { fill: rgba(0, 255, 0, 0.6); stroke: #00FF00; }
+                    0%, 100% { fill: #111111; stroke: rgba(255,255,255,0.22); }
+                    50% { fill: rgba(0, 255, 0, 0.75); stroke: #00FF00; }
                 }
                 @keyframes morse-node-fail-ani {
-                    0%, 100% { fill: #141414; stroke: rgba(255,255,255,0.25); }
-                    50% { fill: rgba(255, 0, 0, 0.6); stroke: #FF0000; }
+                    0%, 100% { fill: #111111; stroke: rgba(255,255,255,0.22); }
+                    50% { fill: rgba(255, 0, 0, 0.75); stroke: #FF0000; }
                 }
                 .morse-tree-line {
-                    stroke: rgba(255, 255, 255, 0.18);
+                    stroke: rgba(255, 255, 255, 0.2);
                     stroke-width: 1.5;
-                    transition: all 0.15s ease;
+                    fill: none;
+                    transition: all 0.12s ease;
                 }
                 .morse-tree-line.active {
                     stroke: #00FF00 !important;
                     stroke-width: 2.5;
+                }
+                .morse-tree-text {
+                    font-size: 8px;
+                    fill: rgba(255,255,255,0.5);
+                    font-family: monospace, sans-serif;
+                    font-weight: bold;
+                    pointer-events: none;
                 }
             </style>
 
@@ -9745,7 +9753,7 @@
             </div>
 
             <!-- 이진 트리 SVG 그래픽 패널 (뷰포트 320x330) -->
-            <div class="scrollbar-hidden" style="flex:1; background:#0a0a0a; border:1px solid var(--border-color); border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; box-sizing:border-box; margin-bottom:10px; min-height:0; position:relative;">
+            <div class="scrollbar-hidden" style="flex:1; background:#070707; border:1px solid var(--border-color); border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; box-sizing:border-box; margin-bottom:10px; min-height:0; position:relative;">
                 <svg id="morse_tree_svg" viewBox="0 0 320 330" style="width:100%; height:100%; display:block; user-select:none;">
                     <!-- [배경 라인들] -->
                     <!-- T측 간선 -->
@@ -9778,13 +9786,14 @@
                     <line x1="185" y1="140" x2="185" y2="230" class="morse-tree-line" id="line-A-W" />
                     <line x1="185" y1="230" x2="185" y2="300" class="morse-tree-line" id="line-W-J" />
                     
-                    <line x1="185" y1="140" x2="225" y2="140" class="morse-tree-line" id="line-A-R" />
-                    <line x1="225" y1="140" x2="265" y2="140" class="morse-tree-line" id="line-R-L" />
+                    <!-- A에서 R, L 직각 꺾임 회로화 -->
+                    <path d="M 185 140 L 185 170 L 225 170" class="morse-tree-line" id="line-A-R" />
+                    <line x1="225" y1="170" x2="265" y2="170" class="morse-tree-line" id="line-R-L" />
                     
                     <line x1="185" y1="230" x2="225" y2="230" class="morse-tree-line" id="line-W-P" />
                     
                     <line x1="225" y1="30" x2="225" y2="85" class="morse-tree-line" id="line-I-U" />
-                    <line x1="225" y1="85" x2="225" y2="140" class="morse-tree-line" id="line-U-F" />
+                    <line x1="225" y1="85" x2="225" y2="125" class="morse-tree-line" id="line-U-F" />
                     
                     <line x1="265" y1="30" x2="265" y2="85" class="morse-tree-line" id="line-S-V" />
 
@@ -9795,87 +9804,87 @@
                         <circle cx="160" cy="10" r="2.5" fill="#00FF00" />
                     </g>
 
-                    <!-- [T측 노드들 (사각 T, M, O)] -->
-                    <rect x="124" y="19" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-T" />
-                    <text x="135" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">T</text>
+                    <!-- [T측 노드들 (가로 바 T, M, O)] -->
+                    <rect x="123" y="24" width="24" height="12" rx="2" class="morse-tree-node" id="node-T" />
+                    <text x="135" y="17" text-anchor="middle" class="morse-tree-text">T</text>
                     
-                    <rect x="84" y="19" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-M" />
-                    <text x="95" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">M</text>
+                    <rect x="83" y="24" width="24" height="12" rx="2" class="morse-tree-node" id="node-M" />
+                    <text x="95" y="17" text-anchor="middle" class="morse-tree-text">M</text>
                     
-                    <rect x="44" y="19" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-O" />
-                    <text x="55" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">O</text>
+                    <rect x="43" y="24" width="24" height="12" rx="2" class="morse-tree-node" id="node-O" />
+                    <text x="55" y="17" text-anchor="middle" class="morse-tree-text">O</text>
 
                     <!-- [E측 노드들 (원 E, I, S, H)] -->
-                    <circle cx="185" cy="30" r="11" class="morse-tree-node" id="node-E" />
-                    <text x="185" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">E</text>
+                    <circle cx="185" cy="30" r="8" class="morse-tree-node" id="node-E" />
+                    <text x="185" y="17" text-anchor="middle" class="morse-tree-text">E</text>
 
-                    <circle cx="225" cy="30" r="11" class="morse-tree-node" id="node-I" />
-                    <text x="225" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">I</text>
+                    <circle cx="225" cy="30" r="8" class="morse-tree-node" id="node-I" />
+                    <text x="225" y="17" text-anchor="middle" class="morse-tree-text">I</text>
 
-                    <circle cx="265" cy="30" r="11" class="morse-tree-node" id="node-S" />
-                    <text x="265" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">S</text>
+                    <circle cx="265" cy="30" r="8" class="morse-tree-node" id="node-S" />
+                    <text x="265" y="17" text-anchor="middle" class="morse-tree-text">S</text>
 
-                    <circle cx="305" cy="30" r="11" class="morse-tree-node" id="node-H" />
-                    <text x="305" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">H</text>
+                    <circle cx="305" cy="30" r="8" class="morse-tree-node" id="node-H" />
+                    <text x="305" y="17" text-anchor="middle" class="morse-tree-text">H</text>
 
                     <!-- [T측 아래 노드들] -->
-                    <circle cx="160" cy="140" r="11" class="morse-tree-node" id="node-N" />
-                    <text x="160" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">N</text>
+                    <circle cx="160" cy="140" r="8" class="morse-tree-node" id="node-N" />
+                    <text x="173" y="143" text-anchor="start" class="morse-tree-text">N</text>
 
-                    <circle cx="160" cy="230" r="11" class="morse-tree-node" id="node-D" />
-                    <text x="160" y="234" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">D</text>
+                    <circle cx="160" cy="230" r="8" class="morse-tree-node" id="node-D" />
+                    <text x="173" y="233" text-anchor="start" class="morse-tree-text">D</text>
 
-                    <circle cx="160" cy="300" r="11" class="morse-tree-node" id="node-B" />
-                    <text x="160" y="304" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">B</text>
+                    <circle cx="160" cy="300" r="8" class="morse-tree-node" id="node-B" />
+                    <text x="147" y="303" text-anchor="end" class="morse-tree-text">B</text>
 
-                    <rect x="114" y="129" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-K" />
-                    <text x="125" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">K</text>
+                    <rect x="113" y="134" width="24" height="12" rx="2" class="morse-tree-node" id="node-K" />
+                    <text x="125" y="127" text-anchor="middle" class="morse-tree-text">K</text>
 
-                    <rect x="79" y="129" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-Y" />
-                    <text x="90" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">Y</text>
+                    <rect x="78" y="134" width="24" height="12" rx="2" class="morse-tree-node" id="node-Y" />
+                    <text x="90" y="127" text-anchor="middle" class="morse-tree-text">Y</text>
 
-                    <circle cx="125" cy="195" r="11" class="morse-tree-node" id="node-C" />
-                    <text x="125" y="199" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">C</text>
+                    <circle cx="125" cy="195" r="8" class="morse-tree-node" id="node-C" />
+                    <text x="138" y="198" text-anchor="start" class="morse-tree-text">C</text>
 
-                    <rect x="114" y="219" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-X" />
-                    <text x="125" y="234" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">X</text>
+                    <rect x="113" y="224" width="24" height="12" rx="2" class="morse-tree-node" id="node-X" />
+                    <text x="100" y="233" text-anchor="end" class="morse-tree-text">X</text>
 
-                    <circle cx="95" cy="85" r="11" class="morse-tree-node" id="node-G" />
-                    <text x="95" y="89" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">G</text>
+                    <circle cx="95" cy="85" r="8" class="morse-tree-node" id="node-G" />
+                    <text x="108" y="88" text-anchor="start" class="morse-tree-text">G</text>
 
-                    <rect x="44" y="74" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-Q" />
-                    <text x="55" y="89" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">Q</text>
+                    <rect x="43" y="79" width="24" height="12" rx="2" class="morse-tree-node" id="node-Q" />
+                    <text x="55" y="98" text-anchor="middle" class="morse-tree-text">Q</text>
 
-                    <circle cx="95" cy="140" r="11" class="morse-tree-node" id="node-Z" />
-                    <text x="95" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">Z</text>
+                    <circle cx="95" cy="140" r="8" class="morse-tree-node" id="node-Z" />
+                    <text x="108" y="143" text-anchor="start" class="morse-tree-text">Z</text>
 
-                    <!-- [E측 아래 노드들] -->
-                    <rect x="174" y="129" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-A" />
-                    <text x="185" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">A</text>
+                    <!-- [E측 아래 노드들 (세로 바 U, V, A, W, J 및 원 F, R, L, P)] -->
+                    <rect x="219" y="73" width="12" height="24" rx="2" class="morse-tree-node" id="node-U" />
+                    <text x="208" y="88" text-anchor="end" class="morse-tree-text">U</text>
 
-                    <rect x="174" y="219" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-W" />
-                    <text x="185" y="234" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">W</text>
+                    <circle cx="225" cy="125" r="8" class="morse-tree-node" id="node-F" />
+                    <text x="238" y="128" text-anchor="start" class="morse-tree-text">F</text>
 
-                    <rect x="174" y="289" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-J" />
-                    <text x="185" y="304" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">J</text>
+                    <rect x="259" y="73" width="12" height="24" rx="2" class="morse-tree-node" id="node-V" />
+                    <text x="280" y="88" text-anchor="start" class="morse-tree-text">V</text>
 
-                    <circle cx="225" cy="140" r="11" class="morse-tree-node" id="node-R" />
-                    <text x="225" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">R</text>
+                    <rect x="179" y="128" width="12" height="24" rx="2" class="morse-tree-node" id="node-A" />
+                    <text x="168" y="143" text-anchor="end" class="morse-tree-text">A</text>
 
-                    <circle cx="265" cy="140" r="11" class="morse-tree-node" id="node-L" />
-                    <text x="265" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">L</text>
+                    <circle cx="225" cy="170" r="8" class="morse-tree-node" id="node-R" />
+                    <text x="225" y="187" text-anchor="middle" class="morse-tree-text">R</text>
 
-                    <circle cx="225" cy="230" r="11" class="morse-tree-node" id="node-P" />
-                    <text x="225" y="234" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">P</text>
+                    <circle cx="265" cy="170" r="8" class="morse-tree-node" id="node-L" />
+                    <text x="278" y="173" text-anchor="start" class="morse-tree-text">L</text>
 
-                    <rect x="214" y="74" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-U" />
-                    <text x="225" y="89" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">U</text>
+                    <rect x="179" y="218" width="12" height="24" rx="2" class="morse-tree-node" id="node-W" />
+                    <text x="168" y="233" text-anchor="end" class="morse-tree-text">W</text>
 
-                    <circle cx="225" cy="140" r="11" class="morse-tree-node" id="node-F" />
-                    <text x="225" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">F</text>
+                    <circle cx="225" cy="230" r="8" class="morse-tree-node" id="node-P" />
+                    <text x="238" y="233" text-anchor="start" class="morse-tree-text">P</text>
 
-                    <rect x="254" y="74" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-V" />
-                    <text x="265" y="89" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">V</text>
+                    <rect x="179" y="288" width="12" height="24" rx="2" class="morse-tree-node" id="node-J" />
+                    <text x="198" y="303" text-anchor="start" class="morse-tree-text">J</text>
                 </svg>
             </div>
 
