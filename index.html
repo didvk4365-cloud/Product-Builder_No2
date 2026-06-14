@@ -4244,6 +4244,12 @@
                 overlay.classList.add('active');
                 overlay.classList.remove('flash');
 
+                // 플래시 모드일 때만 뷰파인더 조명 정렬 버튼 노출
+                const triggerBtn = document.getElementById('strobe_alignment_trigger_container');
+                if (triggerBtn) {
+                    triggerBtn.style.display = morseFlashChecked ? 'flex' : 'none';
+                }
+
                 function runSeq() {
                     if (!isSignaling) {
                         overlay.classList.remove('active', 'flash');
@@ -4521,6 +4527,12 @@
                     overlay.classList.add('active');
                     btn.innerText = "🚨 스트로보 정지";
 
+                    // 플래시 모드일 때만 뷰파인더 조명 정렬 버튼 노출
+                    const triggerBtn = document.getElementById('strobe_alignment_trigger_container');
+                    if (triggerBtn) {
+                        triggerBtn.style.display = (lightType === 'flash') ? 'flex' : 'none';
+                    }
+
                     let isFlashOn = false;
                     async function runStrobe() {
                         if (!isSignaling || !strobeActive) {
@@ -4565,6 +4577,12 @@
                     document.getElementById('strobe_text').innerText = "BEACON MODE";
                     overlay.classList.add('active');
                     btn.innerText = "⏹ 비콘 중지";
+
+                    // 플래시 모드일 때만 뷰파인더 조명 정렬 버튼 노출
+                    const triggerBtn = document.getElementById('strobe_alignment_trigger_container');
+                    if (triggerBtn) {
+                        triggerBtn.style.display = (lightType === 'flash') ? 'flex' : 'none';
+                    }
 
                     function runBeacon() {
                         if (!isSignaling || !beaconActive) {
