@@ -2217,6 +2217,54 @@
                 </div>
             </div>
 
+            <!-- 모스 수동 디코더 카드 -->
+            <div class="card" style="margin-top: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">📥 모스 수동 디코더 (Decoder)</h3>
+                </div>
+                <p style="font-size:0.78rem; color:var(--text-secondary); margin-top:0; margin-bottom:12px; text-align:left; line-height:1.4;">
+                    신호의 박자(장단)에 맞춰 아래 버튼을 누르면 실시간으로 문자로 번역합니다. (누르고 뗀 타이밍을 자동으로 감지합니다.)
+                </p>
+                
+                <!-- 입력 버퍼 및 번역 결과창 -->
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+                    <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; min-height: 38px; display: flex; align-items: center; box-sizing: border-box;">
+                        <span style="font-size: 0.72rem; color: var(--text-secondary); width: 68px; flex-shrink: 0; font-weight: bold; border-right: 1px solid var(--border-color); margin-right: 8px; padding-right: 4px;">입력 부호</span>
+                        <div id="morse_dec_code_buffer" style="font-size: 1.1rem; letter-spacing: 2px; color: var(--primary-color); font-weight: bold; word-break: break-all;"></div>
+                    </div>
+                    <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; min-height: 48px; display: flex; align-items: center; box-sizing: border-box;">
+                        <span style="font-size: 0.72rem; color: var(--text-secondary); width: 68px; flex-shrink: 0; font-weight: bold; border-right: 1px solid var(--border-color); margin-right: 8px; padding-right: 4px;">번역 결과</span>
+                        <div id="morse_dec_text_result" style="font-size: 1rem; color: var(--text-primary); font-weight: bold; word-break: break-all; text-transform: uppercase;"></div>
+                    </div>
+                </div>
+
+                <!-- 탭 패드 및 조율 옵션 -->
+                <div style="display: flex; gap: 8px; align-items: stretch; margin-bottom: 10px; height: 72px;">
+                    <!-- 큰 탭 버튼 (이벤트 감지 패널) -->
+                    <button id="morse_dec_tap_btn" 
+                            style="flex: 1; margin: 0; height: 100%; border-radius: 8px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 1rem; font-weight: bold; cursor: pointer; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; transition: all 0.1s ease; outline: none; -webkit-tap-highlight-color: transparent;"
+                            onmousedown="handleMorseDecStart(event)"
+                            onmouseup="handleMorseDecEnd(event)"
+                            onmouseleave="handleMorseDecEnd(event)"
+                            ontouchstart="handleMorseDecStart(event)"
+                            ontouchend="handleMorseDecEnd(event)">
+                        TAP & HOLD
+                    </button>
+                    
+                    <!-- 제어 버튼 (백스페이스, 초기화) -->
+                    <div style="display: flex; flex-direction: column; gap: 6px; width: 85px;">
+                        <button onclick="backspaceMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center;">⌫ 지우기</button>
+                        <button onclick="clearMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center; color: var(--danger-color);">🔄 리셋</button>
+                    </div>
+                </div>
+
+                <!-- 기준값 조절 가이드 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 4px; border: 1px dashed var(--border-color);">
+                    <span>⏱️ 단음/장음 기준점: <strong>220ms</strong></span>
+                    <span>(짧게 두드리면 점 `.`, 지긋이 누르면 선 `-`)</span>
+                </div>
+            </div>
+
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">긴급 스트로보 (Strobe)</h3>
@@ -4287,6 +4335,122 @@
                     signalTimeout = setTimeout(runSeq, s.dur);
                 }
                 runSeq();
+            }
+
+            // === 모스부호 수동 디코더 (Morse Manual Decoder) 로직 ===
+            let morseDecPressTime = 0;
+            let morseDecCurrentCode = "";
+            let morseDecTimeout = null;
+            let morseDecSpaceTimeout = null;
+            let reverseMorseMap = null;
+
+            function initReverseMorseMap() {
+                if (reverseMorseMap) return;
+                reverseMorseMap = {};
+                for (const [char, code] of Object.entries(MORSE_MAP)) {
+                    reverseMorseMap[code] = char;
+                }
+            }
+
+            function handleMorseDecStart(event) {
+                if (event) event.preventDefault();
+                initReverseMorseMap();
+
+                if (morseDecTimeout) clearTimeout(morseDecTimeout);
+                if (morseDecSpaceTimeout) clearTimeout(morseDecSpaceTimeout);
+
+                const btn = document.getElementById('morse_dec_tap_btn');
+                if (btn) {
+                    btn.style.background = 'rgba(0, 255, 0, 0.15)';
+                    btn.style.borderColor = '#00FF00';
+                    btn.style.color = '#00FF00';
+                    btn.style.boxShadow = '0 0 10px rgba(0, 255, 0, 0.2)';
+                }
+
+                morseDecPressTime = performance.now();
+            }
+
+            function handleMorseDecEnd(event) {
+                if (event) event.preventDefault();
+                if (morseDecPressTime === 0) return;
+
+                const btn = document.getElementById('morse_dec_tap_btn');
+                if (btn) {
+                    btn.style.background = 'rgba(255, 255, 255, 0.04)';
+                    btn.style.borderColor = '';
+                    btn.style.color = 'var(--text-primary)';
+                    btn.style.boxShadow = '';
+                }
+
+                const duration = performance.now() - morseDecPressTime;
+                morseDecPressTime = 0;
+
+                const symbol = (duration < 220) ? '.' : '-';
+                morseDecCurrentCode += symbol;
+
+                const codeBufEl = document.getElementById('morse_dec_code_buffer');
+                if (codeBufEl) {
+                    codeBufEl.innerText = morseDecCurrentCode;
+                }
+
+                morseDecTimeout = setTimeout(decodeMorseChar, 700);
+                morseDecSpaceTimeout = setTimeout(addMorseSpace, 1800);
+            }
+
+            function decodeMorseChar() {
+                if (!morseDecCurrentCode) return;
+                initReverseMorseMap();
+
+                const decoded = reverseMorseMap[morseDecCurrentCode] || '?';
+                const resultEl = document.getElementById('morse_dec_text_result');
+                if (resultEl) {
+                    resultEl.innerText += decoded;
+                }
+
+                morseDecCurrentCode = "";
+                const codeBufEl = document.getElementById('morse_dec_code_buffer');
+                if (codeBufEl) {
+                    codeBufEl.innerText = "";
+                }
+            }
+
+            function addMorseSpace() {
+                const resultEl = document.getElementById('morse_dec_text_result');
+                if (resultEl && resultEl.innerText) {
+                    if (!resultEl.innerText.endsWith(' ')) {
+                        resultEl.innerText += ' ';
+                    }
+                }
+            }
+
+            function backspaceMorseDec() {
+                if (morseDecCurrentCode.length > 0) {
+                    morseDecCurrentCode = morseDecCurrentCode.slice(0, -1);
+                    const codeBufEl = document.getElementById('morse_dec_code_buffer');
+                    if (codeBufEl) {
+                        codeBufEl.innerText = morseDecCurrentCode;
+                    }
+                } else {
+                    const resultEl = document.getElementById('morse_dec_text_result');
+                    if (resultEl && resultEl.innerText.length > 0) {
+                        resultEl.innerText = resultEl.innerText.slice(0, -1);
+                    }
+                }
+            }
+
+            // PWA 상태저장 바인딩을 피하기 위한 고정 메모리 초기화
+            function clearMorseDec() {
+                morseDecCurrentCode = "";
+                const codeBufEl = document.getElementById('morse_dec_code_buffer');
+                if (codeBufEl) {
+                    codeBufEl.innerText = "";
+                }
+                const resultEl = document.getElementById('morse_dec_text_result');
+                if (resultEl) {
+                    resultEl.innerText = "";
+                }
+                if (morseDecTimeout) clearTimeout(morseDecTimeout);
+                if (morseDecSpaceTimeout) clearTimeout(morseDecSpaceTimeout);
             }
 
             // === 광학 지향성 조준경 로직 ===
