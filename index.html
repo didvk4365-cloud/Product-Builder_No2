@@ -2181,7 +2181,6 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">모스부호 (Morse Code)</h3>
                     <div style="display: flex; align-items: center; gap: 4px;">
-                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:0; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1; display:inline-flex; outline:none; box-shadow:none; -webkit-tap-highlight-color:transparent;">🎯</button>
                         <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
                             <span id="label_morse_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1;">📱 플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
@@ -2223,7 +2222,6 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">긴급 스트로보 (Strobe)</h3>
                     <div style="display: flex; align-items: center; gap: 4px;">
-                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:0; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1; display:inline-flex; outline:none; box-shadow:none; -webkit-tap-highlight-color:transparent;">🎯</button>
                         <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
                             <span id="label_strobe_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1;">📱 플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
@@ -2243,7 +2241,6 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">비콘 모드 (Beacon)</h3>
                     <div style="display: flex; align-items: center; gap: 4px;">
-                        <button onclick="openAlignmentModal()" style="background:none; border:none; padding:0; margin:0; font-size:1.15rem; cursor:pointer; width:auto; height:auto; line-height:1; display:inline-flex; outline:none; box-shadow:none; -webkit-tap-highlight-color:transparent;">🎯</button>
                         <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
                             <span id="label_beacon_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1;">📱 플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
@@ -4184,6 +4181,7 @@
                 document.body.classList.remove('flash-active');
                 releaseWakeLock();
                 stopCameraStream(); // 플래시 해제 및 스트림 완전 종료
+                closeAlignmentModal(); // 뷰파인더 조준경 팝업 및 스트림 종료 안전장치 추가
                 document.getElementById('btn_strobe').innerText = "🚨 SOS 스트로보 시작";
                 document.getElementById('btn_beacon').innerText = "📡 비콘 모드 시작";
                 const overlay = document.getElementById('strobe_overlay');
@@ -4299,12 +4297,14 @@
                 const popup = document.getElementById('signal-alignment-popup');
                 const video = document.getElementById('alignment_video');
                 const errBox = document.getElementById('alignment_camera_error');
+                const triggerBtn = document.getElementById('strobe_alignment_trigger_container');
                 if (!popup || !video) return;
 
                 // 팝업창 무조건 표시
                 popup.style.display = 'flex';
                 if (errBox) errBox.style.display = 'none';
                 video.style.display = 'block';
+                if (triggerBtn) triggerBtn.style.display = 'none'; // 조준경이 뜨면 중앙의 🎯 버튼은 숨김
 
                 // API 미지원 및 HTTPS 미적용 예외 차단
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -4332,19 +4332,48 @@
                 const popup = document.getElementById('signal-alignment-popup');
                 const video = document.getElementById('alignment_video');
                 const errBox = document.getElementById('alignment_camera_error');
+                const triggerBtn = document.getElementById('strobe_alignment_trigger_container');
                 
                 if (popup) popup.style.display = 'none';
                 if (errBox) errBox.style.display = 'none';
+                if (triggerBtn) triggerBtn.style.display = 'flex'; // 조준경이 꺼지면 중앙의 🎯 버튼 다시 노출
 
                 stopReticleColorAnalysis();
 
                 if (video) {
-                    video.srcObject = null;
+                    if (video.srcObject) {
+                        const stream = video.srcObject;
+                        stream.getTracks().forEach(track => track.stop());
+                        video.srcObject = null;
+                    }
+                    video.removeAttribute('src');
+                    video.removeAttribute('srcObject');
+                    try { video.load(); } catch (e) {}
                     video.style.display = 'block';
                 }
                 if (alignmentStream) {
                     alignmentStream.getTracks().forEach(track => track.stop());
                     alignmentStream = null;
+                }
+            }
+
+            function handleBlackScreenClick() {
+                const popup = document.getElementById('signal-alignment-popup');
+                if (popup && popup.style.display === 'flex') {
+                    // 뷰파인더가 열려있다면 뷰파인더만 닫기
+                    closeAlignmentModal();
+                } else {
+                    // 뷰파인더가 닫혀있다면 전체 신호 종료
+                    stopSignal();
+                }
+            }
+
+            function toggleViewfinderFromBlackScreen() {
+                const popup = document.getElementById('signal-alignment-popup');
+                if (popup && popup.style.display === 'flex') {
+                    closeAlignmentModal();
+                } else {
+                    openAlignmentModal();
                 }
             }
 
@@ -9304,9 +9333,9 @@
         </div>
     </div>
     <!-- 광학 신호 조준경 플로팅 팝업 -->
-    <div id="signal-alignment-popup" style="display:none; position:fixed; top:75px; left:50%; transform:translateX(-50%); width:220px; height:300px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20005; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
+    <div id="signal-alignment-popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:220px; height:300px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20015; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
         <!-- 상단 헤더 겸 닫기 버튼 -->
-        <div style="position:absolute; top:6px; right:6px; z-index:20007;">
+        <div style="position:absolute; top:6px; right:6px; z-index:20017;">
             <button onclick="closeAlignmentModal()" style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:50%; width:24px; height:24px; padding:0; display:flex; align-items:center; justify-content:center; font-size:0.85rem; cursor:pointer; font-weight:bold; margin:0; line-height:1;">×</button>
         </div>
         
@@ -9315,13 +9344,13 @@
             <video id="alignment_video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; display:block;"></video>
             
             <!-- 카메라 실패 시 표시할 안내 문구 -->
-            <div id="alignment_camera_error" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:#111; color:var(--text-secondary); padding:20px; box-sizing:border-box; font-size:0.75rem; text-align:center; align-items:center; justify-content:center; flex-direction:column; gap:8px; z-index:20006;">
+            <div id="alignment_camera_error" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:#111; color:var(--text-secondary); padding:20px; box-sizing:border-box; font-size:0.75rem; text-align:center; align-items:center; justify-content:center; flex-direction:column; gap:8px; z-index:20016;">
                 <span>⚠️ 카메라 연결 불가</span>
                 <span style="font-size:0.65rem; opacity:0.8; line-height:1.3;">HTTPS 환경 및 권한 허용이 필요합니다.</span>
             </div>
 
             <!-- 동심원 2개 조준선 가이드 (중앙 배치) -->
-            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; display:flex; align-items:center; justify-content:center; z-index:20008;">
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); pointer-events:none; display:flex; align-items:center; justify-content:center; z-index:20018;">
                 <!-- 바깥 원 (36px 고정) -->
                 <div id="reticle_outer" style="width:36px; height:36px; border:2px solid #00FF00; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 6px rgba(0,255,0,0.5); box-sizing:border-box;">
                     <!-- 안쪽 원 (24px로 확대하여 간격을 좁힘) -->
@@ -9332,12 +9361,18 @@
     </div>
 
     <!-- 스트로보 전체 화면 오버레이 (최상위 배치로 화면 전체 블랙아웃 보장) -->
-    <div id="strobe_overlay" class="strobe-overlay" onclick="stopSignal()" style="z-index: 20010;">
+    <div id="strobe_overlay" class="strobe-overlay" onclick="handleBlackScreenClick()" style="z-index: 20010;">
+        <!-- 조준경 토글용 플로팅 에이밍 버튼 -->
+        <div id="strobe_alignment_trigger_container" style="position: absolute; top: 18%; left: 50%; transform: translateX(-50%); z-index: 20012; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+            <button onclick="event.stopPropagation(); toggleViewfinderFromBlackScreen();" style="width: 64px; height: 64px; border-radius: 50%; background: rgba(0, 255, 0, 0.15); border: 2px solid #00FF00; font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); margin: 0; outline: none; -webkit-tap-highlight-color: transparent;">🎯</button>
+            <span style="color: #00FF00; font-size: 0.8rem; font-weight: bold; text-shadow: 0 0 4px #000; pointer-events: none;">조준경 정렬</span>
+        </div>
+
         <div id="strobe_text"
-            style="position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;">
+            style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:2.5rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 5px; word-break: keep-all; width:90%;">
         </div>
         <div
-            style="position:absolute; top:60%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;">
+            style="position:absolute; top:65%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:1.2rem; text-align:center; pointer-events:none; font-weight:bold;">
             화면을 터치하면 꺼집니다.
         </div>
     </div>
