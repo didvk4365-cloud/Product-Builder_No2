@@ -9281,9 +9281,12 @@
                 </div>
             </div>
 
-            <!-- 하단 조준 안내문 HUD 캡션 -->
-            <div style="position:absolute; bottom:0; left:0; width:100%; background:rgba(0, 0, 0, 0.65); color:#00FF00; text-align:center; font-size:0.75rem; font-weight:bold; padding:6px 0; z-index:20019; border-top:1px solid rgba(0, 255, 0, 0.25); pointer-events:none; letter-spacing:0.5px;">
-                목표 센터에 넣고 사용!
+            <!-- 안쪽 가이드 이중 네모 프레임 -->
+            <div style="position:absolute; top:8px; left:8px; right:8px; bottom:28px; border:1px solid rgba(0, 255, 0, 0.35); border-radius:6px; pointer-events:none; z-index:20018; box-sizing:border-box;"></div>
+
+            <!-- 하단 조준 안내문 HUD 캡션 (이중 네모 틈새에 배치) -->
+            <div style="position:absolute; bottom:0; left:0; width:100%; height:28px; display:flex; align-items:center; justify-content:center; background:rgba(0, 0, 0, 0.5); color:#00FF00; text-align:center; font-size:0.72rem; font-weight:bold; z-index:20019; pointer-events:none; letter-spacing:0.5px; box-sizing:border-box;">
+                목표 센터에 넣고 사용
             </div>
         </div>
     </div>
