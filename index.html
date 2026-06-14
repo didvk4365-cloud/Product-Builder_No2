@@ -2221,6 +2221,7 @@
             <div class="card" style="margin-top: 15px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">📥 모스 수동 디코더 (Decoder)</h3>
+                    <button onclick="openMorsePracticeModal()" style="margin: 0; padding: 4px 10px; font-size: 0.75rem; font-weight: bold; width: auto; height: 26px; display: inline-flex; align-items: center; justify-content: center; gap: 3px; border-radius: 4px; background: rgba(0, 255, 0, 0.05); border: 1px solid rgba(0, 255, 0, 0.3); color: #00FF00;">🎯 연습</button>
                 </div>
                 <p style="font-size:0.78rem; color:var(--text-secondary); margin-top:0; margin-bottom:12px; text-align:left; line-height:1.4;">
                     신호의 박자(장단)에 맞춰 아래 버튼을 누르면 실시간으로 문자로 번역합니다. (누르고 뗀 타이밍을 자동으로 감지합니다.)
@@ -4451,6 +4452,187 @@
                 }
                 if (morseDecTimeout) clearTimeout(morseDecTimeout);
                 if (morseDecSpaceTimeout) clearTimeout(morseDecSpaceTimeout);
+            }
+
+            // === 모스 부호 트리 연습 (Morse Tree Practice) 로직 ===
+            let morsePracticeTarget = "";
+            let morsePracticeTargetCode = "";
+            let morsePracticeBuffer = "";
+            let morsePracticePressTime = 0;
+            let morsePracticeTimeout = null;
+            let morsePracticeBlinkTimeout = null;
+
+            const MORSE_PRACTICE_MAP = {
+                "A": ".-", "B": "-...", "C": "-.-.", "D": "-..", "E": ".",
+                "F": "..-.", "G": "--.", "H": "....", "I": "..", "J": ".---",
+                "K": "-.-", "L": ".-..", "M": "--", "N": "-.", "O": "---",
+                "P": ".--.", "Q": "--.-", "R": ".-.", "S": "...", "T": "-",
+                "U": "..-", "V": "...-", "W": ".--", "X": "-..-", "Y": "-.--",
+                "Z": "--.."
+            };
+
+            const MORSE_PRACTICE_REVERSE_MAP = {
+                ".": "E", "..": "I", "...": "S", "....": "H",
+                ".-": "A", ".-.": "R", ".-..": "L", ".--": "W", ".--.": "P", ".---": "J",
+                "..-": "U", "..-.": "F", "...-": "V",
+                "-": "T", "-.": "N", "-.-": "K", "-.--": "Y", "-.-.": "C",
+                "-..": "D", "-..-": "X", "-...": "B",
+                "--": "M", "--.": "G", "--.-": "Q", "--..": "Z",
+                "---": "O"
+            };
+
+            function openMorsePracticeModal() {
+                const modal = document.getElementById('morse-practice-modal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    resetMorsePracticeState();
+                }
+            }
+
+            function closeMorsePracticeModal() {
+                const modal = document.getElementById('morse-practice-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    if (morsePracticeTimeout) clearTimeout(morsePracticeTimeout);
+                    if (morsePracticeBlinkTimeout) clearTimeout(morsePracticeBlinkTimeout);
+                }
+            }
+
+            function resetMorsePracticeState() {
+                morsePracticeBuffer = "";
+                if (morsePracticeTimeout) clearTimeout(morsePracticeTimeout);
+                if (morsePracticeBlinkTimeout) clearTimeout(morsePracticeBlinkTimeout);
+                
+                const keys = Object.keys(MORSE_PRACTICE_MAP);
+                morsePracticeTarget = keys[Math.floor(Math.random() * keys.length)];
+                morsePracticeTargetCode = MORSE_PRACTICE_MAP[morsePracticeTarget];
+
+                document.getElementById('morse_prac_target_char').innerText = morsePracticeTarget;
+                document.getElementById('morse_prac_target_code').innerText = morsePracticeTargetCode;
+                document.getElementById('morse_prac_input_buffer').innerText = "";
+                const resultEl = document.getElementById('morse_prac_decoded_char');
+                if (resultEl) resultEl.innerText = "";
+
+                document.querySelectorAll('.morse-tree-node').forEach(el => {
+                    el.classList.remove('active', 'target-highlight', 'success-blink', 'fail-blink');
+                });
+                document.querySelectorAll('.morse-tree-line').forEach(el => {
+                    el.classList.remove('active');
+                });
+
+                document.getElementById('node-root').classList.add('active');
+
+                const targetNode = document.getElementById('node-' + morsePracticeTarget);
+                if (targetNode) {
+                    targetNode.classList.add('target-highlight');
+                }
+            }
+
+            function handleMorsePracStart(event) {
+                if (event) event.preventDefault();
+                if (morsePracticeTimeout) clearTimeout(morsePracticeTimeout);
+                if (morsePracticeBlinkTimeout) clearTimeout(morsePracticeBlinkTimeout);
+
+                const btn = document.getElementById('morse_prac_tap_btn');
+                if (btn) {
+                    btn.style.background = 'rgba(0, 255, 0, 0.15)';
+                    btn.style.borderColor = '#00FF00';
+                    btn.style.color = '#00FF00';
+                    btn.style.boxShadow = '0 0 10px rgba(0, 255, 0, 0.2)';
+                }
+
+                morsePracticePressTime = performance.now();
+            }
+
+            function handleMorsePracEnd(event) {
+                if (event) event.preventDefault();
+                if (morsePracticePressTime === 0) return;
+
+                const btn = document.getElementById('morse_prac_tap_btn');
+                if (btn) {
+                    btn.style.background = 'rgba(255, 255, 255, 0.04)';
+                    btn.style.borderColor = '';
+                    btn.style.color = 'var(--text-primary)';
+                    btn.style.boxShadow = '';
+                }
+
+                const duration = performance.now() - morsePracticePressTime;
+                morsePracticePressTime = 0;
+
+                if (morsePracticeBuffer.length >= 4) return;
+
+                const symbol = (duration < 220) ? '.' : '-';
+                morsePracticeBuffer += symbol;
+
+                document.getElementById('morse_prac_input_buffer').innerText = morsePracticeBuffer;
+
+                updateMorseTreeHighlight();
+
+                morsePracticeTimeout = setTimeout(evaluateMorsePracChar, 700);
+            }
+
+            function updateMorseTreeHighlight() {
+                document.querySelectorAll('.morse-tree-node').forEach(el => {
+                    if (el.id !== 'node-root') el.classList.remove('active');
+                });
+                document.querySelectorAll('.morse-tree-line').forEach(el => {
+                    el.classList.remove('active');
+                });
+
+                let currentPath = "";
+                for (let i = 0; i < morsePracticeBuffer.length; i++) {
+                    const char = morsePracticeBuffer[i];
+                    const nextPath = currentPath + char;
+                    const letter = MORSE_PRACTICE_REVERSE_MAP[nextPath];
+
+                    if (letter) {
+                        const nodeEl = document.getElementById('node-' + letter);
+                        if (nodeEl) nodeEl.classList.add('active');
+
+                        let fromNode = (currentPath === "") ? "root" : MORSE_PRACTICE_REVERSE_MAP[currentPath];
+                        const lineEl = document.getElementById(`line-${fromNode}-${letter}`);
+                        if (lineEl) lineEl.classList.add('active');
+                    }
+                    currentPath = nextPath;
+                }
+            }
+
+            function evaluateMorsePracChar() {
+                if (!morsePracticeBuffer) return;
+
+                const decoded = MORSE_PRACTICE_REVERSE_MAP[morsePracticeBuffer] || '';
+                const resultEl = document.getElementById('morse_prac_decoded_char');
+
+                if (decoded === morsePracticeTarget) {
+                    if (resultEl) resultEl.innerHTML = `<span style="color:#00FF00;">성공! 🎉</span>`;
+                    
+                    const targetNode = document.getElementById('node-' + morsePracticeTarget);
+                    if (targetNode) {
+                        targetNode.classList.add('success-blink');
+                    }
+
+                    morsePracticeBlinkTimeout = setTimeout(resetMorsePracticeState, 450);
+                } else {
+                    if (resultEl) resultEl.innerHTML = `<span style="color:var(--danger-color);">오류 ❌</span>`;
+                    
+                    const errNode = decoded ? document.getElementById('node-' + decoded) : null;
+                    if (errNode) {
+                        errNode.classList.add('fail-blink');
+                    } else {
+                        document.querySelectorAll('.morse-tree-node').forEach(el => el.classList.add('fail-blink'));
+                    }
+
+                    morsePracticeBlinkTimeout = setTimeout(() => {
+                        morsePracticeBuffer = "";
+                        document.getElementById('morse_prac_input_buffer').innerText = "";
+                        if (resultEl) resultEl.innerText = "";
+                        
+                        document.querySelectorAll('.morse-tree-node').forEach(el => {
+                            el.classList.remove('fail-blink', 'success-blink');
+                        });
+                        updateMorseTreeHighlight();
+                    }, 600);
+                }
             }
 
             // === 광학 지향성 조준경 로직 ===
@@ -9496,6 +9678,226 @@
         <div
             style="position:absolute; top:75%; left:50%; transform:translate(-50%, -50%); color:#888; font-size:0.8rem; text-align:center; pointer-events:none; font-weight:bold; letter-spacing: 0.5px;">
             화면을 두 번 터치하면 꺼집니다.
+        </div>
+    </div>
+
+    <!-- 모스 부호 트리 연습 모달 -->
+    <div id="morse-practice-modal" onclick="closeMorsePracticeModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.9); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10030; align-items:flex-start; justify-content:center; padding: 4vh 16px 16px 16px; box-sizing:border-box;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:18px; width:95%; max-width:340px; box-sizing:border-box; display:flex; flex-direction:column; max-height:92vh; max-height:92dvh; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); position: relative; overflow: hidden;">
+            
+            <style>
+                .morse-tree-node {
+                    fill: #141414;
+                    stroke: rgba(255,255,255,0.25);
+                    stroke-width: 1.5;
+                    transition: all 0.15s ease;
+                }
+                .morse-tree-node.active {
+                    fill: rgba(0, 255, 0, 0.25) !important;
+                    stroke: #00FF00 !important;
+                    filter: drop-shadow(0 0 4px rgba(0, 255, 0, 0.8));
+                }
+                .morse-tree-node.target-highlight {
+                    stroke: var(--primary-color) !important;
+                    stroke-width: 2.2 !important;
+                    filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.8));
+                }
+                .morse-tree-node.success-blink {
+                    animation: morse-node-success-ani 0.2s ease 2;
+                }
+                .morse-tree-node.fail-blink {
+                    animation: morse-node-fail-ani 0.2s ease 2;
+                }
+                @keyframes morse-node-success-ani {
+                    0%, 100% { fill: #141414; stroke: rgba(255,255,255,0.25); }
+                    50% { fill: rgba(0, 255, 0, 0.6); stroke: #00FF00; }
+                }
+                @keyframes morse-node-fail-ani {
+                    0%, 100% { fill: #141414; stroke: rgba(255,255,255,0.25); }
+                    50% { fill: rgba(255, 0, 0, 0.6); stroke: #FF0000; }
+                }
+                .morse-tree-line {
+                    stroke: rgba(255, 255, 255, 0.18);
+                    stroke-width: 1.5;
+                    transition: all 0.15s ease;
+                }
+                .morse-tree-line.active {
+                    stroke: #00FF00 !important;
+                    stroke-width: 2.5;
+                }
+            </style>
+
+            <h4 style="margin-top:0; color:var(--primary-color); font-size:1rem; margin-bottom:12px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+                <span>🎯 모스 트리 조준 연습</span>
+                <button onclick="closeMorsePracticeModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
+            </h4>
+
+            <!-- 미션 목표 대시보드 -->
+            <div style="background: rgba(255, 152, 0, 0.05); border: 1px solid rgba(255, 152, 0, 0.25); padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-sizing: border-box; flex-shrink: 0;">
+                <div style="text-align: left;">
+                    <span style="font-size: 0.72rem; color: var(--text-secondary); display: block; line-height: 1;">연습 목표</span>
+                    <span id="morse_prac_target_char" style="font-size: 1.4rem; font-weight: bold; color: var(--primary-color); line-height: 1.2; margin-top: 4px; display: inline-block;">A</span>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 0.72rem; color: var(--text-secondary); display: block; line-height: 1;">목표 부호</span>
+                    <span id="morse_prac_target_code" style="font-size: 1.1rem; font-weight: bold; color: var(--text-primary); letter-spacing: 2px; line-height: 1.2; margin-top: 4px; display: inline-block;">.-</span>
+                </div>
+            </div>
+
+            <!-- 이진 트리 SVG 그래픽 패널 (뷰포트 320x330) -->
+            <div class="scrollbar-hidden" style="flex:1; background:#0a0a0a; border:1px solid var(--border-color); border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; box-sizing:border-box; margin-bottom:10px; min-height:0; position:relative;">
+                <svg id="morse_tree_svg" viewBox="0 0 320 330" style="width:100%; height:100%; display:block; user-select:none;">
+                    <!-- [배경 라인들] -->
+                    <!-- T측 간선 -->
+                    <line x1="160" y1="30" x2="135" y2="30" class="morse-tree-line" id="line-root-T" />
+                    <line x1="135" y1="30" x2="95" y2="30" class="morse-tree-line" id="line-T-M" />
+                    <line x1="95" y1="30" x2="55" y2="30" class="morse-tree-line" id="line-M-O" />
+                    <!-- E측 간선 -->
+                    <line x1="160" y1="30" x2="185" y2="30" class="morse-tree-line" id="line-root-E" />
+                    <line x1="185" y1="30" x2="225" y2="30" class="morse-tree-line" id="line-E-I" />
+                    <line x1="225" y1="30" x2="265" y2="30" class="morse-tree-line" id="line-I-S" />
+                    <line x1="265" y1="30" x2="305" y2="30" class="morse-tree-line" id="line-S-H" />
+                    
+                    <!-- 세로 하강 기둥 라인들 (T 계열) -->
+                    <line x1="135" y1="30" x2="160" y2="140" class="morse-tree-line" id="line-T-N" />
+                    <line x1="160" y1="140" x2="160" y2="230" class="morse-tree-line" id="line-N-D" />
+                    <line x1="160" y1="230" x2="160" y2="300" class="morse-tree-line" id="line-D-B" />
+                    
+                    <line x1="160" y1="140" x2="125" y2="140" class="morse-tree-line" id="line-N-K" />
+                    <line x1="125" y1="140" x2="90" y2="140" class="morse-tree-line" id="line-K-Y" />
+                    <line x1="125" y1="140" x2="125" y2="195" class="morse-tree-line" id="line-K-C" />
+                    
+                    <line x1="160" y1="230" x2="125" y2="230" class="morse-tree-line" id="line-D-X" />
+                    
+                    <line x1="95" y1="30" x2="95" y2="85" class="morse-tree-line" id="line-M-G" />
+                    <line x1="95" y1="85" x2="55" y2="85" class="morse-tree-line" id="line-G-Q" />
+                    <line x1="95" y1="85" x2="95" y2="140" class="morse-tree-line" id="line-G-Z" />
+                    
+                    <!-- 세로 하강 기둥 라인들 (E 계열) -->
+                    <line x1="185" y1="30" x2="185" y2="140" class="morse-tree-line" id="line-E-A" />
+                    <line x1="185" y1="140" x2="185" y2="230" class="morse-tree-line" id="line-A-W" />
+                    <line x1="185" y1="230" x2="185" y2="300" class="morse-tree-line" id="line-W-J" />
+                    
+                    <line x1="185" y1="140" x2="225" y2="140" class="morse-tree-line" id="line-A-R" />
+                    <line x1="225" y1="140" x2="265" y2="140" class="morse-tree-line" id="line-R-L" />
+                    
+                    <line x1="185" y1="230" x2="225" y2="230" class="morse-tree-line" id="line-W-P" />
+                    
+                    <line x1="225" y1="30" x2="225" y2="85" class="morse-tree-line" id="line-I-U" />
+                    <line x1="225" y1="85" x2="225" y2="140" class="morse-tree-line" id="line-U-F" />
+                    
+                    <line x1="265" y1="30" x2="265" y2="85" class="morse-tree-line" id="line-S-V" />
+
+                    <!-- [안테나 Root 노드] -->
+                    <g id="node-root" class="morse-tree-node active">
+                        <line x1="160" y1="10" x2="160" y2="30" stroke="#00FF00" stroke-width="1.5" />
+                        <path d="M152,16 L160,10 L168,16 M146,22 L160,10 L174,22" fill="none" stroke="#00FF00" stroke-width="1.5" />
+                        <circle cx="160" cy="10" r="2.5" fill="#00FF00" />
+                    </g>
+
+                    <!-- [T측 노드들 (사각 T, M, O)] -->
+                    <rect x="124" y="19" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-T" />
+                    <text x="135" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">T</text>
+                    
+                    <rect x="84" y="19" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-M" />
+                    <text x="95" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">M</text>
+                    
+                    <rect x="44" y="19" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-O" />
+                    <text x="55" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">O</text>
+
+                    <!-- [E측 노드들 (원 E, I, S, H)] -->
+                    <circle cx="185" cy="30" r="11" class="morse-tree-node" id="node-E" />
+                    <text x="185" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">E</text>
+
+                    <circle cx="225" cy="30" r="11" class="morse-tree-node" id="node-I" />
+                    <text x="225" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">I</text>
+
+                    <circle cx="265" cy="30" r="11" class="morse-tree-node" id="node-S" />
+                    <text x="265" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">S</text>
+
+                    <circle cx="305" cy="30" r="11" class="morse-tree-node" id="node-H" />
+                    <text x="305" y="34" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">H</text>
+
+                    <!-- [T측 아래 노드들] -->
+                    <circle cx="160" cy="140" r="11" class="morse-tree-node" id="node-N" />
+                    <text x="160" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">N</text>
+
+                    <circle cx="160" cy="230" r="11" class="morse-tree-node" id="node-D" />
+                    <text x="160" y="234" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">D</text>
+
+                    <circle cx="160" cy="300" r="11" class="morse-tree-node" id="node-B" />
+                    <text x="160" y="304" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">B</text>
+
+                    <rect x="114" y="129" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-K" />
+                    <text x="125" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">K</text>
+
+                    <rect x="79" y="129" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-Y" />
+                    <text x="90" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">Y</text>
+
+                    <circle cx="125" cy="195" r="11" class="morse-tree-node" id="node-C" />
+                    <text x="125" y="199" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">C</text>
+
+                    <rect x="114" y="219" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-X" />
+                    <text x="125" y="234" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">X</text>
+
+                    <circle cx="95" cy="85" r="11" class="morse-tree-node" id="node-G" />
+                    <text x="95" y="89" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">G</text>
+
+                    <rect x="44" y="74" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-Q" />
+                    <text x="55" y="89" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">Q</text>
+
+                    <circle cx="95" cy="140" r="11" class="morse-tree-node" id="node-Z" />
+                    <text x="95" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">Z</text>
+
+                    <!-- [E측 아래 노드들] -->
+                    <rect x="174" y="129" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-A" />
+                    <text x="185" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">A</text>
+
+                    <rect x="174" y="219" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-W" />
+                    <text x="185" y="234" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">W</text>
+
+                    <rect x="174" y="289" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-J" />
+                    <text x="185" y="304" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">J</text>
+
+                    <circle cx="225" cy="140" r="11" class="morse-tree-node" id="node-R" />
+                    <text x="225" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">R</text>
+
+                    <circle cx="265" cy="140" r="11" class="morse-tree-node" id="node-L" />
+                    <text x="265" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">L</text>
+
+                    <circle cx="225" cy="230" r="11" class="morse-tree-node" id="node-P" />
+                    <text x="225" y="234" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">P</text>
+
+                    <rect x="214" y="74" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-U" />
+                    <text x="225" y="89" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">U</text>
+
+                    <circle cx="225" cy="140" r="11" class="morse-tree-node" id="node-F" />
+                    <text x="225" y="144" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">F</text>
+
+                    <rect x="254" y="74" width="22" height="22" rx="4" ry="4" class="morse-tree-node" id="node-V" />
+                    <text x="265" y="89" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold" pointer-events="none">V</text>
+                </svg>
+            </div>
+
+            <!-- 입력 현황 및 실시간 해독 결과 -->
+            <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem; box-sizing: border-box; flex-shrink: 0; height: 34px;">
+                <span style="color: var(--text-secondary); font-weight: bold;">입력 기호: <strong id="morse_prac_input_buffer" style="color: #00FF00; font-size: 1rem; margin-left: 4px; letter-spacing: 2px;"></strong></span>
+                <span style="color: var(--text-secondary); font-weight: bold;">해독 결과: <strong id="morse_prac_decoded_char" style="color: var(--primary-color); font-size: 1rem; margin-left: 4px;"></strong></span>
+            </div>
+
+            <!-- 연습 전용 탭 단추 및 리셋 -->
+            <div style="display: flex; gap: 8px; align-items: stretch; height: 62px; flex-shrink: 0;">
+                <button id="morse_prac_tap_btn" 
+                        style="flex: 1; margin: 0; height: 100%; border-radius: 8px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 1rem; font-weight: bold; cursor: pointer; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; transition: all 0.1s ease; outline: none; -webkit-tap-highlight-color: transparent;"
+                        onmousedown="handleMorsePracStart(event)"
+                        onmouseup="handleMorsePracEnd(event)"
+                        onmouseleave="handleMorsePracEnd(event)"
+                        ontouchstart="handleMorsePracStart(event)"
+                        ontouchend="handleMorsePracEnd(event)">
+                    TAP & HOLD
+                </button>
+                <button onclick="resetMorsePracticeState()" class="secondary" style="width: 80px; margin: 0; padding: 0; font-size: 0.85rem; font-weight: bold; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--danger-color);">🔄 다시</button>
+            </div>
         </div>
     </div>
 </body>
