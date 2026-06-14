@@ -4388,6 +4388,10 @@
                 
                 stopReticleColorAnalysis();
                 
+                // 디버깅 변수 초기화
+                window.reticleDebugCount = 0;
+                window.reticleCorsLogged = false;
+                
                 reticleInterval = setInterval(() => {
                     if (video.paused || video.ended) return;
                     if (video.videoWidth === 0 || video.videoHeight === 0) return;
@@ -4437,7 +4441,18 @@
                         outerCircle.style.borderColor = compColor;
                         outerCircle.style.boxShadow = `0 0 8px ${shadowColor}`;
                         innerCircle.style.borderColor = compColor;
+
+                        // 20회(약 3초) 분석 프레임마다 실시간 보색 변환 결과 출력
+                        window.reticleDebugCount++;
+                        if (window.reticleDebugCount % 20 === 0) {
+                            console.log(`[Viewfinder API] Reticle Color dynamic adjust OK. CompColor: ${compColor} (Background Avg RGB: ${rAvg},${gAvg},${bAvg})`);
+                        }
                     } catch (e) {
+                        // 최초 1회만 CORS 보안 제한 경고 출력
+                        if (!window.reticleCorsLogged) {
+                            console.warn("[Viewfinder API] Tainted canvas / CORS security policy restricts direct pixel reading (commonly occurs on file:/// urls or HTTP). Falling back to safety Green reticle.", e);
+                            window.reticleCorsLogged = true;
+                        }
                         outerCircle.style.borderColor = '#00FF00';
                         outerCircle.style.boxShadow = '0 0 6px rgba(0, 255, 0, 0.5)';
                         innerCircle.style.borderColor = '#00FF00';
@@ -9341,7 +9356,7 @@
         
         <!-- 비디오 스트림 및 조준선 영역 -->
         <div style="flex:1; position:relative; width:100%; height:100%;">
-            <video id="alignment_video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover; display:block;"></video>
+            <video id="alignment_video" autoplay playsinline muted crossorigin="anonymous" style="width:100%; height:100%; object-fit:cover; display:block;"></video>
             
             <!-- 카메라 실패 시 표시할 안내 문구 -->
             <div id="alignment_camera_error" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:#111; color:var(--text-secondary); padding:20px; box-sizing:border-box; font-size:0.75rem; text-align:center; align-items:center; justify-content:center; flex-direction:column; gap:8px; z-index:20016;">
