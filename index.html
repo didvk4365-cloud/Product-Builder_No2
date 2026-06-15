@@ -2222,7 +2222,7 @@
                     onclick="const fMorse = document.getElementById('morse_dec_body'); const btnMorse = document.getElementById('btn_morse_dec_toggle'); if(fMorse.style.display==='none'){fMorse.style.display='block'; btnMorse.innerHTML='접기 ▲'; this.style.marginBottom='12px';}else{fMorse.style.display='none'; btnMorse.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">┗ 모스 디코더 (Decoder)</h3>
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <button onclick="event.stopPropagation(); openMorsePracticeModal()" class="morse-prac-btn" style="margin: 0;">🎯 연습</button>
+                        <button onclick="event.stopPropagation(); openMorsePracticeModal()" class="secondary" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">🎯 연습</button>
                         <button class="secondary" id="btn_morse_dec_toggle" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">펼치기 ▼</button>
                     </div>
                 </div>
@@ -2255,14 +2255,21 @@
                         <!-- 제어 버튼 (백스페이스, 초기화) -->
                         <div style="display: flex; flex-direction: column; gap: 6px; width: 85px;">
                             <button onclick="backspaceMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center;">⌫ 지우기</button>
-                            <button onclick="clearMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center; color: var(--danger-color);">🔄 Reset</button>
+                            <button onclick="clearMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center; gap: 4px; color: var(--primary-color);">
+                                <svg viewBox="0 0 512 512" style="width: 12px; height: 12px; fill: currentColor; display: inline-block;">
+                                    <g>
+                                        <path d="M223.151,159.114l-38.806-38.724c21.75-11.384,45.884-17.32,71.004-17.32 c84.594,0,153.417,68.676,153.417,153.091H486c0-61.478-23.992-119.277-67.556-162.749S316.958,26,255.349,26 c-45.859,0-89.552,13.167-127.306,38.208L93.421,29.659L45.936,206.498L223.151,159.114z"/>
+                                        <path d="M288.849,352.886l38.806,38.724c-21.75,11.384-45.884,17.32-71.004,17.32 c-84.594,0-153.417-68.676-153.417-153.092H26c0,61.478,23.992,119.277,67.556,162.749C137.12,462.059,195.042,486,256.651,486 c45.859,0,89.552-13.167,127.306-38.208l34.623,34.549l47.484-176.839L288.849,352.886z"/>
+                                    </g>
+                                </svg> Reset
+                            </button>
                         </div>
                     </div>
 
                     <!-- 기준값 조절 가이드 -->
                     <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 4px; border: 1px dashed var(--border-color);">
-                        <span>⏱️ 단/장음 기준점: <strong>220ms</strong></span>
-                        <span>⚠️ 들리는 신호를 최대한 따라하세요.</span>
+                        <span>⏱️ 단/장음 기준: <strong>220ms</strong></span>
+                        <span>⚠️ 보이거나 들리는 신호를 최대한 따라하세요.</span>
                     </div>
                 </div>
             </div>
@@ -2332,7 +2339,14 @@
                 </div>
                 <div class="flex-row" style="margin-bottom:12px; gap:8px;">
                     <button id="btn_rf_trigger" onclick="handleRangeFinderClick()" class="danger" style="margin:0; flex:1; height:44px; font-weight:bold; font-size:0.95rem;">⚡ 번쩍임 감지 (측정 시작)</button>
-                    <button onclick="resetRangeFinder()" class="secondary" style="margin:0; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0; border-radius:6px;">🔄</button>
+                    <button onclick="resetRangeFinder()" class="secondary" style="margin:0; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:6px;">
+                        <svg viewBox="0 0 512 512" style="width: 18px; height: 18px; fill: var(--primary-color);">
+                            <g>
+                                <path d="M223.151,159.114l-38.806-38.724c21.75-11.384,45.884-17.32,71.004-17.32 c84.594,0,153.417,68.676,153.417,153.091H486c0-61.478-23.992-119.277-67.556-162.749S316.958,26,255.349,26 c-45.859,0-89.552,13.167-127.306,38.208L93.421,29.659L45.936,206.498L223.151,159.114z"/>
+                                <path d="M288.849,352.886l38.806,38.724c-21.75,11.384-45.884,17.32-71.004,17.32 c-84.594,0-153.417-68.676-153.417-153.092H26c0,61.478,23.992,119.277,67.556,162.749C137.12,462.059,195.042,486,256.651,486 c45.859,0,89.552-13.167,127.306-38.208l34.623,34.549l47.484-176.839L288.849,352.886z"/>
+                            </g>
+                        </svg>
+                    </button>
                 </div>
                 <div id="rf_result_box" class="result-box" style="display:block; font-size:0.95rem; line-height:1.5; padding:12px; text-align:left; border-radius:8px;">
                     <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;">📍 계측 결과</div>
@@ -10032,7 +10046,14 @@
                         ontouchend="handleMorsePracEnd(event)">
                     Dit & Dah
                 </button>
-                <button onclick="resetMorsePracticeState()" class="secondary" style="width: 50px; margin: 0; padding: 0; font-size: 1.1rem; font-weight: bold; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--danger-color);">🔄</button>
+                <button onclick="resetMorsePracticeState()" class="secondary" style="width: 50px; margin: 0; padding: 0; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 512 512" style="width: 18px; height: 18px; fill: var(--primary-color);">
+                        <g>
+                            <path d="M223.151,159.114l-38.806-38.724c21.75-11.384,45.884-17.32,71.004-17.32 c84.594,0,153.417,68.676,153.417,153.091H486c0-61.478-23.992-119.277-67.556-162.749S316.958,26,255.349,26 c-45.859,0-89.552,13.167-127.306,38.208L93.421,29.659L45.936,206.498L223.151,159.114z"/>
+                            <path d="M288.849,352.886l38.806,38.724c-21.75,11.384-45.884,17.32-71.004,17.32 c-84.594,0-153.417-68.676-153.417-153.092H26c0,61.478,23.992,119.277,67.556,162.749C137.12,462.059,195.042,486,256.651,486 c45.859,0,89.552-13.167,127.306-38.208l34.623,34.549l47.484-176.839L288.849,352.886z"/>
+                        </g>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
