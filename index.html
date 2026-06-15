@@ -2436,15 +2436,25 @@
             </div>
 
             <div class="card">
-                <h3>일출/일몰 & 월출/월몰</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; font-size: 1.02rem; letter-spacing: -0.5px; white-space: nowrap;">일출/일몰 & 월출/월몰</h3>
+                    <button onclick="resetSunMoon()" class="secondary" style="margin:0; width:30px; height:26px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:4px;" title="위치 및 계산 결과 초기화">
+                        <svg viewBox="0 0 512 512" style="width: 14px; height: 14px; fill: var(--primary-color);">
+                            <g>
+                                <path d="M223.151,159.114l-38.806-38.724c21.75-11.384,45.884-17.32,71.004-17.32 c84.594,0,153.417,68.676,153.417,153.091H486c0-61.478-23.992-119.277-67.556-162.749S316.958,26,255.349,26 c-45.859,0-89.552,13.167-127.306,38.208L93.421,29.659L45.936,206.498L223.151,159.114z"/>
+                                <path d="M288.849,352.886l38.806,38.724c-21.75,11.384-45.884,17.32-71.004,17.32 c-84.594,0-153.417-68.676-153.417-153.092H26c0,61.478,23.992,119.277,67.556,162.749C137.12,462.059,195.042,486,256.651,486   c45.859,0,89.552-13.167,127.306-38.208l34.623,34.549l47.484-176.839L288.849,352.886z"/>
+                            </g>
+                        </svg>
+                    </button>
+                </div>
                 <div class="flex-row">
                     <div class="form-group">
                         <label>위도 (Latitude)</label>
-                        <input type="number" id="n_lat" placeholder="37.56" oninput="saveInputs()">
+                        <input type="number" id="n_lat" placeholder="--.--">
                     </div>
                     <div class="form-group">
                         <label>경도 (Longitude)</label>
-                        <input type="number" id="n_lng" placeholder="126.97" oninput="saveInputs()">
+                        <input type="number" id="n_lng" placeholder="--.--">
                     </div>
                 </div>
                 <div class="flex-row">
@@ -3397,7 +3407,7 @@
                     });
                 });
                 
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 inputs.forEach(id => {
                     if (appData[id] !== undefined) {
                         const el = document.getElementById(id);
@@ -3508,7 +3518,7 @@
 
             function saveInputs() {
                 validateAndFixTimerInputs();
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'n_lat', 'n_lng', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 
                 if (!appData || typeof appData !== 'object' || Array.isArray(appData)) {
                     appData = {};
@@ -5235,9 +5245,10 @@
             function getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition((pos) => {
-                        document.getElementById('n_lat').value = pos.coords.latitude.toFixed(4);
-                        document.getElementById('n_lng').value = pos.coords.longitude.toFixed(4);
-                        saveInputs();
+                        const latEl = document.getElementById('n_lat');
+                        const lngEl = document.getElementById('n_lng');
+                        if (latEl) latEl.value = pos.coords.latitude.toFixed(4);
+                        if (lngEl) lngEl.value = pos.coords.longitude.toFixed(4);
                         calcSunMoon();
                     }, (err) => {
                         alert("위치 정보를 가져올 수 없습니다.");
@@ -5249,9 +5260,10 @@
             let sunCountdownInterval = null;
 
             function calcSunMoon() {
-                saveInputs();
-                const lat = parseFloat(appData.n_lat);
-                const lng = parseFloat(appData.n_lng);
+                const latVal = document.getElementById('n_lat').value;
+                const lngVal = document.getElementById('n_lng').value;
+                const lat = parseFloat(latVal);
+                const lng = parseFloat(lngVal);
                 if (isNaN(lat) || isNaN(lng)) return;
 
                 const res = calculateSunTimes(new Date(), lat, lng);
@@ -5311,6 +5323,30 @@
                 // 일출/일몰 알람 섹션 활성화
                 document.getElementById('sun_alarm_section').style.display = 'block';
                 updateSunCountdown();
+            }
+
+            function resetSunMoon() {
+                const latEl = document.getElementById('n_lat');
+                const lngEl = document.getElementById('n_lng');
+                if (latEl) latEl.value = '';
+                if (lngEl) lngEl.value = '';
+
+                const sunResult = document.getElementById('sun_result');
+                if (sunResult) {
+                    sunResult.innerHTML = '위치 정보를 입력하세요.';
+                }
+
+                const alarmSec = document.getElementById('sun_alarm_section');
+                if (alarmSec) {
+                    alarmSec.style.display = 'none';
+                }
+
+                if (sunCountdownInterval) {
+                    clearInterval(sunCountdownInterval);
+                    sunCountdownInterval = null;
+                }
+
+                sunData = null;
             }
 
             function updateSunCountdown() {
