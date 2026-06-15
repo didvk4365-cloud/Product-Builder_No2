@@ -2217,48 +2217,53 @@
                 </div>
             </div>
 
-            <!-- 모스 수동 디코더 카드 -->
             <div class="card" style="margin-top: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">모스 수동 디코더 (Decoder)</h3>
-                    <button onclick="openMorsePracticeModal()" class="morse-prac-btn">🎯 연습</button>
+                <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0;"
+                    onclick="const fMorse = document.getElementById('morse_dec_body'); const btnMorse = document.getElementById('btn_morse_dec_toggle'); if(fMorse.style.display==='none'){fMorse.style.display='block'; btnMorse.innerHTML='접기 ▲'; this.style.marginBottom='12px';}else{fMorse.style.display='none'; btnMorse.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
+                    <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">┗ 모스 디코더 (Decoder)</h3>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button onclick="event.stopPropagation(); openMorsePracticeModal()" class="morse-prac-btn" style="margin: 0;">🎯 연습</button>
+                        <button class="secondary" id="btn_morse_dec_toggle" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">펼치기 ▼</button>
+                    </div>
                 </div>
                 <!-- 입력 버퍼 및 번역 결과창 -->
-                <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
-                    <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 12px; height: 42px; display: flex; align-items: center; box-sizing: border-box;">
-                        <span style="font-size: 0.72rem; color: var(--text-secondary); width: 68px; flex-shrink: 0; font-weight: bold; border-right: 1px solid var(--border-color); margin-right: 8px; padding-right: 4px;">입력 부호</span>
-                        <div id="morse_dec_code_buffer" style="font-size: 1.1rem; letter-spacing: 2px; color: var(--primary-color); font-weight: bold; word-break: break-all; line-height: 1.2;"></div>
+                <div id="morse_dec_body" style="display: none; margin-top: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+                        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 12px; height: 42px; display: flex; align-items: center; box-sizing: border-box;">
+                            <span style="font-size: 0.72rem; color: var(--text-secondary); width: 68px; flex-shrink: 0; font-weight: bold; border-right: 1px solid var(--border-color); margin-right: 8px; padding-right: 4px;">입력 부호</span>
+                            <div id="morse_dec_code_buffer" style="font-size: 1.1rem; letter-spacing: 2px; color: var(--primary-color); font-weight: bold; word-break: break-all; line-height: 1.2;"></div>
+                        </div>
+                        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px; min-height: 48px; display: flex; align-items: center; box-sizing: border-box;">
+                            <span style="font-size: 0.72rem; color: var(--text-secondary); width: 68px; flex-shrink: 0; font-weight: bold; border-right: 1px solid var(--border-color); margin-right: 8px; padding-right: 4px;">번역 결과</span>
+                            <div id="morse_dec_text_result" style="font-size: 1rem; color: var(--text-primary); font-weight: bold; word-break: break-all; text-transform: uppercase; line-height: 1.3;"></div>
+                        </div>
                     </div>
-                    <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px; min-height: 48px; display: flex; align-items: center; box-sizing: border-box;">
-                        <span style="font-size: 0.72rem; color: var(--text-secondary); width: 68px; flex-shrink: 0; font-weight: bold; border-right: 1px solid var(--border-color); margin-right: 8px; padding-right: 4px;">번역 결과</span>
-                        <div id="morse_dec_text_result" style="font-size: 1rem; color: var(--text-primary); font-weight: bold; word-break: break-all; text-transform: uppercase; line-height: 1.3;"></div>
-                    </div>
-                </div>
 
-                <!-- 탭 패드 및 조율 옵션 -->
-                <div style="display: flex; gap: 8px; align-items: stretch; margin-bottom: 10px; height: 72px;">
-                    <!-- 큰 탭 버튼 (이벤트 감지 패널) -->
-                    <button id="morse_dec_tap_btn" 
-                            style="flex: 1; margin: 0; height: 100%; border-radius: 8px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 1rem; font-weight: bold; cursor: pointer; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; transition: all 0.1s ease; outline: none; -webkit-tap-highlight-color: transparent;"
-                            onmousedown="handleMorseDecStart(event)"
-                            onmouseup="handleMorseDecEnd(event)"
-                            onmouseleave="handleMorseDecEnd(event)"
-                            ontouchstart="handleMorseDecStart(event)"
-                            ontouchend="handleMorseDecEnd(event)">
-                        Dit & Dah
-                    </button>
-                    
-                    <!-- 제어 버튼 (백스페이스, 초기화) -->
-                    <div style="display: flex; flex-direction: column; gap: 6px; width: 85px;">
-                        <button onclick="backspaceMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center;">⌫ 지우기</button>
-                        <button onclick="clearMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center; color: var(--danger-color);">🔄 Reset</button>
+                    <!-- 탭 패드 및 조율 옵션 -->
+                    <div style="display: flex; gap: 8px; align-items: stretch; margin-bottom: 10px; height: 72px;">
+                        <!-- 큰 탭 버튼 (이벤트 감지 패널) -->
+                        <button id="morse_dec_tap_btn" 
+                                style="flex: 1; margin: 0; height: 100%; border-radius: 8px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 1rem; font-weight: bold; cursor: pointer; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; transition: all 0.1s ease; outline: none; -webkit-tap-highlight-color: transparent;"
+                                onmousedown="handleMorseDecStart(event)"
+                                onmouseup="handleMorseDecEnd(event)"
+                                onmouseleave="handleMorseDecEnd(event)"
+                                ontouchstart="handleMorseDecStart(event)"
+                                ontouchend="handleMorseDecEnd(event)">
+                            Dit & Dah
+                        </button>
+                        
+                        <!-- 제어 버튼 (백스페이스, 초기화) -->
+                        <div style="display: flex; flex-direction: column; gap: 6px; width: 85px;">
+                            <button onclick="backspaceMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center;">⌫ 지우기</button>
+                            <button onclick="clearMorseDec()" class="secondary" style="flex: 1; margin: 0; padding: 0; font-size: 0.8rem; font-weight: bold; height: auto; display: flex; align-items: center; justify-content: center; color: var(--danger-color);">🔄 Reset</button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- 기준값 조절 가이드 -->
-                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 4px; border: 1px dashed var(--border-color);">
-                    <span>⏱️ 단/장음 기준점: <strong>220ms</strong></span>
-                    <span>⚠️ 들리는 신호를 최대한 따라하세요.</span>
+                    <!-- 기준값 조절 가이드 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 4px; border: 1px dashed var(--border-color);">
+                        <span>⏱️ 단/장음 기준점: <strong>220ms</strong></span>
+                        <span>⚠️ 들리는 신호를 최대한 따라하세요.</span>
+                    </div>
                 </div>
             </div>
 
@@ -2441,12 +2446,16 @@
                     </div>
                     <div class="flex-row" style="align-items: center; gap: 8px;">
                         <div class="form-group" style="margin-bottom:0; width: 50%; flex: none;">
-                            <select id="sun_target_type" onchange="updateSunCountdown()" style="margin:0;">
+                            <select id="sun_target_type" onchange="updateSunCountdown()" style="display: none;">
                                 <option value="bmnt">🌅 BMNT(항해박명초) 전 준비</option>
                                 <option value="sunrise" selected>☀️ 일출 전 준비</option>
                                 <option value="sunset">🌙 일몰 전 준비</option>
                                 <option value="eent">🌆 EENT(항해박명종) 전 준비</option>
                             </select>
+                            <div class="custom-select-trigger" id="trigger_sun_target_type" onclick="openCustomSelectModal('sun_target_type', '알람 기준 시간')" style="margin: 0; width: 100%;">
+                                <span class="custom-select-val">☀️ 일출 전 준비</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 4px; width: 50%; flex: none;">
                             <input type="number" id="sun_margin_mins" value="30" min="0" oninput="updateSunCountdown()"
@@ -2752,7 +2761,7 @@
 
             <div class="card">
                 <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:0;"
-                    onclick="const f = document.getElementById('erp_form_body'); const btn = document.getElementById('btn_erp_form_toggle'); if(f.style.display==='none'){f.style.display='block'; btn.innerHTML='접기 ▲'; this.style.marginBottom='10px';}else{f.style.display='none'; btn.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
+                    onclick="const fErpForm = document.getElementById('erp_form_body'); const btnErpForm = document.getElementById('btn_erp_form_toggle'); if(fErpForm.style.display==='none'){fErpForm.style.display='block'; btnErpForm.innerHTML='접기 ▲'; this.style.marginBottom='10px';}else{fErpForm.style.display='none'; btnErpForm.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
                     <span id="erp_form_title" style="margin:0;">📦 물품 등록</span>
                     <div style="display:flex; align-items:center; gap:5px;">
                         <button class="secondary"
@@ -3182,23 +3191,44 @@
             // === 커스텀 셀렉트 모달 관련 함수 ===
             let currentTargetSelectId = null;
 
+            let pendingSunAlarm = null;
+
             function checkAndRestoreBodyScroll() {
                 const detailModal = document.getElementById('erp-detail-modal');
                 const thresholdModal = document.getElementById('erp-threshold-modal');
                 const deleteModal = document.getElementById('erp-delete-confirm-modal');
                 const customSelectModal = document.getElementById('custom-select-modal');
                 const agreementModal = document.getElementById('agreement-modal');
+                const sunAlarmConfirmModal = document.getElementById('sun-alarm-confirm-modal');
                 
                 const isAnyModalOpen = 
                     (detailModal && detailModal.style.display === 'flex') ||
                     (thresholdModal && thresholdModal.style.display === 'flex') ||
                     (deleteModal && deleteModal.style.display === 'flex') ||
                     (customSelectModal && customSelectModal.style.display === 'flex') ||
-                    (agreementModal && agreementModal.style.display === 'flex');
+                    (agreementModal && agreementModal.style.display === 'flex') ||
+                    (sunAlarmConfirmModal && sunAlarmConfirmModal.style.display === 'flex');
                     
                 if (!isAnyModalOpen) {
                     document.body.style.overflow = '';
                 }
+            }
+
+            function openSunAlarmConfirmModal() {
+                const modal = document.getElementById('sun-alarm-confirm-modal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
+                }
+            }
+
+            function closeSunAlarmConfirmModal() {
+                const modal = document.getElementById('sun-alarm-confirm-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+                pendingSunAlarm = null;
+                checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
             function openCustomSelectModal(selectId, titleText) {
@@ -3279,7 +3309,7 @@
             }
 
             function syncCustomSelectTriggers() {
-                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub', 'water_recipe_edit_s', 'water_recipe_edit_c'];
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub', 'water_recipe_edit_s', 'water_recipe_edit_c', 'sun_target_type'];
                 ids.forEach(id => {
                     const selectEl = document.getElementById(id);
                     const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
@@ -5337,18 +5367,23 @@
 
                 let targetDate = null;
                 let typeText = '';
+                let typeFullText = '';
                 if (targetType === 'sunrise' && sunData.sunrise) {
                     targetDate = new Date(sunData.sunrise);
                     typeText = '일출준비';
+                    typeFullText = '일출';
                 } else if (targetType === 'sunset' && sunData.sunset) {
                     targetDate = new Date(sunData.sunset);
                     typeText = '일몰준비';
+                    typeFullText = '일몰';
                 } else if (targetType === 'bmnt' && sunData.bmnt) {
                     targetDate = new Date(sunData.bmnt);
                     typeText = 'BMNT준비';
+                    typeFullText = 'BMNT';
                 } else if (targetType === 'eent' && sunData.eent) {
                     targetDate = new Date(sunData.eent);
                     typeText = 'EENT준비';
+                    typeFullText = 'EENT';
                 }
 
                 if (!targetDate) return;
@@ -5357,7 +5392,7 @@
                 const alarmTime = targetDate.getHours().toString().padStart(2, '0') + ':' +
                     targetDate.getMinutes().toString().padStart(2, '0');
 
-                const newAlarm = {
+                pendingSunAlarm = {
                     id: Date.now(),
                     time: alarmTime,
                     sound: 'siren',
@@ -5367,14 +5402,30 @@
                     note: typeText
                 };
 
+                const confirmTextEl = document.getElementById('sun_alarm_confirm_text');
+                if (confirmTextEl) {
+                    confirmTextEl.innerHTML = `<strong style="color: var(--primary-color); font-size: 1.25rem; font-variant-numeric: tabular-nums;">${alarmTime}</strong><br><span style="font-size: 0.85rem; color: var(--text-secondary);">(${typeFullText} ${marginMins}분 전)</span><br><br>위 알람을 목록에 추가하시겠습니까?`;
+                }
+
+                openSunAlarmConfirmModal();
+            }
+
+            function confirmAddSunAlarm() {
+                if (!pendingSunAlarm) return;
+
                 if (!appData.alarms) appData.alarms = [];
-                appData.alarms.push(newAlarm);
+                appData.alarms.push(pendingSunAlarm);
                 saveInputs();
                 renderAlarms();
+
+                const alarmTime = pendingSunAlarm.time;
+                const typeText = pendingSunAlarm.note;
+                const shouldGoToTab = document.getElementById('sun_alarm_go_to_tab').checked;
+
+                closeSunAlarmConfirmModal();
                 showToast(`${typeText} 알람(${alarmTime})이 추가되었습니다.`);
 
-                // 알람 탭으로 이동 안내
-                if (confirm("알람이 추가되었습니다. 알람 탭에서 확인하시겠습니까?")) {
+                if (shouldGoToTab) {
                     const navItems = document.querySelectorAll('.nav-item');
                     switchTab('tab-alert', navItems[3]);
                 }
@@ -9241,9 +9292,26 @@
 
         </script>
 
-    <!-- ========================================== -->
-    <!--          최상위 공용 모달 및 오버레이 수납소          -->
-    <!-- ========================================== -->
+    <!-- 일출/일몰 알람 추가 확인 모달 -->
+    <div id="sun-alarm-confirm-modal" onclick="closeSunAlarmConfirmModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10020; align-items: flex-start; justify-content: center; padding: 18vh 16px 16px 16px; box-sizing: border-box;">
+        <div onclick="event.stopPropagation()" style="background: var(--surface-color, #1e1e1e); border: 1px solid var(--border-color, #333); border-radius: 12px; max-width: 320px; width: 100%; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); box-sizing: border-box; text-align: center;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: var(--primary-color); font-weight: bold;">⏰ 알람 추가 확인</h4>
+            <p id="sun_alarm_confirm_text" style="margin: 0 0 15px 0; font-size: 0.95rem; color: var(--text-primary); line-height: 1.5; text-align: center;">
+                알람을 알람 목록에 추가하시겠습니까?
+            </p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="sun_alarm_go_to_tab" checked style="margin: 0; width: 15px; height: 15px; accent-color: var(--primary-color);">
+                    추가 후 알람 탭으로 이동
+                </label>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="secondary" onclick="closeSunAlarmConfirmModal()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">취소</button>
+                <button class="primary" onclick="confirmAddSunAlarm()" style="flex: 1; padding: 10px; margin: 0; font-size: 0.9rem; font-weight: bold;">추가</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 커스텀 드롭다운 선택 모달 -->
     <div id="custom-select-modal" class="custom-modal-overlay" onclick="closeCustomSelectModal(event)" style="display: none;">
         <div class="custom-modal-content">
