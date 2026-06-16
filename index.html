@@ -2267,8 +2267,9 @@
                     </div>
 
                     <!-- 기준값 조절 가이드 -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 4px; border: 1px dashed var(--border-color);">
-                        <span>⏱️ 단/장음 기준: <strong>220ms</strong></span>
+                    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.72rem; color: var(--text-secondary); background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 4px; border: 1px dashed var(--border-color); text-align: left;">
+                        <span>⏱️ 단/장음 기준 길이: <strong>220ms</strong></span>
+                        <span>❗ 영문/숫자 모스부호만 지원됩니다.</span>
                         <span>⚠️ 보이거나 들리는 신호를 최대한 따라하세요.</span>
                     </div>
                 </div>
@@ -4175,6 +4176,57 @@
                 }
             }
 
+            let morseOscillator = null;
+            let morseGainNode = null;
+
+            function startMorseSound() {
+                try {
+                    initAudio();
+                    if (!audioCtx) return;
+                    if (morseOscillator) return;
+                    
+                    morseOscillator = audioCtx.createOscillator();
+                    morseGainNode = audioCtx.createGain();
+                    
+                    morseOscillator.connect(morseGainNode);
+                    morseGainNode.connect(audioCtx.destination);
+                    
+                    morseOscillator.type = 'sine';
+                    morseOscillator.frequency.value = 800; // 800Hz
+                    
+                    const t = audioCtx.currentTime;
+                    morseGainNode.gain.setValueAtTime(0, t);
+                    morseGainNode.gain.linearRampToValueAtTime(1, t + 0.005);
+                    
+                    morseOscillator.start(t);
+                } catch (e) {
+                    console.log("Error starting Morse sound:", e);
+                }
+            }
+
+            function stopMorseSound() {
+                try {
+                    if (morseOscillator && morseGainNode && audioCtx) {
+                        const t = audioCtx.currentTime;
+                        morseGainNode.gain.setValueAtTime(morseGainNode.gain.value, t);
+                        morseGainNode.gain.linearRampToValueAtTime(0, t + 0.01);
+                        
+                        const currentOsc = morseOscillator;
+                        setTimeout(() => {
+                            try {
+                                currentOsc.stop();
+                                currentOsc.disconnect();
+                            } catch (e) {}
+                        }, 20);
+                        
+                        morseOscillator = null;
+                        morseGainNode = null;
+                    }
+                } catch (e) {
+                    console.log("Error stopping Morse sound:", e);
+                }
+            }
+
             function beep(duration) {
                 if (!audioCtx) return;
                 const osc = audioCtx.createOscillator();
@@ -4405,6 +4457,7 @@
 
             function handleMorseDecStart(event) {
                 if (event) event.preventDefault();
+                startMorseSound();
                 initReverseMorseMap();
 
                 if (morseDecTimeout) clearTimeout(morseDecTimeout);
@@ -4420,6 +4473,7 @@
 
             function handleMorseDecEnd(event) {
                 if (event) event.preventDefault();
+                stopMorseSound();
                 if (morseDecPressTime === 0) return;
 
                 const btn = document.getElementById('morse_dec_tap_btn');
@@ -4590,6 +4644,7 @@
 
             function handleMorsePracStart(event) {
                 if (event) event.preventDefault();
+                startMorseSound();
                 if (morsePracticeTimeout) clearTimeout(morsePracticeTimeout);
 
                 if (morsePracticeBlinkTimeout) {
@@ -4618,6 +4673,7 @@
 
             function handleMorsePracEnd(event) {
                 if (event) event.preventDefault();
+                stopMorseSound();
                 if (morsePracticePressTime === 0) return;
 
                 const btn = document.getElementById('morse_prac_tap_btn');
@@ -4738,7 +4794,10 @@
                 }
             }
 
+            let lastViewfinderCloseTime = 0;
+
             function closeAlignmentModal() {
+                lastViewfinderCloseTime = Date.now();
                 const popup = document.getElementById('signal-alignment-popup');
                 const video = document.getElementById('alignment_video');
                 const errBox = document.getElementById('alignment_camera_error');
@@ -4768,6 +4827,10 @@
             let lastBlackScreenTouchTime = 0;
 
             function handleBlackScreenClick() {
+                // 뷰파인더가 방금 닫혔다면 잔여 터치/더블 클릭 오작동 방지를 위해 400ms 동안 이벤트 무시
+                if (Date.now() - lastViewfinderCloseTime < 400) {
+                    return;
+                }
                 const popup = document.getElementById('signal-alignment-popup');
                 if (popup && popup.style.display === 'flex') {
                     // 뷰파인더가 열려있다면 1회 클릭으로 뷰파인더만 닫기
@@ -9749,11 +9812,10 @@
             </div>
         </div>
     </div>
-    <!-- 광학 신호 조준경 플로팅 팝업 -->
-    <div id="signal-alignment-popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:220px; height:300px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20015; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
+    <div id="signal-alignment-popup" onclick="event.stopPropagation()" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:220px; height:300px; border:2px solid #00FF00; border-radius:12px; overflow:hidden; z-index:20015; box-shadow:0 12px 36px rgba(0,0,0,0.6); flex-direction:column; background:#000;">
         <!-- 상단 헤더 겸 닫기 버튼 -->
         <div style="position:absolute; top:6px; right:6px; z-index:20017;">
-            <button onclick="closeAlignmentModal()" style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:50%; width:24px; height:24px; padding:0; display:flex; align-items:center; justify-content:center; font-size:0.85rem; cursor:pointer; font-weight:bold; margin:0; line-height:1;">×</button>
+            <button onclick="closeAlignmentModal(); event.stopPropagation();" style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.3); color:#fff; border-radius:50%; width:24px; height:24px; padding:0; display:flex; align-items:center; justify-content:center; font-size:0.85rem; cursor:pointer; font-weight:bold; margin:0; line-height:1;">×</button>
         </div>
         
         <!-- 비디오 스트림 및 조준선 영역 -->
