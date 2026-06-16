@@ -2465,9 +2465,36 @@
 
                 <div id="sun_alarm_section"
                     style="display:none; margin-top:12px; border-top:1px dashed var(--border-color); padding-top:12px;">
-                    <button onclick="openSunAlarmModal()" style="font-size:0.85rem; padding:10px; margin:0; display:flex; align-items:center; justify-content:center; gap:6px; font-weight:bold; width:100%;">
-                        ⏰ 일출/일몰 알람 추가
-                    </button>
+                    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:8px;">
+                        <span style="font-size:0.85rem; font-weight:bold; color:var(--primary-color);">🚨 생존 준비 알람
+                            (Margin Time)</span>
+                    </div>
+                    <div class="flex-row" style="align-items: center; gap: 8px;">
+                        <div class="form-group" style="margin-bottom:0; width: 50%; flex: none;">
+                            <select id="sun_target_type" onchange="updateSunCountdown()" style="display: none;">
+                                <option value="bmnt">🌅 BMNT(항해박명초) 전 준비</option>
+                                <option value="sunrise" selected>☀️ 일출 전 준비</option>
+                                <option value="sunset">🌙 일몰 전 준비</option>
+                                <option value="eent">🌆 EENT(항해박명종) 전 준비</option>
+                            </select>
+                            <div class="custom-select-trigger" id="trigger_sun_target_type" onclick="openCustomSelectModal('sun_target_type', '알람 기준 시간')" style="margin: 0; width: 100%;">
+                                <span class="custom-select-val">☀️ 일출 전 준비</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; width: 50%; flex: none;">
+                            <input type="number" id="sun_margin_mins" value="30" min="0" oninput="updateSunCountdown()"
+                                placeholder="분" style="margin:0; width: 50%; box-sizing: border-box;">
+                            <span style="font-size:0.85rem; color:var(--text-secondary); white-space:nowrap;">분 전</span>
+                        </div>
+                    </div>
+                    <div id="sun_countdown_display" class="result-box"
+                        style="margin-top:10px; text-align:center; font-size:1.1rem; display:none;">
+                        준비까지 남은 시간: <strong id="sun_remain_time"
+                            style="font-variant-numeric: tabular-nums;">00:00:00</strong>
+                    </div>
+                    <button id="btn_add_sun_alarm" onclick="addSunAlarm()" style="font-size:0.85rem; padding:8px;">이 시간에
+                        알람 추가</button>
                 </div>
 
                 <div class="result-box" id="sun_result" style="margin-top:12px;">
@@ -5401,27 +5428,7 @@
 
                 // 일출/일몰 알람 섹션 활성화
                 document.getElementById('sun_alarm_section').style.display = 'block';
-            }
-
-            function openSunAlarmModal() {
-                const modal = document.getElementById('sun-alarm-modal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                    updateSunCountdown();
-                }
-            }
-
-            function closeSunAlarmModal() {
-                const modal = document.getElementById('sun-alarm-modal');
-                if (modal) {
-                    modal.style.display = 'none';
-                    document.body.style.overflow = '';
-                    if (sunCountdownInterval) {
-                        clearInterval(sunCountdownInterval);
-                        sunCountdownInterval = null;
-                    }
-                }
+                updateSunCountdown();
             }
 
             function resetSunMoon() {
@@ -5440,7 +5447,10 @@
                     alarmSec.style.display = 'none';
                 }
 
-                closeSunAlarmModal();
+                if (sunCountdownInterval) {
+                    clearInterval(sunCountdownInterval);
+                    sunCountdownInterval = null;
+                }
 
                 sunData = null;
             }
@@ -9687,43 +9697,7 @@
         </div>
     </div>
 
-    <!-- 일출/일몰 알람 설정 모달 (모달 격리 원칙 준수) -->
-    <div id="sun-alarm-modal" onclick="closeSunAlarmModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.9); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10015; align-items:flex-start; justify-content:center; padding: 18vh 16px 16px 16px; box-sizing:border-box;">
-        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:360px; box-sizing:border-box; display:flex; flex-direction:column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);">
-            <h4 style="margin-top:0; color:var(--primary-color); font-size:1.1rem; margin-bottom:15px; text-align:left;">⏰ 일출/일몰 알람 추가</h4>
-            
-            <div class="form-group" style="margin-bottom:12px; text-align:left;">
-                <label>알람 기준 시간</label>
-                <select id="sun_target_type" onchange="updateSunCountdown()" style="display: none; width:100%;">
-                    <option value="bmnt">🌅 BMNT(항해박명초) 전 준비</option>
-                    <option value="sunrise" selected>☀️ 일출 전 준비</option>
-                    <option value="sunset">🌙 일몰 전 준비</option>
-                    <option value="eent">🌆 EENT(항해박명종) 전 준비</option>
-                </select>
-                <div class="custom-select-trigger" id="trigger_sun_target_type" onclick="openCustomSelectModal('sun_target_type', '알람 기준 시간')" style="margin: 0; width: 100%;">
-                    <span class="custom-select-val">☀️ 일출 전 준비</span>
-                    <span class="custom-select-arrow">▼</span>
-                </div>
-            </div>
 
-            <div class="form-group" style="margin-bottom:15px; text-align:left;">
-                <label>여유 시간 (Margin Time)</label>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="number" id="sun_margin_mins" value="30" min="0" oninput="updateSunCountdown()" placeholder="분" style="margin:0; flex:1; box-sizing: border-box;">
-                    <span style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap;">분 전</span>
-                </div>
-            </div>
-
-            <div id="sun_countdown_display" class="result-box" style="margin-top:0; margin-bottom:20px; text-align:center; font-size:1rem; padding: 10px; background: rgba(255, 255, 255, 0.02); border-radius: 6px; border: 1px solid var(--border-color);">
-                준비까지 남은 시간:<br><strong id="sun_remain_time" style="font-variant-numeric: tabular-nums; font-size: 1.25rem; color: var(--primary-color); display: block; margin-top: 4px;">00:00:00</strong>
-            </div>
-
-            <div style="display:flex; gap:10px;">
-                <button onclick="closeSunAlarmModal()" class="secondary" style="margin:0; padding:10px; flex:1; font-weight:bold;">취소</button>
-                <button id="btn_add_sun_alarm" onclick="addSunAlarm(); closeSunAlarmModal();" class="primary" style="margin:0; padding:10px; flex:1; font-weight:bold;">등록</button>
-            </div>
-        </div>
-    </div>
 
     <!-- 카테고리 관리 모달 -->
     <div id="todo-cat-manage-modal" onclick="closeTodoCatManageModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.9); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10015; align-items:flex-start; justify-content:center; padding: 8vh 16px 16px 16px; box-sizing:border-box;">
