@@ -4816,6 +4816,17 @@
                 video.style.display = 'block';
                 if (triggerBtn) triggerBtn.style.display = 'none'; // 조준경이 뜨면 중앙의 🎯 버튼은 숨김
 
+                // 만약 이미 신호용 카메라 스트림(activeVideoStream)이 켜져 있다면 이를 재사용하여 충돌 방지
+                if (activeVideoStream) {
+                    try {
+                        video.srcObject = activeVideoStream;
+                        alignmentStream = null; // 자체 생성 스트림이 아님을 표시
+                        return;
+                    } catch (reuseErr) {
+                        console.warn("Failed to reuse activeVideoStream for alignment:", reuseErr);
+                    }
+                }
+
                 // API 미지원 및 HTTPS 미적용 예외 차단
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                     console.warn("Camera getUserMedia not supported in this context.");
@@ -4851,16 +4862,14 @@
                 if (triggerBtn) triggerBtn.style.display = 'flex'; // 조준경이 꺼지면 중앙의 🎯 버튼 다시 노출
 
                 if (video) {
-                    if (video.srcObject) {
-                        const stream = video.srcObject;
-                        stream.getTracks().forEach(track => track.stop());
-                        video.srcObject = null;
-                    }
+                    video.srcObject = null;
                     video.removeAttribute('src');
                     video.removeAttribute('srcObject');
                     try { video.load(); } catch (e) {}
                     video.style.display = 'block';
                 }
+                
+                // 직접 연 alignmentStream이 있을 때만 안전하게 트랙을 멈춤
                 if (alignmentStream) {
                     alignmentStream.getTracks().forEach(track => track.stop());
                     alignmentStream = null;
