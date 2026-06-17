@@ -198,7 +198,7 @@
         }
 
         #signal-alignment-popup {
-            top: 75px !important;
+            top: 35px !important;
             left: 50% !important;
             right: auto !important;
             bottom: auto !important;
@@ -4433,8 +4433,24 @@
                 let idx = 0;
                 const overlay = document.getElementById('strobe_overlay');
 
-                // 소리/빛 무관하게 모스부호 송출 중에는 항상 블랙 스크린 표시하여 오작동 방지
-                document.getElementById('strobe_text').innerText = txt;
+                // 입력 텍스트를 모스 부호 기호(·, -) 문자열로 번역
+                let morseStrParts = [];
+                for (let i = 0; i < txt.length; i++) {
+                    const c = txt[i];
+                    if (c === ' ') {
+                        morseStrParts.push('/');
+                        continue;
+                    }
+                    const m = MORSE_MAP[c];
+                    if (m) {
+                        morseStrParts.push(m);
+                    }
+                }
+                const morseStr = morseStrParts.join(' ');
+                const escapedTxt = txt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                // 소리/빛 무관하게 모스부호 송출 중에는 항상 블랙 스크린에 텍스트와 모스 부호를 함께 표시
+                document.getElementById('strobe_text').innerHTML = `${escapedTxt}<br><span style="font-size: 1.15rem; color: inherit; opacity: 0.85; letter-spacing: 4px; display: block; margin-top: 10px; font-weight: normal; word-break: break-all;">${morseStr}</span>`;
                 overlay.classList.add('active');
                 overlay.classList.remove('flash');
 
