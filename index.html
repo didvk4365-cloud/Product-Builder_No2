@@ -2823,7 +2823,7 @@
                         style="display:none; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px; margin-bottom:15px; border:1px solid var(--border-color);">
                         <div style="font-weight:bold; margin-bottom:8px; color:var(--primary-color);">대분류 관리</div>
                         <div style="display:flex; gap:5px; margin-bottom:10px;">
-                            <input type="text" id="cat_main_input" placeholder="새 대분류" style="flex:2; margin:0;">
+                            <input type="text" id="cat_main_input" placeholder="새 대분류" style="flex:2; margin:0;" onkeydown="if(event.key==='Enter'){addMainCat(); event.preventDefault();}">
                             <button onclick="addMainCat()" style="flex:1; margin:0; padding:8px;">추가</button>
                         </div>
                         <div id="cat_main_list" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:15px;">
@@ -2837,7 +2837,7 @@
                                 <span class="custom-select-val">-</span>
                                 <span class="custom-select-arrow">▼</span>
                             </div>
-                            <input type="text" id="cat_sub_input" placeholder="새 중분류" style="flex:2; margin:0;">
+                            <input type="text" id="cat_sub_input" placeholder="새 중분류" style="flex:2; margin:0;" onkeydown="if(event.key==='Enter'){addSubCat(); event.preventDefault();}">
                             <button onclick="addSubCat()" style="flex:1; margin:0; padding:8px;">추가</button>
                         </div>
                         <div id="cat_sub_list" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;"></div>
@@ -6487,6 +6487,10 @@
                 mainSel.innerHTML = '';
                 if (mainListDiv) mainListDiv.innerHTML = '';
 
+                if (!appData.categories || typeof appData.categories !== 'object') {
+                    appData.categories = {};
+                }
+
                 const keys = Object.keys(appData.categories);
                 keys.forEach((cat, index) => {
                     let opt = document.createElement('option');
@@ -6574,8 +6578,15 @@
 
             function addMainCat() {
                 const input = document.getElementById('cat_main_input');
+                if (!input) return;
                 const val = input.value.trim();
-                if (val && !appData.categories[val]) {
+                if (!val) return;
+
+                if (!appData.categories || typeof appData.categories !== 'object') {
+                    appData.categories = {};
+                }
+
+                if (!appData.categories[val]) {
                     appData.categories[val] = ["기타"];
                     input.value = '';
                     saveInputs();
@@ -6692,8 +6703,18 @@
             function addSubCat() {
                 const mainCat = document.getElementById('cat_mgr_main_select').value;
                 const input = document.getElementById('cat_sub_input');
+                if (!input) return;
                 const val = input.value.trim();
-                if (mainCat && val && !appData.categories[mainCat].includes(val)) {
+                if (!mainCat || !val) return;
+
+                if (!appData.categories || typeof appData.categories !== 'object') {
+                    appData.categories = {};
+                }
+                if (!appData.categories[mainCat]) {
+                    appData.categories[mainCat] = [];
+                }
+
+                if (!appData.categories[mainCat].includes(val)) {
                     appData.categories[mainCat].push(val);
                     input.value = '';
                     saveInputs();
