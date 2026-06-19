@@ -3408,6 +3408,82 @@
                     };
                 }
 
+                // 구버전 카테고리 자동 마이그레이션 (의료/위생 분리, 대피용품->장비, 전기/발전 세팅)
+                if (appData.categories && typeof appData.categories === 'object' && !Array.isArray(appData.categories)) {
+                    let migrated = false;
+
+                    // 1. 의료/위생 분리
+                    if (appData.categories["의료/위생"]) {
+                        appData.categories["의료"] = ["구급상자", "소독제", "의약품", "기타"];
+                        appData.categories["위생"] = ["휴지", "물티슈", "쓰레기봉투", "기타"];
+                        delete appData.categories["의료/위생"];
+                        migrated = true;
+                    }
+
+                    // 2. 대피용품 -> 장비
+                    if (appData.categories["대피용품"]) {
+                        appData.categories["장비"] = appData.categories["대피용품"];
+                        delete appData.categories["대피용품"];
+                        migrated = true;
+                    }
+
+                    // 3. 전기/발전 세팅이 없고 옛날 전기/발전 분류명이 남아있는 경우 대응
+                    if (appData.categories["전기/발전"]) {
+                        appData.categories["전기"] = ["보조배터리", "배터리", "케이블", "충전기", "기타"];
+                        appData.categories["발전"] = ["발전기", "태양광 패널", "손발전기", "기타"];
+                        delete appData.categories["전기/발전"];
+                        migrated = true;
+                    }
+
+                    // 4. 신규 대분류 누락 대응
+                    if (!appData.categories["전기"]) {
+                        appData.categories["전기"] = ["보조배터리", "배터리", "케이블", "충전기", "기타"];
+                        migrated = true;
+                    }
+                    if (!appData.categories["발전"]) {
+                        appData.categories["발전"] = ["발전기", "태양광 패널", "손발전기", "기타"];
+                        migrated = true;
+                    }
+
+                    // 등록된 물품의 대분류명 마이그레이션
+                    if (Array.isArray(appData.erp)) {
+                        appData.erp.forEach(item => {
+                            if (item.category === "의료/위생") {
+                                const name = item.name || '';
+                                if (name.includes("마스크") || name.includes("티슈") || name.includes("휴지") || name.includes("비누") || name.includes("세제")) {
+                                    item.category = "위생";
+                                    item.category_sub = "위생용품";
+                                } else {
+                                    item.category = "의료";
+                                    item.category_sub = "의약품";
+                                }
+                                migrated = true;
+                            } else if (item.category === "대피용품") {
+                                item.category = "장비";
+                                migrated = true;
+                            } else if (item.category === "전기/발전") {
+                                const name = item.name || '';
+                                if (name.includes("발전") || name.includes("태양광")) {
+                                    item.category = "발전";
+                                    item.category_sub = "발전기";
+                                } else {
+                                    item.category = "전기";
+                                    item.category_sub = "보조배터리";
+                                }
+                                migrated = true;
+                            }
+                        });
+                    }
+
+                    if (migrated) {
+                        try {
+                            localStorage.setItem(DATA_KEY, JSON.stringify(appData));
+                        } catch (e) {
+                            console.error("Migration save error:", e);
+                        }
+                    }
+                }
+
                 appData.userAgreed = !!appData.userAgreed;
                 if (appData.erpExpiryThreshold === undefined) appData.erpExpiryThreshold = 30;
                 if (appData.erpExpiryAlertCollapsed === undefined) appData.erpExpiryAlertCollapsed = false;
