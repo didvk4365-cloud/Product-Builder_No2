@@ -13,6 +13,7 @@
             --surface-color: #0c0c0c;
             /* 훨씬 어두운 프리미엄 차콜 그레이 */
             --primary-color: #ff9800;
+            --primary-glow: rgba(255, 152, 0, 0.08);
             --splash-grad-end: #e65100;
             --text-primary: #ffffff;
             --text-secondary: #aaaaaa;
@@ -29,6 +30,7 @@
             --surface-color: #0a0000;
             /* 극도로 어두운 적색 배경 */
             --primary-color: #c42020;
+            --primary-glow: rgba(196, 32, 32, 0.08);
             --splash-grad-end: #5e1010;
             /* 눈부심을 줄인 차분한 붉은색 */
             --text-primary: #d44040;
@@ -1946,7 +1948,7 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: #252525;
+            background: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
             display: inline-flex;
@@ -1960,13 +1962,13 @@
             box-sizing: border-box;
         }
         .alarm-day-btn.active {
-            background: var(--primary-color);
+            background: transparent;
             border-color: var(--primary-color);
-            color: #ffffff;
-            box-shadow: 0 0 8px var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 6px var(--primary-glow);
         }
         :root.red-mode .alarm-day-btn.active {
-            color: #ffffff;
+            color: var(--primary-color);
         }
 
         /* 커스텀 셀렉트 모달 */
@@ -2813,7 +2815,7 @@
                     </div>
                 </div>
                 <div class="flex-row">
-                    <button onclick="addAlarm()" style="flex:1;">➕ 추가</button>
+                    <button id="btn_add_alarm" onclick="addAlarm()" style="flex:1;">➕ 추가</button>
                     <button class="danger" onclick="deleteSelectedAlarms()" style="flex:1;">🗑 삭제</button>
                     <button class="secondary" onclick="playAlarmSound('alarm', true)"
                         style="width:auto; flex:none; padding:12px 14px;">🔊</button>
@@ -3439,7 +3441,7 @@
             }
 
             function syncCustomSelectTriggers() {
-                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub', 'water_recipe_edit_s', 'water_recipe_edit_c', 'sun_target_type'];
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'edit_a_sound', 'edit_a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub', 'water_recipe_edit_s', 'water_recipe_edit_c', 'sun_target_type'];
                 ids.forEach(id => {
                     const selectEl = document.getElementById(id);
                     const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
@@ -6181,7 +6183,7 @@
             }
 
             function updateAlarmDayButtonsUI() {
-                const dayButtons = document.querySelectorAll('.alarm-day-btn');
+                const dayButtons = document.querySelectorAll('#tab-alert .alarm-day-btn');
                 dayButtons.forEach(btn => {
                     const day = parseInt(btn.dataset.day);
                     if (selectedAlarmDays.includes(day)) {
@@ -6201,7 +6203,121 @@
                 }
             }
 
-            // Multi-Alarm Management
+            // Multi-Alarm Management & Edit Modal Logic
+            let popupEditingAlarmId = null;
+            let editAlarmSelectedDays = [];
+
+            function openAlarmEditModalPopup(id) {
+                const alarm = appData.alarms.find(a => a.id === id);
+                if (!alarm) return;
+
+                popupEditingAlarmId = id;
+                document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 잠금
+
+                // 데이터 바인딩
+                document.getElementById('edit_a_time').value = alarm.time || '';
+                document.getElementById('edit_a_title').value = alarm.title || '';
+                document.getElementById('edit_a_duration').value = alarm.duration || 2;
+                document.getElementById('edit_a_sound').value = alarm.sound || 'none';
+                document.getElementById('edit_a_vibe').value = alarm.vibe || 'none';
+                document.getElementById('edit_a_biweekly').checked = !!alarm.biweekly;
+
+                editAlarmSelectedDays = [...(alarm.repeatDays || [])];
+                updateEditAlarmDayButtonsUI();
+
+                // 커스텀 select UI 업데이트 트리거 호출
+                if (typeof syncCustomSelectTriggers === 'function') {
+                    syncCustomSelectTriggers();
+                }
+
+                // 모달 띄우기
+                const modal = document.getElementById('alarm-edit-modal');
+                if (modal) modal.style.display = 'flex';
+            }
+
+            function hideAlarmEditModalPopup() {
+                const modal = document.getElementById('alarm-edit-modal');
+                if (modal) modal.style.display = 'none';
+                popupEditingAlarmId = null;
+                checkAndRestoreBodyScroll();
+            }
+
+            function closeAlarmEditModalPopup(event) {
+                // 바깥 백드롭 영역 클릭 시만 닫기
+                if (event && event.target.id === 'alarm-edit-modal') {
+                    hideAlarmEditModalPopup();
+                }
+            }
+
+            function saveAlarmEditPopup() {
+                if (popupEditingAlarmId === null) return;
+
+                const timeStr = document.getElementById('edit_a_time').value;
+                if (!timeStr) {
+                    showToast("시간을 설정해주세요.");
+                    return;
+                }
+
+                const titleStr = (document.getElementById('edit_a_title').value || '').trim() || '알람';
+                const sound = document.getElementById('edit_a_sound').value;
+                const vibe = document.getElementById('edit_a_vibe').value;
+                const dur = parseInt(document.getElementById('edit_a_duration').value) || 2;
+                const biweekly = document.getElementById('edit_a_biweekly').checked;
+
+                const alarm = appData.alarms.find(a => a.id === popupEditingAlarmId);
+                if (alarm) {
+                    alarm.time = timeStr;
+                    alarm.title = titleStr;
+                    alarm.repeatDays = [...editAlarmSelectedDays].sort((a, b) => a - b);
+                    alarm.biweekly = biweekly;
+                    alarm.sound = sound;
+                    alarm.vibe = vibe;
+                    alarm.duration = dur;
+                    alarm.triggered = false; // 수정 시 트리거 초기화
+
+                    showToast("알람이 수정되었습니다.");
+                }
+
+                saveInputs();
+                renderAlarms();
+                hideAlarmEditModalPopup();
+            }
+
+            function toggleEditAlarmDay(day) {
+                const idx = editAlarmSelectedDays.indexOf(day);
+                if (idx > -1) {
+                    editAlarmSelectedDays.splice(idx, 1);
+                } else {
+                    editAlarmSelectedDays.push(day);
+                }
+                updateEditAlarmDayButtonsUI();
+            }
+
+            function setEditAlarmRepeatPreset(preset) {
+                if (preset === 'all') {
+                    editAlarmSelectedDays = [0, 1, 2, 3, 4, 5, 6];
+                } else if (preset === 'weekdays') {
+                    editAlarmSelectedDays = [1, 2, 3, 4, 5];
+                } else if (preset === 'weekends') {
+                    editAlarmSelectedDays = [0, 6];
+                } else {
+                    editAlarmSelectedDays = [];
+                }
+                updateEditAlarmDayButtonsUI();
+            }
+
+            function updateEditAlarmDayButtonsUI() {
+                const btns = document.querySelectorAll('.edit-alarm-day-btn');
+                btns.forEach(btn => {
+                    const day = parseInt(btn.dataset.day);
+                    if (editAlarmSelectedDays.includes(day)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+
             function addAlarm() {
                 saveInputs();
                 const timeStr = document.getElementById('a_time').value;
@@ -6228,18 +6344,22 @@
                     enabled: true,
                     triggered: false
                 };
-
                 appData.alarms.push(newAlarm);
+                showToast("알람이 추가되었습니다.");
                 
                 // 폼 입력 초기화
+                document.getElementById('a_time').value = '';
                 document.getElementById('a_title').value = '';
                 document.getElementById('a_biweekly').checked = false;
                 selectedAlarmDays = [];
                 updateAlarmDayButtonsUI();
 
+                if (typeof syncCustomSelectTriggers === 'function') {
+                    syncCustomSelectTriggers();
+                }
+
                 saveInputs();
                 renderAlarms();
-                showToast("알람이 추가되었습니다.");
             }
 
             function deleteSelectedAlarms() {
@@ -6295,29 +6415,58 @@
                         <input type="checkbox" class="alarm-checkbox" data-id="${alarm.id}" style="margin-right: 8px;">
                         
                         <div class="alarm-info" style="display:flex; flex:1; justify-content:space-between; align-items:center; min-width:0; gap:10px;">
-                            <!-- 좌측: 제목, 주기 배지, 알람 세부 요약 -->
-                            <div style="display:flex; flex-direction:column; gap:4px; min-width:0; flex:1;">
-                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                            <!-- 좌측 3줄 구조 영역 (제목 / 반복 주기 / 상세 정보) -->
+                            <div style="display:flex; flex-direction:column; gap:4px; min-width:0; flex:1; padding-right:4px;">
+                                <!-- 1. 제목 -->
+                                <div style="display:flex; align-items:center; min-width:0;">
                                     <strong style="font-size:0.95rem; color:var(--text-primary); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${title}</strong>
-                                    <span style="font-size:0.7rem; background:${repeatDays.length === 0 ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 152, 0, 0.15)'}; border: 1px solid ${repeatDays.length === 0 ? 'var(--border-color)' : 'var(--primary-color)'}; color:${repeatDays.length === 0 ? 'var(--text-secondary)' : 'var(--primary-color)'}; padding:1px 6px; border-radius:4px; font-weight:bold; white-space:nowrap;">${repeatStr}</span>
                                 </div>
+                                <!-- 2. 반복 주기 -->
+                                <div style="display:flex; align-items:center; min-width:0;">
+                                    <span style="font-size:0.72rem; background:${repeatDays.length === 0 ? 'rgba(255, 255, 255, 0.06)' : 'var(--primary-glow)'}; border: 1px solid ${repeatDays.length === 0 ? 'var(--border-color)' : 'var(--primary-color)'}; color:${repeatDays.length === 0 ? 'var(--text-secondary)' : 'var(--primary-color)'}; padding:1px 6px; border-radius:4px; font-weight:bold; white-space:nowrap;">${repeatStr}</span>
+                                </div>
+                                <!-- 3. 상세 요약 (알람음 | 진동종류 | 알람길이) -->
                                 <div style="font-size:0.75rem; color:var(--text-secondary); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
                                     ${soundName} | ${vibeName} | ${alarm.duration}초
                                 </div>
                             </div>
                             
-                            <!-- 우측: 시간(우정렬) 및 온/오프 토글스위치 -->
-                            <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
-                                <div style="font-family: 'Outfit', 'Inter', monospace; font-size:1.4rem; font-weight:bold; color:${enabled ? 'var(--primary-color)' : 'var(--text-secondary)'}; transition: color 0.2s;">
+                            <!-- 세로 구분선 및 우측 시간/상태 영역 -->
+                            <div style="display:flex; align-items:center; gap:12px; padding-left:12px; border-left:2px solid rgba(255, 255, 255, 0.22); flex-shrink:0; align-self:stretch; min-height:48px;">
+                                <div style="font-family: 'Courier New', Courier, monospace; font-variant-numeric: tabular-nums; font-size:1.4rem; font-weight:bold; color:${enabled ? 'var(--primary-color)' : 'var(--text-secondary)'}; transition: color 0.2s; min-width:68px; text-align:right;">
                                     ${alarm.time}
                                 </div>
-                                <label class="toggle-switch-wrapper" style="margin: 0;">
-                                    <input type="checkbox" ${isChecked} onchange="toggleAlarmEnabled(${alarm.id})">
-                                    <span class="switch-slider"></span>
-                                </label>
+                                <button onclick="toggleAlarmEnabled(${alarm.id})" class="toggle-alarm-btn" style="width: 32px; height: 32px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid ${enabled ? 'var(--primary-color)' : 'var(--border-color)'}; background: ${enabled ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)'}; color: ${enabled ? 'var(--primary-color)' : 'var(--text-secondary)'}; cursor: pointer; transition: all 0.2s; pointer-events: auto !important; outline: none; -webkit-tap-highlight-color: transparent;" title="${enabled ? '알람 켜짐' : '알람 꺼짐'}">
+                                    ${enabled ? `
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; display: block;">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" fill="currentColor" />
+                                        </svg>
+                                    ` : `
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; display: block; opacity: 0.6;">
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" fill="currentColor" />
+                                            <path d="M18.63 13A17.89 17.89 0 0 1 18 8" />
+                                            <path d="M6.26 6.26A5.86 5.86 0 0 0 6 8v7a2 2 0 0 0-2 2h13.74" />
+                                            <path d="M12 3a3 3 0 0 0-3 3v1.74" />
+                                            <line x1="1" y1="1" x2="23" y2="23" />
+                                        </svg>
+                                    `}
+                                </button>
                             </div>
                         </div>
                     `;
+
+                    // 전체 아이템 터치/클릭 시 수정 팝업 모달 띄우기 (핸들, 체크박스, 토글 제외)
+                    item.addEventListener('click', (e) => {
+                        if (
+                            e.target.classList.contains('drag-handle') ||
+                            e.target.classList.contains('alarm-checkbox') ||
+                            e.target.closest('.toggle-alarm-btn')
+                        ) {
+                            return;
+                        }
+                        openAlarmEditModalPopup(alarm.id);
+                    });
 
                     // Drag and Drop Events
                     item.addEventListener('dragstart', handleDragStart);
@@ -10702,6 +10851,97 @@
                         </g>
                     </svg>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알람 수정 모달 팝업 -->
+    <div id="alarm-edit-modal" onclick="closeAlarmEditModalPopup(event)" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.88); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10025; align-items:center; justify-content:center; padding:16px; box-sizing:border-box;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:18px; width:100%; max-width:360px; box-sizing:border-box; display:flex; flex-direction:column; max-height:92vh; max-height:92dvh; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow-y:auto;">
+            <h3 style="margin: 0 0 14px 0; color: var(--primary-color); display:flex; align-items:center; gap:8px;">✏️ 알람 수정</h3>
+            
+            <div class="form-group" style="margin-bottom: 6px;">
+                <label>알람 제목 / 설명</label>
+                <input type="text" id="edit_a_title" placeholder="예: 비상식수 교체하기, 아침 약 복용" style="height: 40px; box-sizing: border-box; width:100%; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px;">
+            </div>
+
+            <div class="flex-row" style="margin-top: 2px;">
+                <div class="form-group" style="flex:2; margin-bottom: 0;">
+                    <label>시간 설정</label>
+                    <input type="time" id="edit_a_time" style="height: 40px; box-sizing: border-box; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; width:100%;">
+                </div>
+                <div class="form-group" style="flex:1; margin-bottom: 0;">
+                    <label style="white-space: nowrap;">길이(초)</label>
+                    <input type="number" id="edit_a_duration" value="2" min="1" style="height: 40px; box-sizing: border-box; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; width:100%;">
+                </div>
+            </div>
+
+            <div class="flex-row" style="margin-top: 2px;">
+                <div class="form-group" style="flex:1; margin-bottom: 0;">
+                    <label>소리</label>
+                    <select id="edit_a_sound" style="display: none;">
+                        <option value="none">음소거</option>
+                        <option value="siren">사이렌</option>
+                        <option value="beep_fast" selected>빠른 비프 A</option>
+                        <option value="beep_fast2">빠른 비프 B</option>
+                        <option value="beep_slow">느린 비프 A</option>
+                        <option value="beep_slow2">느린 비프 B</option>
+                    </select>
+                    <div class="custom-select-trigger" id="trigger_edit_a_sound" onclick="openCustomSelectModal('edit_a_sound', '알람 소리')" style="height:36px; padding: 0 10px; font-size:0.85rem; border-radius:6px; box-sizing:border-box;">
+                        <span class="custom-select-val">빠른 비프 A</span>
+                        <span class="custom-select-arrow">▼</span>
+                    </div>
+                </div>
+                <div class="form-group" style="flex:1; margin-bottom: 0;">
+                    <label>진동</label>
+                    <select id="edit_a_vibe" style="display: none;">
+                        <option value="none">진동 끄기</option>
+                        <option value="long">긴 진동 A</option>
+                        <option value="long2">긴 진동 B</option>
+                        <option value="short" selected>짧은 진동 A</option>
+                        <option value="short2">짧은 진동 B</option>
+                        <option value="sos">SOS 패턴</option>
+                    </select>
+                    <div class="custom-select-trigger" id="trigger_edit_a_vibe" onclick="openCustomSelectModal('edit_a_vibe', '알람 진동')" style="height:36px; padding: 0 10px; font-size:0.85rem; border-radius:6px; box-sizing:border-box;">
+                        <span class="custom-select-val">짧은 진동 A</span>
+                        <span class="custom-select-arrow">▼</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 반복 요일 및 격주 설정 -->
+            <div class="form-group" style="margin-top: 12px; margin-bottom: 2px !important;">
+                <label>반복 요일 설정</label>
+                <!-- 프리셋 버튼 -->
+                <div style="display: flex; gap: 4px; margin-bottom: 12px;">
+                    <button class="secondary" onclick="setEditAlarmRepeatPreset('all')" style="flex:1; padding: 4px; font-size: 0.72rem; margin:0; height:28px; line-height:1; display:flex; align-items:center; justify-content:center;">매일</button>
+                    <button class="secondary" onclick="setEditAlarmRepeatPreset('weekdays')" style="flex:1; padding: 4px; font-size: 0.72rem; margin:0; height:28px; line-height:1; display:flex; align-items:center; justify-content:center;">평일</button>
+                    <button class="secondary" onclick="setEditAlarmRepeatPreset('weekends')" style="flex:1; padding: 4px; font-size: 0.72rem; margin:0; height:28px; line-height:1; display:flex; align-items:center; justify-content:center;">주말</button>
+                    <button class="secondary" onclick="setEditAlarmRepeatPreset('none')" style="flex:1; padding: 4px; font-size: 0.72rem; margin:0; height:28px; line-height:1; display:flex; align-items:center; justify-content:center;">안함</button>
+                </div>
+                <!-- 요일 개별 선택 원형 버튼 -->
+                <div style="display: flex; justify-content: space-between; gap: 4px; margin-bottom: 12px;">
+                    <div class="alarm-day-btn edit-alarm-day-btn" data-day="0" onclick="toggleEditAlarmDay(0)">일</div>
+                    <div class="alarm-day-btn edit-alarm-day-btn" data-day="1" onclick="toggleEditAlarmDay(1)">월</div>
+                    <div class="alarm-day-btn edit-alarm-day-btn" data-day="2" onclick="toggleEditAlarmDay(2)">화</div>
+                    <div class="alarm-day-btn edit-alarm-day-btn" data-day="3" onclick="toggleEditAlarmDay(3)">수</div>
+                    <div class="alarm-day-btn edit-alarm-day-btn" data-day="4" onclick="toggleEditAlarmDay(4)">목</div>
+                    <div class="alarm-day-btn edit-alarm-day-btn" data-day="5" onclick="toggleEditAlarmDay(5)">금</div>
+                    <div class="alarm-day-btn edit-alarm-day-btn" data-day="6" onclick="toggleEditAlarmDay(6)">토</div>
+                </div>
+                <!-- 격주 반복 토글 스위치 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 6px; box-sizing: border-box; margin-top: 4px;">
+                    <span style="font-size: 0.8rem; color: var(--text-primary);">격주로 반복 (2주 주기)</span>
+                    <label class="toggle-switch-wrapper" style="margin: 0;">
+                        <input type="checkbox" id="edit_a_biweekly">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex-row" style="margin-top: 6px; gap: 8px;">
+                <button onclick="saveAlarmEditPopup()" style="flex:1; margin:0; height: 38px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;">💾 저장</button>
+                <button onclick="hideAlarmEditModalPopup()" class="secondary" style="flex:1; margin:0; height: 38px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;">❌ 취소</button>
             </div>
         </div>
     </div>
