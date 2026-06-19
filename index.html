@@ -8040,6 +8040,7 @@
             }
 
             function updateWikiCatDropdowns() {
+                if (!appData.wikiCategories) return;
                 const filterSel = document.getElementById('wiki_filter_select');
                 if (filterSel) {
                     const oldFilter = filterSel.value;
@@ -8262,6 +8263,7 @@
             }
 
             function renderWikiList() {
+                if (!appData.wiki) return;
                 const listDiv = document.getElementById('wiki_list');
                 const search = document.getElementById('wiki_search').value.toLowerCase();
                 const filter = document.getElementById('wiki_filter_select').value;
