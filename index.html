@@ -486,7 +486,7 @@
         .toggle-switch-wrapper {
             position: relative;
             display: inline-block;
-            width: 44px;
+            width: 46px;
             height: 24px;
         }
 
@@ -494,6 +494,7 @@
             opacity: 0;
             width: 0;
             height: 0;
+            position: absolute;
             border: none !important;
             background: transparent !important;
             appearance: none !important;
@@ -512,10 +513,11 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #333;
-            transition: .3s;
+            background-color: rgba(255, 255, 255, 0.07);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 24px;
-            border: 1px solid #444;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .switch-slider:before {
@@ -525,33 +527,47 @@
             width: 16px;
             left: 3px;
             bottom: 3px;
-            background-color: #aaa;
-            transition: .3s;
+            background-color: #cccccc;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .toggle-switch-wrapper:hover .switch-slider {
+            background-color: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .toggle-switch-wrapper input:checked+.switch-slider {
-            background-color: rgba(255, 152, 0, 0.2);
+            background-color: rgba(255, 152, 0, 0.25);
             border-color: var(--primary-color);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 8px rgba(255, 152, 0, 0.35);
+        }
+
+        .toggle-switch-wrapper input:checked+.switch-slider:before {
+            transform: translateX(22px);
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 5px rgba(255, 152, 0, 0.6);
         }
 
         :root.red-mode .switch-slider {
-            background-color: #150505;
+            background-color: rgba(0, 0, 0, 0.3);
             border-color: var(--border-color);
         }
 
         :root.red-mode .switch-slider:before {
-            background-color: var(--text-secondary);
+            background-color: #999999;
         }
 
         :root.red-mode .toggle-switch-wrapper input:checked+.switch-slider {
-            background-color: rgba(196, 32, 32, 0.2);
+            background-color: rgba(229, 57, 53, 0.25);
             border-color: var(--primary-color);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 8px rgba(229, 57, 53, 0.35);
         }
 
-        .toggle-switch-wrapper input:checked+.switch-slider:before {
-            transform: translateX(20px);
+        :root.red-mode .toggle-switch-wrapper input:checked+.switch-slider:before {
             background-color: var(--primary-color);
+            box-shadow: 0 2px 5px rgba(229, 57, 53, 0.6);
         }
 
         .result-box {
@@ -1925,6 +1941,33 @@
             flex-shrink: 0;
         }
 
+        .alarm-day-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #252525;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+        .alarm-day-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 0 8px var(--primary-color);
+        }
+        :root.red-mode .alarm-day-btn.active {
+            color: #ffffff;
+        }
+
         /* 커스텀 셀렉트 모달 */
         .custom-modal-overlay {
             position: fixed;
@@ -2734,6 +2777,40 @@
                         </div>
                     </div>
                 </div>
+                <!-- 알람 제목/메모 입력 -->
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>알람 제목 / 설명</label>
+                    <input type="text" id="a_title" placeholder="예: 비상식수 교체하기, 아침 약 복용" style="height: 45px; box-sizing: border-box; width:100%;" oninput="saveInputs()">
+                </div>
+                <!-- 반복 요일 및 격주 설정 -->
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>반복 요일 설정</label>
+                    <!-- 프리셋 버튼 -->
+                    <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+                        <button class="secondary" onclick="setAlarmRepeatPreset('all')" style="flex:1; padding: 6px; font-size: 0.75rem; margin:0; height:32px; line-height:1;">매일</button>
+                        <button class="secondary" onclick="setAlarmRepeatPreset('weekdays')" style="flex:1; padding: 6px; font-size: 0.75rem; margin:0; height:32px; line-height:1;">평일</button>
+                        <button class="secondary" onclick="setAlarmRepeatPreset('weekends')" style="flex:1; padding: 6px; font-size: 0.75rem; margin:0; height:32px; line-height:1;">주말</button>
+                        <button class="secondary" onclick="setAlarmRepeatPreset('none')" style="flex:1; padding: 6px; font-size: 0.75rem; margin:0; height:32px; line-height:1;">안함</button>
+                    </div>
+                    <!-- 요일 개별 선택 원형 버튼 -->
+                    <div style="display: flex; justify-content: space-between; gap: 4px; margin-bottom: 8px;">
+                        <div class="alarm-day-btn" data-day="0" onclick="toggleAlarmDay(0)">일</div>
+                        <div class="alarm-day-btn" data-day="1" onclick="toggleAlarmDay(1)">월</div>
+                        <div class="alarm-day-btn" data-day="2" onclick="toggleAlarmDay(2)">화</div>
+                        <div class="alarm-day-btn" data-day="3" onclick="toggleAlarmDay(3)">수</div>
+                        <div class="alarm-day-btn" data-day="4" onclick="toggleAlarmDay(4)">목</div>
+                        <div class="alarm-day-btn" data-day="5" onclick="toggleAlarmDay(5)">금</div>
+                        <div class="alarm-day-btn" data-day="6" onclick="toggleAlarmDay(6)">토</div>
+                    </div>
+                    <!-- 격주 반복 토글 스위치 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; box-sizing: border-box; margin-top: 4px;">
+                        <span style="font-size: 0.85rem; color: var(--text-primary);">격주로 반복 (2주 주기)</span>
+                        <label class="toggle-switch-wrapper" style="margin: 0;">
+                            <input type="checkbox" id="a_biweekly" onchange="saveInputs()">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
                 <div class="flex-row">
                     <button onclick="addAlarm()" style="flex:1;">➕ 추가</button>
                     <button class="danger" onclick="deleteSelectedAlarms()" style="flex:1;">🗑 삭제</button>
@@ -3378,6 +3455,7 @@
             let appData = {};
             const DATA_KEY = 'survival_data';
             let isWaterRecipeEditMode = false;
+            let selectedAlarmDays = [];
 
             // To-Do List State Variables
             let currentTodoCatId = '';
@@ -3520,7 +3598,7 @@
                     });
                 });
                 
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 inputs.forEach(id => {
                     if (appData[id] !== undefined) {
                         const el = document.getElementById(id);
@@ -3532,6 +3610,14 @@
                 if (appData['a_repeat'] !== undefined) {
                     const el = document.getElementById('a_repeat');
                     if (el) el.checked = !!appData['a_repeat'];
+                }
+                if (appData['a_biweekly'] !== undefined) {
+                    const el = document.getElementById('a_biweekly');
+                    if (el) el.checked = !!appData['a_biweekly'];
+                }
+                selectedAlarmDays = appData.selectedAlarmDays || [];
+                if (typeof updateAlarmDayButtonsUI === 'function') {
+                    updateAlarmDayButtonsUI();
                 }
                 if (appData['s_repeat'] !== undefined) {
                     const el = document.getElementById('s_repeat');
@@ -3638,7 +3724,7 @@
 
             function saveInputs() {
                 validateAndFixTimerInputs();
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 
                 if (!appData || typeof appData !== 'object' || Array.isArray(appData)) {
                     appData = {};
@@ -3652,6 +3738,10 @@
                 // 체크박스 엘리먼트 저장 시 Null-safe 처리
                 const aRepeat = document.getElementById('a_repeat');
                 if (aRepeat) appData['a_repeat'] = aRepeat.checked;
+
+                const aBiweekly = document.getElementById('a_biweekly');
+                if (aBiweekly) appData['a_biweekly'] = aBiweekly.checked;
+                appData.selectedAlarmDays = selectedAlarmDays;
 
                 const sRepeat = document.getElementById('s_repeat');
                 if (sRepeat) appData['s_repeat'] = sRepeat.checked;
@@ -6064,6 +6154,52 @@
                 document.getElementById('timer_display').innerText = pad(h) + ':' + pad(m) + ':' + pad(s);
             }
 
+            function toggleAlarmDay(day) {
+                const idx = selectedAlarmDays.indexOf(day);
+                if (idx > -1) {
+                    selectedAlarmDays.splice(idx, 1);
+                } else {
+                    selectedAlarmDays.push(day);
+                }
+                saveInputs();
+                updateAlarmDayButtonsUI();
+            }
+
+            function setAlarmRepeatPreset(preset) {
+                if (preset === 'all') {
+                    selectedAlarmDays = [0, 1, 2, 3, 4, 5, 6];
+                } else if (preset === 'weekdays') {
+                    selectedAlarmDays = [1, 2, 3, 4, 5];
+                } else if (preset === 'weekends') {
+                    selectedAlarmDays = [0, 6];
+                } else {
+                    selectedAlarmDays = [];
+                }
+                saveInputs();
+                updateAlarmDayButtonsUI();
+            }
+
+            function updateAlarmDayButtonsUI() {
+                const dayButtons = document.querySelectorAll('.alarm-day-btn');
+                dayButtons.forEach(btn => {
+                    const day = parseInt(btn.dataset.day);
+                    if (selectedAlarmDays.includes(day)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+
+            function toggleAlarmEnabled(id) {
+                const alarm = appData.alarms.find(a => a.id === id);
+                if (alarm) {
+                    alarm.enabled = !alarm.enabled;
+                    saveInputs();
+                    renderAlarms();
+                }
+            }
+
             // Multi-Alarm Management
             function addAlarm() {
                 saveInputs();
@@ -6072,20 +6208,34 @@
                     showToast("시간을 설정해주세요.");
                     return;
                 }
+                const titleStr = (document.getElementById('a_title').value || '').trim() || '알람';
                 const sound = document.getElementById('a_sound').value;
                 const vibe = document.getElementById('a_vibe').value;
                 const dur = parseInt(document.getElementById('a_duration').value) || 2;
+                const biweekly = document.getElementById('a_biweekly').checked;
 
                 const newAlarm = {
                     id: Date.now(),
                     time: timeStr,
+                    title: titleStr,
+                    repeatDays: [...selectedAlarmDays].sort((a, b) => a - b),
+                    biweekly: biweekly,
+                    createdWeekIndex: Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)),
                     sound: sound,
                     vibe: vibe,
                     duration: dur,
+                    enabled: true,
                     triggered: false
                 };
 
                 appData.alarms.push(newAlarm);
+                
+                // 폼 입력 초기화
+                document.getElementById('a_title').value = '';
+                document.getElementById('a_biweekly').checked = false;
+                selectedAlarmDays = [];
+                updateAlarmDayButtonsUI();
+
                 saveInputs();
                 renderAlarms();
                 showToast("알람이 추가되었습니다.");
@@ -6112,19 +6262,61 @@
                 appData.alarms.forEach(alarm => {
                     const item = document.createElement('div');
                     item.className = 'alarm-item';
-                    item.draggable = true;
+                    item.draggable = false;
                     item.dataset.id = alarm.id;
+
+                    const title = alarm.title || '알람';
+                    const repeatDays = alarm.repeatDays || [];
+                    const biweekly = !!alarm.biweekly;
+                    const enabled = alarm.enabled !== false;
+                    const isChecked = enabled ? 'checked' : '';
+
+                    // 반복 주기 문자열 연산
+                    let repeatStr = '';
+                    if (repeatDays.length === 0) {
+                        repeatStr = '1회성';
+                    } else if (repeatDays.length === 7) {
+                        repeatStr = '매일' + (biweekly ? ' (격주)' : '');
+                    } else if (repeatDays.length === 5 && !repeatDays.includes(0) && !repeatDays.includes(6)) {
+                        repeatStr = '평일' + (biweekly ? ' (격주)' : '');
+                    } else if (repeatDays.length === 2 && repeatDays.includes(0) && repeatDays.includes(6)) {
+                        repeatStr = '주말' + (biweekly ? ' (격주)' : '');
+                    } else {
+                        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+                        repeatStr = repeatDays.map(d => dayNames[d]).join(',') + (biweekly ? ' (격주)' : '');
+                    }
 
                     const soundName = { 'none': '음소거', 'siren': '사이렌', 'beep_fast': '빠른비프A', 'beep_fast2': '빠른비프B', 'beep_slow': '느린비프A', 'beep_slow2': '느린비프B' }[alarm.sound] || '알수없음';
                     const vibeName = { 'none': '진동끔', 'long': '긴진동A', 'long2': '긴진동B', 'short': '짧은진동A', 'short2': '짧은진동B', 'sos': 'SOS' }[alarm.vibe] || '알수없음';
 
-                    item.innerHTML =
-                        '<div class="drag-handle">☰</div>' +
-                        '<input type="checkbox" class="alarm-checkbox" data-id="' + alarm.id + '">' +
-                        '<div class="alarm-info">' +
-                        '<div class="alarm-time">' + alarm.time + '</div>' +
-                        '<div class="alarm-settings-summary">' + soundName + ' / ' + vibeName + ' / ' + alarm.duration + '초</div>' +
-                        '</div>';
+                    item.innerHTML = `
+                        <div class="drag-handle" style="margin-right: 4px; color: var(--text-secondary); cursor: grab; user-select: none;">☰</div>
+                        <input type="checkbox" class="alarm-checkbox" data-id="${alarm.id}" style="margin-right: 8px;">
+                        
+                        <div class="alarm-info" style="display:flex; flex:1; justify-content:space-between; align-items:center; min-width:0; gap:10px;">
+                            <!-- 좌측: 제목, 주기 배지, 알람 세부 요약 -->
+                            <div style="display:flex; flex-direction:column; gap:4px; min-width:0; flex:1;">
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                    <strong style="font-size:0.95rem; color:var(--text-primary); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${title}</strong>
+                                    <span style="font-size:0.7rem; background:${repeatDays.length === 0 ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 152, 0, 0.15)'}; border: 1px solid ${repeatDays.length === 0 ? 'var(--border-color)' : 'var(--primary-color)'}; color:${repeatDays.length === 0 ? 'var(--text-secondary)' : 'var(--primary-color)'}; padding:1px 6px; border-radius:4px; font-weight:bold; white-space:nowrap;">${repeatStr}</span>
+                                </div>
+                                <div style="font-size:0.75rem; color:var(--text-secondary); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
+                                    ${soundName} | ${vibeName} | ${alarm.duration}초
+                                </div>
+                            </div>
+                            
+                            <!-- 우측: 시간(우정렬) 및 온/오프 토글스위치 -->
+                            <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+                                <div style="font-family: 'Outfit', 'Inter', monospace; font-size:1.4rem; font-weight:bold; color:${enabled ? 'var(--primary-color)' : 'var(--text-secondary)'}; transition: color 0.2s;">
+                                    ${alarm.time}
+                                </div>
+                                <label class="toggle-switch-wrapper" style="margin: 0;">
+                                    <input type="checkbox" ${isChecked} onchange="toggleAlarmEnabled(${alarm.id})">
+                                    <span class="switch-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
 
                     // Drag and Drop Events
                     item.addEventListener('dragstart', handleDragStart);
@@ -6136,6 +6328,15 @@
                     item.addEventListener('touchstart', handleAlarmTouchStart, { passive: false });
                     item.addEventListener('touchmove', handleAlarmTouchMove, { passive: false });
                     item.addEventListener('touchend', handleAlarmTouchEnd);
+
+                    // drag-handle에 대해서만 마우스/터치 이벤트 발생 시 draggable 활성화
+                    const dragH = item.querySelector('.drag-handle');
+                    if (dragH) {
+                        dragH.addEventListener('mousedown', () => { item.draggable = true; });
+                        dragH.addEventListener('mouseup', () => { item.draggable = false; });
+                        dragH.addEventListener('touchstart', () => { item.draggable = true; });
+                        dragH.addEventListener('touchend', () => { item.draggable = false; });
+                    }
 
                     container.appendChild(item);
                 });
@@ -6171,6 +6372,7 @@
             }
             function handleDragEnd() {
                 this.classList.remove('dragging');
+                this.draggable = false;
             }
 
             let alarmTouchDragItem = null;
@@ -6231,17 +6433,52 @@
                 const curSec = now.getSeconds();
 
                 if (appData.alarms) {
+                    let changed = false;
                     appData.alarms.forEach(alarm => {
+                        const enabled = alarm.enabled !== false;
+                        if (!enabled) {
+                            return;
+                        }
+
                         // 초가 0일 때 (정각 분)에 한 번만 실행되도록
                         if (alarm.time === curTime && curSec === 0 && !alarm.triggered) {
-                            playAlarmSound('alarm', false, alarm);
-                            alarm.triggered = true;
+                            const repeatDays = alarm.repeatDays || [];
+                            const biweekly = !!alarm.biweekly;
+
+                            let shouldRing = true;
+
+                            if (repeatDays.length > 0) {
+                                const todayDayIndex = now.getDay();
+                                if (!repeatDays.includes(todayDayIndex)) {
+                                    shouldRing = false;
+                                } else if (biweekly) {
+                                    const curWeek = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000));
+                                    const startWeek = alarm.createdWeekIndex || 0;
+                                    if (Math.abs(curWeek - startWeek) % 2 !== 0) {
+                                        shouldRing = false;
+                                    }
+                                }
+                            } else {
+                                // 1회성 알람은 한 번 울린 후 자동 비활성화
+                                alarm.enabled = false;
+                                changed = true;
+                            }
+
+                            if (shouldRing) {
+                                playAlarmSound('alarm', false, alarm);
+                                alarm.triggered = true;
+                            }
                         }
                         // 분이 바뀌면 트리거 초기화
                         if (alarm.time !== curTime) {
                             alarm.triggered = false;
                         }
                     });
+
+                    if (changed) {
+                        saveInputs();
+                        renderAlarms();
+                    }
                 }
             }, 1000);
 
