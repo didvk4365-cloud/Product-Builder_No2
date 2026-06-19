@@ -2613,21 +2613,20 @@
                 </div>
 
                 <div class="flex-row">
-                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                        <label>시</label>
-                        <input type="number" id="a_h" value="0" min="0" max="99" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
+                    <div class="form-group" style="flex: 3.2; margin-bottom: 0;">
+                        <label>시간 설정</label>
+                        <div style="display:flex; align-items:center; gap:4px; height: 45px;">
+                            <input type="number" id="a_h" value="0" min="0" max="99" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()" style="height: 45px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                            <span style="color:var(--text-secondary); font-weight:bold; padding: 0 2px;">:</span>
+                            <input type="number" id="a_m" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()" style="height: 45px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                            <span style="color:var(--text-secondary); font-weight:bold; padding: 0 2px;">:</span>
+                            <input type="number" id="a_s" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()" style="height: 45px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                        </div>
                     </div>
-                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                        <label>분</label>
-                        <input type="number" id="a_m" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
-                    </div>
-                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                        <label>초</label>
-                        <input type="number" id="a_s" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
-                    </div>
+                    <span style="flex: none !important; border-left: 2px solid rgba(255, 255, 255, 0.22); height: 32px; align-self: flex-end; margin: 0 5px 6px 5px;"></span>
                     <div class="form-group" style="flex: 1.5; margin-bottom: 0;">
                         <label style="white-space: nowrap;">알람길이(초)</label>
-                        <input type="number" id="t_duration" value="2" min="1" max="999" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
+                        <input type="number" id="t_duration" value="2" min="1" max="999" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()" style="height: 45px; width: 100%; box-sizing: border-box; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 5px; text-align: center;">
                     </div>
                 </div>
 
@@ -2669,21 +2668,20 @@
                         style="text-align: left; margin-bottom: 4px; font-weight: bold; color: var(--primary-color);">⏳
                         휴식 / 인터벌 (Rest Interval)</label>
                     <div class="flex-row">
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label>시</label>
-                            <input type="number" id="t_h" value="0" min="0" max="99" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
+                        <div class="form-group" style="flex: 3.2; margin-bottom: 0;">
+                            <label>시간 설정</label>
+                            <div style="display:flex; align-items:center; gap:4px; height: 45px;">
+                                <input type="number" id="t_h" value="0" min="0" max="99" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()" style="height: 45px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                                <span style="color:var(--text-secondary); font-weight:bold; padding: 0 2px;">:</span>
+                                <input type="number" id="t_m" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()" style="height: 45px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                                <span style="color:var(--text-secondary); font-weight:bold; padding: 0 2px;">:</span>
+                                <input type="number" id="t_s" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()" style="height: 45px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                            </div>
                         </div>
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label>분</label>
-                            <input type="number" id="t_m" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
-                        </div>
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label>초</label>
-                            <input type="number" id="t_s" value="0" min="0" max="59" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
-                        </div>
+                        <span style="flex: none !important; border-left: 2px solid rgba(255, 255, 255, 0.22); height: 32px; align-self: flex-end; margin: 0 5px 6px 5px;"></span>
                         <div class="form-group" style="flex: 1.5; margin-bottom: 0;">
                             <label style="white-space: nowrap;">알람길이(초)</label>
-                            <input type="number" id="ri_duration" value="2" min="1" max="999" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()">
+                            <input type="number" id="ri_duration" value="2" min="1" max="999" oninput="this.value=this.value.replace(/[^0-9]/g,''); saveInputs()" onblur="validateAndFixTimerInputs(); saveInputs()" style="height: 45px; width: 100%; box-sizing: border-box; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 5px; text-align: center;">
                         </div>
                     </div>
                 </div>
@@ -2740,12 +2738,17 @@
                 <div class="flex-row">
                     <div class="form-group" style="flex:2; margin-bottom: 0;">
                         <label>시간 설정</label>
-                        <input type="time" id="a_time" oninput="saveInputs()" style="height: 45px;">
+                        <div style="display:flex; align-items:center; gap:4px; height: 45px;">
+                            <input type="number" id="a_hour" min="0" max="23" placeholder="시" oninput="sanitizeAlarmInput(this, 23); saveInputs()" style="height: 45px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                            <span style="color:var(--text-secondary); font-weight:bold; padding: 0 2px;">:</span>
+                            <input type="number" id="a_minute" min="0" max="59" placeholder="분" oninput="sanitizeAlarmInput(this, 59); saveInputs()" style="height: 45px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.95rem;">
+                        </div>
                     </div>
+                    <span style="flex: none !important; border-left: 2px solid rgba(255, 255, 255, 0.22); height: 32px; align-self: flex-end; margin: 0 5px 6px 5px;"></span>
                     <div class="form-group" style="flex:1; margin-bottom: 0;">
                         <label style="white-space: nowrap;">알람길이(초)</label>
                         <input type="number" id="a_duration" value="2" min="1" oninput="saveInputs()"
-                            style="height: 45px;">
+                            style="height: 45px; text-align: center; padding: 0 5px;">
                     </div>
                 </div>
                 <div class="flex-row" style="margin-top: 4px;">
@@ -3601,7 +3604,7 @@
                     });
                 });
                 
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_hour', 'a_minute', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 inputs.forEach(id => {
                     if (appData[id] !== undefined) {
                         const el = document.getElementById(id);
@@ -3725,9 +3728,21 @@
                 });
             }
 
+            function sanitizeAlarmInput(el, max) {
+                el.value = el.value.replace(/[^0-9]/g, '');
+                if (el.value !== '') {
+                    let val = parseInt(el.value);
+                    if (val > max) {
+                        el.value = max;
+                    } else {
+                        el.value = val;
+                    }
+                }
+            }
+
             function saveInputs() {
                 validateAndFixTimerInputs();
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_time', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_hour', 'a_minute', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
                 
                 if (!appData || typeof appData !== 'object' || Array.isArray(appData)) {
                     appData = {};
@@ -6215,7 +6230,12 @@
                 document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 잠금
 
                 // 데이터 바인딩
-                document.getElementById('edit_a_time').value = alarm.time || '';
+                const timeParts = (alarm.time || '00:00').split(':');
+                const hourVal = timeParts[0] || '00';
+                const minVal = timeParts[1] || '00';
+                document.getElementById('edit_a_hour').value = hourVal;
+                document.getElementById('edit_a_minute').value = minVal;
+
                 document.getElementById('edit_a_title').value = alarm.title || '';
                 document.getElementById('edit_a_duration').value = alarm.duration || 2;
                 document.getElementById('edit_a_sound').value = alarm.sound || 'none';
@@ -6252,11 +6272,19 @@
             function saveAlarmEditPopup() {
                 if (popupEditingAlarmId === null) return;
 
-                const timeStr = document.getElementById('edit_a_time').value;
-                if (!timeStr) {
-                    showToast("시간을 설정해주세요.");
+                let hourVal = document.getElementById('edit_a_hour').value.trim();
+                let minVal = document.getElementById('edit_a_minute').value.trim();
+                if (hourVal === '' || minVal === '') {
+                    showToast("시간과 분을 입력해주세요.");
                     return;
                 }
+                let hNum = parseInt(hourVal);
+                let mNum = parseInt(minVal);
+                if (isNaN(hNum) || hNum < 0 || hNum > 23 || isNaN(mNum) || mNum < 0 || mNum > 59) {
+                    showToast("올바른 범위의 시간(0~23)과 분(0~59)을 입력해주세요.");
+                    return;
+                }
+                const timeStr = String(hNum).padStart(2, '0') + ':' + String(mNum).padStart(2, '0');
 
                 const titleStr = (document.getElementById('edit_a_title').value || '').trim() || '알람';
                 const sound = document.getElementById('edit_a_sound').value;
@@ -6320,11 +6348,20 @@
 
             function addAlarm() {
                 saveInputs();
-                const timeStr = document.getElementById('a_time').value;
-                if (!timeStr) {
-                    showToast("시간을 설정해주세요.");
+                let hourVal = document.getElementById('a_hour').value.trim();
+                let minVal = document.getElementById('a_minute').value.trim();
+                if (hourVal === '' || minVal === '') {
+                    showToast("시간과 분을 입력해주세요.");
                     return;
                 }
+                let hNum = parseInt(hourVal);
+                let mNum = parseInt(minVal);
+                if (isNaN(hNum) || hNum < 0 || hNum > 23 || isNaN(mNum) || mNum < 0 || mNum > 59) {
+                    showToast("올바른 범위의 시간(0~23)과 분(0~59)을 입력해주세요.");
+                    return;
+                }
+                const timeStr = String(hNum).padStart(2, '0') + ':' + String(mNum).padStart(2, '0');
+                
                 const titleStr = (document.getElementById('a_title').value || '').trim() || '알람';
                 const sound = document.getElementById('a_sound').value;
                 const vibe = document.getElementById('a_vibe').value;
@@ -6348,7 +6385,7 @@
                 showToast("알람이 추가되었습니다.");
                 
                 // 폼 입력 초기화
-                document.getElementById('a_time').value = '';
+                resetAlarmTimeInputsToCurrent();
                 document.getElementById('a_title').value = '';
                 document.getElementById('a_biweekly').checked = false;
                 selectedAlarmDays = [];
@@ -6891,8 +6928,23 @@
                 if (btn) btn.textContent = isRed ? '⚪' : '🔴';
             }
 
+            function initAlarmTimeInputs() {
+                resetAlarmTimeInputsToCurrent();
+            }
+
+            function resetAlarmTimeInputsToCurrent() {
+                const now = new Date();
+                const curH = String(now.getHours()).padStart(2, '0');
+                const curM = String(now.getMinutes()).padStart(2, '0');
+                const hEl = document.getElementById('a_hour');
+                const mEl = document.getElementById('a_minute');
+                if (hEl) hEl.value = curH;
+                if (mEl) mEl.value = curM;
+            }
+
             // Initialize
             try {
+                initAlarmTimeInputs();
                 loadData();
                 if (!document.getElementById('c_unit_from').options.length) {
                     updateUnitOptions();
@@ -10868,11 +10920,16 @@
             <div class="flex-row" style="margin-top: 2px;">
                 <div class="form-group" style="flex:2; margin-bottom: 0;">
                     <label>시간 설정</label>
-                    <input type="time" id="edit_a_time" style="height: 40px; box-sizing: border-box; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; width:100%;">
+                    <div style="display:flex; align-items:center; gap:4px; height: 40px;">
+                        <input type="number" id="edit_a_hour" min="0" max="23" placeholder="시" oninput="sanitizeAlarmInput(this, 23)" style="height: 40px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.9rem;">
+                        <span style="color:var(--text-secondary); font-weight:bold; padding: 0 2px;">:</span>
+                        <input type="number" id="edit_a_minute" min="0" max="59" placeholder="분" oninput="sanitizeAlarmInput(this, 59)" style="height: 40px; flex:1; text-align:center; padding: 0 5px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 2px solid #ffffff; border-radius: 6px; font-weight: bold; font-size: 0.9rem;">
+                    </div>
                 </div>
+                <span style="flex: none !important; border-left: 2px solid rgba(255, 255, 255, 0.22); height: 28px; align-self: flex-end; margin: 0 5px 6px 5px;"></span>
                 <div class="form-group" style="flex:1; margin-bottom: 0;">
                     <label style="white-space: nowrap;">길이(초)</label>
-                    <input type="number" id="edit_a_duration" value="2" min="1" style="height: 40px; box-sizing: border-box; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 10px; width:100%;">
+                    <input type="number" id="edit_a_duration" value="2" min="1" style="height: 40px; box-sizing: border-box; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0 5px; text-align: center; width:100%;">
                 </div>
             </div>
 
