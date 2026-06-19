@@ -3660,10 +3660,7 @@
                 if (!Array.isArray(appData.alarms)) appData.alarms = [];
                 if (!Array.isArray(appData.memos)) appData.memos = [];
                 if (!Array.isArray(appData.waterRecipes)) {
-                    appData.waterRecipes = [
-                        { id: 1, name: "페트병 정화 (2L)", w_w: "", w_l: "", w_h: "", w_v: "2.00", w_s: "1", w_c: "5.25", drops: "3.0", ml: "0.15" },
-                        { id: 2, name: "일반 말통 (10L)", w_w: "", w_l: "", w_h: "", w_v: "10.00", w_s: "1", w_c: "5.25", drops: "15.2", ml: "0.76" }
-                    ];
+                    appData.waterRecipes = [];
                 }
 
                 try {
@@ -7093,11 +7090,13 @@
 
                 if (erpList.length === 0) {
                     container.innerHTML = '<div style="text-align:center; padding:30px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px;">등록된 물품이 없습니다.</div>';
+                    renderErpExpiryAlerts();
                     return;
                 }
 
                 if (filteredList.length === 0) {
                     container.innerHTML = '<div style="text-align:center; padding:30px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px;">조건에 맞는 물품이 없습니다.</div>';
+                    renderErpExpiryAlerts();
                     return;
                 }
 
