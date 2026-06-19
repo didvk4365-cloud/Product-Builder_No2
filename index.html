@@ -3475,6 +3475,13 @@
                 renderErpItems();
                 updateToggleLabels();
                 syncCustomSelectTriggers();
+
+                // 백업 데이터 복구/갱신 시 UI 즉각적인 동기화를 위한 누락 목록 강제 렌더링
+                if (typeof renderTodoTabs === 'function') renderTodoTabs();
+                if (typeof renderTodoList === 'function') renderTodoList();
+                if (typeof updateWikiCatDropdowns === 'function') updateWikiCatDropdowns();
+                if (typeof renderWikiList === 'function') renderWikiList();
+                if (typeof renderMemos === 'function') renderMemos();
             }
 
             function updateToggleLabels() {
@@ -4551,8 +4558,8 @@
                     codeBufEl.innerText = morseDecCurrentCode;
                 }
 
-                morseDecTimeout = setTimeout(decodeMorseChar, 700);
-                morseDecSpaceTimeout = setTimeout(addMorseSpace, 1800);
+                morseDecTimeout = setTimeout(decodeMorseChar, 400);
+                morseDecSpaceTimeout = setTimeout(addMorseSpace, 1100);
             }
 
             function decodeMorseChar() {
@@ -4639,12 +4646,7 @@
             };
 
             function openMorsePracticeModal() {
-                const modal = document.getElementById('morse-practice-modal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                    resetMorsePracticeState();
-                }
+                location.hash = 'morse-practice';
             }
 
             function closeMorsePracticeModal() {
@@ -4654,6 +4656,9 @@
                     document.body.style.overflow = '';
                     if (morsePracticeTimeout) clearTimeout(morsePracticeTimeout);
                     if (morsePracticeBlinkTimeout) clearTimeout(morsePracticeBlinkTimeout);
+                }
+                if (location.hash === '#morse-practice') {
+                    history.back();
                 }
             }
 
@@ -4752,7 +4757,7 @@
 
                 updateMorseTreeHighlight();
 
-                morsePracticeTimeout = setTimeout(evaluateMorsePracChar, 700);
+                morsePracticeTimeout = setTimeout(evaluateMorsePracChar, 400);
             }
 
             function updateMorseTreeHighlight() {
@@ -9413,7 +9418,24 @@
                 // 뒤로가기 버튼 감지 (hashchange) 이벤트 핸들러 추가
                 function handleHashChange() {
                     const wikiLayer = document.getElementById('wiki-layer');
+                    const morsePracModal = document.getElementById('morse-practice-modal');
                     const hash = location.hash;
+
+                    // 모스 연습 모달 백버튼 감지
+                    if (hash === '#morse-practice') {
+                        if (morsePracModal && morsePracModal.style.display !== 'flex') {
+                            morsePracModal.style.display = 'flex';
+                            document.body.style.overflow = 'hidden';
+                            resetMorsePracticeState();
+                        }
+                    } else {
+                        if (morsePracModal && morsePracModal.style.display === 'flex') {
+                            morsePracModal.style.display = 'none';
+                            document.body.style.overflow = '';
+                            if (morsePracticeTimeout) clearTimeout(morsePracticeTimeout);
+                            if (morsePracticeBlinkTimeout) clearTimeout(morsePracticeBlinkTimeout);
+                        }
+                    }
 
                     if (hash.startsWith('#wiki')) {
                         // Ensure layer is visible
