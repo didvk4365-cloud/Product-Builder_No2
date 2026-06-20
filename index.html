@@ -794,12 +794,16 @@
             margin-bottom: 8px;
             border: 1px solid var(--border-color);
             gap: 10px;
+            position: relative;
+            transition: border-color 0.2s, background 0.2s;
         }
 
-        .alarm-item.dragging {
-            opacity: 0.5;
-            background: var(--surface-color);
+        .alarm-item.active {
+            border-color: var(--primary-color);
+            background: var(--primary-glow);
         }
+
+
 
         .alarm-info {
             flex: 1;
@@ -817,23 +821,47 @@
             color: var(--text-secondary);
         }
 
-        .drag-handle {
-            cursor: grab;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            padding: 5px;
-            user-select: none;
-        }
 
-        .drag-handle:active {
-            cursor: grabbing;
-        }
 
         .alarm-checkbox {
             width: 20px !important;
-            height: 20px;
+            height: 20px !important;
+            flex-shrink: 0;
             margin: 0;
             cursor: pointer;
+        }
+
+        /* Focus override: Keep the border gray (var(--text-secondary)) when unchecked and focused */
+        .alarm-checkbox:focus {
+            outline: none;
+            border-color: var(--text-secondary) !important;
+            box-shadow: none !important;
+        }
+
+        /* Checked styling: Background remains transparent/dark (not filled with orange), border turns to primary color */
+        .alarm-checkbox:checked {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: var(--primary-color) !important;
+            opacity: 1 !important;
+        }
+
+        /* White 'v' checkmark in the center (CSS border drawn, no overlap) */
+        .alarm-checkbox:checked::after {
+            content: "" !important;
+            position: absolute;
+            top: 42% !important;
+            left: 50% !important;
+            width: 5px !important;
+            height: 10px !important;
+            border: solid #ffffff !important;
+            border-width: 0 2.2px 2.2px 0 !important;
+            transform: translate(-50%, -50%) rotate(45deg) !important;
+            display: block !important;
+        }
+
+        /* Keep checked border on focus */
+        .alarm-checkbox:checked:focus {
+            border-color: var(--primary-color) !important;
         }
 
         /* ERP 스타일 */
@@ -2823,6 +2851,37 @@
                     <button class="secondary" onclick="playAlarmSound('alarm', true)"
                         style="width:auto; flex:none; padding:12px 14px;">🔊</button>
                 </div>
+                <!-- 알람 필터 및 정렬 툴바 -->
+                <div class="erp-toolbar" style="flex-direction: column; align-items: stretch; gap: 8px; margin-top: 15px; margin-bottom: 5px;">
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <!-- 1. 필터 선택 -->
+                        <div style="flex: 1; display: flex; align-items: center; min-width: 0;">
+                            <select id="alarm_filter" onchange="renderAlarms(); saveInputs();" style="display: none;">
+                                <option value="all">📱 전체 알람</option>
+                                <option value="active">🔔 활성 알람</option>
+                                <option value="inactive">🔕 비활성 알람</option>
+                            </select>
+                            <div class="custom-select-trigger" id="trigger_alarm_filter" onclick="openCustomSelectModal('alarm_filter', '알람 필터')" style="flex: 1; min-width: 0;">
+                                <span class="custom-select-val">📱 전체 알람</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
+                        </div>
+                        <!-- 2. 정렬 선택 -->
+                        <div style="flex: 1; display: flex; align-items: center; min-width: 0;">
+                            <select id="alarm_sort" onchange="renderAlarms(); saveInputs();" style="display: none;">
+                                <option value="title">✏️ 알람 이름</option>
+                                <option value="time">⏰ 알람 시간</option>
+                            </select>
+                            <div class="custom-select-trigger" id="trigger_alarm_sort" onclick="openCustomSelectModal('alarm_sort', '정렬 기준')" style="flex: 1; min-width: 0;">
+                                <span class="custom-select-val">✏️ 알람 이름</span>
+                                <span class="custom-select-arrow">▼</span>
+                            </div>
+                        </div>
+                        <!-- 3. 정렬 방향 버튼 -->
+                        <button id="alarm_sort_dir" class="erp-sort-btn"
+                            onclick="window.alarmSortAsc = window.alarmSortAsc === false ? true : false; this.textContent = window.alarmSortAsc ? '▲' : '▼'; renderAlarms(); saveInputs();" style="min-width: 32px; width: 32px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 0.95rem; border-radius: 6px;">▼</button>
+                    </div>
+                </div>
                 <div id="alarm_list" style="margin-top:15px;"></div>
                 <div class="result-box" id="alarm_status" style="display:none;"></div>
             </div>
@@ -3444,7 +3503,7 @@
             }
 
             function syncCustomSelectTriggers() {
-                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'edit_a_sound', 'edit_a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub', 'water_recipe_edit_s', 'water_recipe_edit_c', 'sun_target_type'];
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'edit_a_sound', 'edit_a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub', 'water_recipe_edit_s', 'water_recipe_edit_c', 'sun_target_type', 'alarm_filter', 'alarm_sort'];
                 ids.forEach(id => {
                     const selectEl = document.getElementById(id);
                     const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
@@ -3604,13 +3663,23 @@
                     });
                 });
                 
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_hour', 'a_minute', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_hour', 'a_minute', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration', 'alarm_filter', 'alarm_sort'];
                 inputs.forEach(id => {
                     if (appData[id] !== undefined) {
                         const el = document.getElementById(id);
                         if (el) el.value = appData[id];
                     }
                 });
+
+                if (appData['alarm_sort_asc'] !== undefined) {
+                    window.alarmSortAsc = !!appData['alarm_sort_asc'];
+                    const dirBtn = document.getElementById('alarm_sort_dir');
+                    if (dirBtn) dirBtn.textContent = window.alarmSortAsc ? '▲' : '▼';
+                } else {
+                    window.alarmSortAsc = true; // 기본값 오름차순
+                    const dirBtn = document.getElementById('alarm_sort_dir');
+                    if (dirBtn) dirBtn.textContent = '▲';
+                }
 
                 // 체크박스 엘리먼트 로드 시 Null-safe 처리
                 if (appData['a_repeat'] !== undefined) {
@@ -3742,7 +3811,7 @@
 
             function saveInputs() {
                 validateAndFixTimerInputs();
-                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_hour', 'a_minute', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration'];
+                const inputs = ['w_w', 'w_l', 'w_h', 'w_v', 'w_c', 'w_s', 's_text', 'c_category', 'c_val_from', 'c_unit_from', 'c_unit_to', 'a_h', 'a_m', 'a_s', 'a_hour', 'a_minute', 'a_title', 't_sound', 't_vibe', 'a_sound', 'a_vibe', 't_duration', 'a_duration', 't_h', 't_m', 't_s', 's_beacon_interval', 's_beacon_count', 'ri_sound', 'ri_vibe', 'ri_duration', 'alarm_filter', 'alarm_sort'];
                 
                 if (!appData || typeof appData !== 'object' || Array.isArray(appData)) {
                     appData = {};
@@ -3752,6 +3821,8 @@
                     const el = document.getElementById(id);
                     if (el) appData[id] = el.value;
                 });
+
+                appData['alarm_sort_asc'] = window.alarmSortAsc !== false;
 
                 // 체크박스 엘리먼트 저장 시 Null-safe 처리
                 const aRepeat = document.getElementById('a_repeat');
@@ -6415,18 +6486,72 @@
             function renderAlarms() {
                 const container = document.getElementById('alarm_list');
                 if (!container) return;
+
                 container.innerHTML = '';
 
-                appData.alarms.forEach(alarm => {
+                // 전체 알람 개수가 0개인 경우 빈 화면 노출
+                if (!appData.alarms || appData.alarms.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:40px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px; background:rgba(255,255,255,0.015);">등록된 알람이 없습니다.</div>';
+                    return;
+                }
+
+                // 1. 필터 값 읽기
+                const filterVal = document.getElementById('alarm_filter')?.value || 'all';
+
+                // 2. 필터 적용
+                let filteredAlarms = [...(appData.alarms || [])];
+                if (filterVal === 'active') {
+                    filteredAlarms = filteredAlarms.filter(a => a.enabled !== false);
+                } else if (filterVal === 'inactive') {
+                    filteredAlarms = filteredAlarms.filter(a => a.enabled === false);
+                }
+
+                // 필터 결과가 0개인 경우 빈 화면 노출
+                if (filteredAlarms.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:40px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px; background:rgba(255,255,255,0.015);">조건에 맞는 알람이 없습니다.</div>';
+                    return;
+                }
+
+                // 3. 정렬 기준 및 방향 읽기
+                const sortBy = document.getElementById('alarm_sort')?.value || 'title';
+                const isAsc = window.alarmSortAsc !== false; // 기본값 true (오름차순)
+
+                // 4. 정렬 수행
+                filteredAlarms.sort((a, b) => {
+                    if (sortBy === 'title') {
+                        const titleA = a.title || '알람';
+                        const titleB = b.title || '알람';
+                        const cmp = titleA.localeCompare(titleB, 'ko', { numeric: true, sensitivity: 'base' });
+                        if (cmp !== 0) return isAsc ? cmp : -cmp;
+
+                        // 타이틀이 같으면 시간 순 정렬
+                        const timeA = a.time || '';
+                        const timeB = b.time || '';
+                        return isAsc ? timeA.localeCompare(timeB) : timeB.localeCompare(timeA);
+                    } else if (sortBy === 'time') {
+                        const timeA = a.time || '';
+                        const timeB = b.time || '';
+                        const cmp = timeA.localeCompare(timeB);
+                        if (cmp !== 0) return isAsc ? cmp : -cmp;
+
+                        // 시간이 같으면 타이틀 순 정렬
+                        const titleA = a.title || '알람';
+                        const titleB = b.title || '알람';
+                        const tCmp = titleA.localeCompare(titleB, 'ko', { numeric: true, sensitivity: 'base' });
+                        return isAsc ? tCmp : -tCmp;
+                    }
+                    return 0;
+                });
+
+                filteredAlarms.forEach(alarm => {
+                    const enabled = alarm.enabled !== false;
                     const item = document.createElement('div');
-                    item.className = 'alarm-item';
-                    item.draggable = false;
+                    item.className = 'alarm-item' + (enabled ? ' active' : '');
                     item.dataset.id = alarm.id;
 
                     const title = alarm.title || '알람';
                     const repeatDays = alarm.repeatDays || [];
                     const biweekly = !!alarm.biweekly;
-                    const enabled = alarm.enabled !== false;
                     const isChecked = enabled ? 'checked' : '';
 
                     // 반복 주기 문자열 연산
@@ -6448,8 +6573,7 @@
                     const vibeName = { 'none': '진동끔', 'long': '긴진동A', 'long2': '긴진동B', 'short': '짧은진동A', 'short2': '짧은진동B', 'sos': 'SOS' }[alarm.vibe] || '알수없음';
 
                     item.innerHTML = `
-                        <div class="drag-handle" style="margin-right: 4px; color: var(--text-secondary); cursor: grab; user-select: none;">☰</div>
-                        <input type="checkbox" class="alarm-checkbox" data-id="${alarm.id}" style="margin-right: 8px;">
+                        <input type="checkbox" class="alarm-checkbox" data-id="${alarm.id}" style="margin-right: 8px; flex-shrink: 0;">
                         
                         <div class="alarm-info" style="display:flex; flex:1; justify-content:space-between; align-items:center; min-width:0; gap:10px;">
                             <!-- 좌측 3줄 구조 영역 (제목 / 반복 주기 / 상세 정보) -->
@@ -6493,10 +6617,9 @@
                         </div>
                     `;
 
-                    // 전체 아이템 터치/클릭 시 수정 팝업 모달 띄우기 (핸들, 체크박스, 토글 제외)
+                    // 전체 아이템 터치/클릭 시 수정 팝업 모달 띄우기 (체크박스, 토글 제외)
                     item.addEventListener('click', (e) => {
                         if (
-                            e.target.classList.contains('drag-handle') ||
                             e.target.classList.contains('alarm-checkbox') ||
                             e.target.closest('.toggle-alarm-btn')
                         ) {
@@ -6505,128 +6628,8 @@
                         openAlarmEditModalPopup(alarm.id);
                     });
 
-                    // Drag and Drop Events
-                    item.addEventListener('dragstart', handleDragStart);
-                    item.addEventListener('dragover', handleDragOver);
-                    item.addEventListener('drop', handleDrop);
-                    item.addEventListener('dragend', handleDragEnd);
-
-                    // Touch Events for Mobile Drag and Drop
-                    item.addEventListener('touchstart', handleAlarmTouchStart, { passive: false });
-                    item.addEventListener('touchmove', handleAlarmTouchMove, { passive: false });
-                    item.addEventListener('touchend', handleAlarmTouchEnd);
-
-                    // drag-handle에 대해서만 마우스/터치 이벤트 발생 시 draggable 활성화
-                    const dragH = item.querySelector('.drag-handle');
-                    if (dragH) {
-                        dragH.addEventListener('mousedown', () => { item.draggable = true; });
-                        dragH.addEventListener('mouseup', () => { item.draggable = false; });
-                        dragH.addEventListener('touchstart', () => { item.draggable = false; });
-                        dragH.addEventListener('touchend', () => { item.draggable = false; });
-                    }
-
                     container.appendChild(item);
                 });
-            }
-
-            let dragSrcEl = null;
-            function handleDragStart(e) {
-                dragSrcEl = this;
-                e.dataTransfer.effectAllowed = 'move';
-                this.classList.add('dragging');
-            }
-            function handleDragOver(e) {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-
-                if (dragSrcEl && dragSrcEl !== this) {
-                    const rect = this.getBoundingClientRect();
-                    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-
-                    const list = appData.alarms;
-                    const fromId = parseInt(dragSrcEl.dataset.id);
-                    const toId = parseInt(this.dataset.id);
-                    const fromIdx = list.findIndex(a => a.id === fromId);
-                    const toIdx = list.findIndex(a => a.id === toId);
-
-                    if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
-                        list.splice(toIdx, 0, list.splice(fromIdx, 1)[0]);
-                        saveInputs();
-
-                        const container = document.getElementById('alarm_list');
-                        if (next) {
-                            container.insertBefore(dragSrcEl, this.nextSibling);
-                        } else {
-                            container.insertBefore(dragSrcEl, this);
-                        }
-                    }
-                }
-                return false;
-            }
-            function handleDrop(e) {
-                e.stopPropagation();
-                saveInputs();
-                renderAlarms();
-                return false;
-            }
-            function handleDragEnd() {
-                if (dragSrcEl) {
-                    dragSrcEl.classList.remove('dragging');
-                    dragSrcEl = null;
-                }
-                this.draggable = false;
-                renderAlarms();
-            }
-
-            let alarmTouchDragItem = null;
-
-            function handleAlarmTouchStart(e) {
-                if (!e.target.classList.contains('drag-handle')) return;
-                alarmTouchDragItem = this;
-                this.classList.add('dragging');
-                e.preventDefault();
-            }
-
-            function handleAlarmTouchMove(e) {
-                if (!alarmTouchDragItem) return;
-                e.preventDefault();
-
-                const clientY = e.touches[0].clientY;
-                const clientX = e.touches[0].clientX;
-                const container = document.getElementById('alarm_list');
-
-                const elements = document.elementsFromPoint(clientX, clientY);
-                const targetItem = elements.find(el => el.classList.contains('alarm-item') && el !== alarmTouchDragItem);
-
-                if (targetItem) {
-                    const rect = targetItem.getBoundingClientRect();
-                    const next = (clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
-
-                    const list = appData.alarms;
-                    const fromId = parseInt(alarmTouchDragItem.dataset.id);
-                    const toId = parseInt(targetItem.dataset.id);
-                    const fromIdx = list.findIndex(a => a.id === fromId);
-                    const toIdx = list.findIndex(a => a.id === toId);
-
-                    if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
-                        list.splice(toIdx, 0, list.splice(fromIdx, 1)[0]);
-                        saveInputs();
-
-                        if (next) {
-                            container.insertBefore(alarmTouchDragItem, targetItem.nextSibling);
-                        } else {
-                            container.insertBefore(alarmTouchDragItem, targetItem);
-                        }
-                    }
-                }
-            }
-
-            function handleAlarmTouchEnd(e) {
-                if (alarmTouchDragItem) {
-                    alarmTouchDragItem.classList.remove('dragging');
-                    alarmTouchDragItem = null;
-                    renderAlarms();
-                }
             }
 
             // Main Alarm Check Loop
