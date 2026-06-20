@@ -6420,7 +6420,7 @@
                 appData.alarms.forEach(alarm => {
                     const item = document.createElement('div');
                     item.className = 'alarm-item';
-                    item.draggable = true;
+                    item.draggable = false;
                     item.dataset.id = alarm.id;
 
                     const title = alarm.title || '알람';
@@ -6516,17 +6516,21 @@
                     item.addEventListener('touchmove', handleAlarmTouchMove, { passive: false });
                     item.addEventListener('touchend', handleAlarmTouchEnd);
 
+                    // drag-handle에 대해서만 마우스/터치 이벤트 발생 시 draggable 활성화
+                    const dragH = item.querySelector('.drag-handle');
+                    if (dragH) {
+                        dragH.addEventListener('mousedown', () => { item.draggable = true; });
+                        dragH.addEventListener('mouseup', () => { item.draggable = false; });
+                        dragH.addEventListener('touchstart', () => { item.draggable = false; });
+                        dragH.addEventListener('touchend', () => { item.draggable = false; });
+                    }
+
                     container.appendChild(item);
                 });
             }
 
             let dragSrcEl = null;
             function handleDragStart(e) {
-                // drag-handle 클래스를 가진 요소에서 시작된 경우만 드래그 허용
-                if (!e.target.classList.contains('drag-handle')) {
-                    e.preventDefault();
-                    return;
-                }
                 dragSrcEl = this;
                 e.dataTransfer.effectAllowed = 'move';
                 this.classList.add('dragging');
@@ -6570,6 +6574,7 @@
                     dragSrcEl.classList.remove('dragging');
                     dragSrcEl = null;
                 }
+                this.draggable = false;
                 renderAlarms();
             }
 
