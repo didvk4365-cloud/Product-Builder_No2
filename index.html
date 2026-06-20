@@ -8559,16 +8559,18 @@
             function toggleWikiCatManager() {
                 const mgr = document.getElementById('wiki_cat_manager');
                 const filterWrapper = document.getElementById('wiki_filter_wrapper');
+                const listEl = document.getElementById('wiki_list');
                 if (mgr.style.display === 'none') {
                     mgr.style.display = 'block';
                     if (filterWrapper) filterWrapper.style.display = 'none';
+                    if (listEl) listEl.style.display = 'none';
                     renderWikiCatManager();
                 } else {
                     mgr.style.display = 'none';
-                    const listEl = document.getElementById('wiki_list');
-                    const listVisible = listEl && listEl.style.display !== 'none';
-                    if (filterWrapper && listVisible) {
-                        filterWrapper.style.display = 'flex';
+                    const isEditingOrReading = location.hash.startsWith('#wiki-editor') || location.hash.startsWith('#wiki-reader');
+                    if (!isEditingOrReading) {
+                        if (listEl) listEl.style.display = 'flex';
+                        if (filterWrapper) filterWrapper.style.display = 'flex';
                     }
                 }
             }
