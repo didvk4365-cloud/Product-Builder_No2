@@ -6420,7 +6420,7 @@
                 appData.alarms.forEach(alarm => {
                     const item = document.createElement('div');
                     item.className = 'alarm-item';
-                    item.draggable = false;
+                    item.draggable = true;
                     item.dataset.id = alarm.id;
 
                     const title = alarm.title || '알람';
@@ -6516,50 +6516,61 @@
                     item.addEventListener('touchmove', handleAlarmTouchMove, { passive: false });
                     item.addEventListener('touchend', handleAlarmTouchEnd);
 
-                    // drag-handle에 대해서만 마우스/터치 이벤트 발생 시 draggable 활성화
-                    const dragH = item.querySelector('.drag-handle');
-                    if (dragH) {
-                        dragH.addEventListener('mousedown', () => { item.draggable = true; });
-                        dragH.addEventListener('mouseup', () => { item.draggable = false; });
-                        dragH.addEventListener('touchstart', () => { item.draggable = true; });
-                        dragH.addEventListener('touchend', () => { item.draggable = false; });
-                    }
-
                     container.appendChild(item);
                 });
             }
 
             let dragSrcEl = null;
             function handleDragStart(e) {
+                // drag-handle 클래스를 가진 요소에서 시작된 경우만 드래그 허용
+                if (!e.target.classList.contains('drag-handle')) {
+                    e.preventDefault();
+                    return;
+                }
                 dragSrcEl = this;
                 e.dataTransfer.effectAllowed = 'move';
                 this.classList.add('dragging');
             }
             function handleDragOver(e) {
                 e.preventDefault();
-                return false;
-            }
-            function handleDrop(e) {
-                e.stopPropagation();
-                if (dragSrcEl !== this) {
+                e.dataTransfer.dropEffect = 'move';
+
+                if (dragSrcEl && dragSrcEl !== this) {
+                    const rect = this.getBoundingClientRect();
+                    const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+
                     const list = appData.alarms;
                     const fromId = parseInt(dragSrcEl.dataset.id);
                     const toId = parseInt(this.dataset.id);
                     const fromIdx = list.findIndex(a => a.id === fromId);
                     const toIdx = list.findIndex(a => a.id === toId);
 
-                    const temp = list[fromIdx];
-                    list.splice(fromIdx, 1);
-                    list.splice(toIdx, 0, temp);
+                    if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+                        list.splice(toIdx, 0, list.splice(fromIdx, 1)[0]);
+                        saveInputs();
 
-                    saveInputs();
-                    renderAlarms();
+                        const container = document.getElementById('alarm_list');
+                        if (next) {
+                            container.insertBefore(dragSrcEl, this.nextSibling);
+                        } else {
+                            container.insertBefore(dragSrcEl, this);
+                        }
+                    }
                 }
                 return false;
             }
+            function handleDrop(e) {
+                e.stopPropagation();
+                saveInputs();
+                renderAlarms();
+                return false;
+            }
             function handleDragEnd() {
-                this.classList.remove('dragging');
-                this.draggable = false;
+                if (dragSrcEl) {
+                    dragSrcEl.classList.remove('dragging');
+                    dragSrcEl = null;
+                }
+                renderAlarms();
             }
 
             let alarmTouchDragItem = null;
