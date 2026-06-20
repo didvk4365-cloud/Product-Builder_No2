@@ -2836,10 +2836,14 @@
                         <div class="alarm-day-btn" data-day="5" onclick="toggleAlarmDay(5)">금</div>
                         <div class="alarm-day-btn" data-day="6" onclick="toggleAlarmDay(6)">토</div>
                     </div>
-                    <!-- 격주 반복 토글 스위치 -->
+                    <!-- N주 반복 설정 -->
                     <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; box-sizing: border-box; margin-top: 4px;">
-                        <span style="font-size: 0.85rem; color: var(--text-primary);">격주로 반복 (2주 주기)</span>
-                        <label class="toggle-switch-wrapper" style="margin: 0;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 0.85rem; color: var(--text-primary);">반복 주기:</span>
+                            <input type="number" id="a_week_interval" value="2" min="2" max="99" style="width: 50px; padding: 4px; text-align: center; margin: 0; font-size: 0.85rem; height: 28px; line-height: 28px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);" onchange="saveInputs()">
+                            <span style="font-size: 0.85rem; color: var(--text-primary);">주마다 반복</span>
+                        </div>
+                        <label class="toggle-switch-wrapper" style="margin: 0;" title="N주 반복 활성화">
                             <input type="checkbox" id="a_biweekly" onchange="saveInputs()">
                             <span class="switch-slider"></span>
                         </label>
@@ -3690,6 +3694,10 @@
                     const el = document.getElementById('a_biweekly');
                     if (el) el.checked = !!appData['a_biweekly'];
                 }
+                if (appData['a_week_interval'] !== undefined) {
+                    const el = document.getElementById('a_week_interval');
+                    if (el) el.value = appData['a_week_interval'];
+                }
                 selectedAlarmDays = appData.selectedAlarmDays || [];
                 if (typeof updateAlarmDayButtonsUI === 'function') {
                     updateAlarmDayButtonsUI();
@@ -3830,6 +3838,9 @@
 
                 const aBiweekly = document.getElementById('a_biweekly');
                 if (aBiweekly) appData['a_biweekly'] = aBiweekly.checked;
+                
+                const aWeekInterval = document.getElementById('a_week_interval');
+                if (aWeekInterval) appData['a_week_interval'] = parseInt(aWeekInterval.value, 10) || 2;
                 appData.selectedAlarmDays = selectedAlarmDays;
 
                 const sRepeat = document.getElementById('s_repeat');
@@ -6312,6 +6323,7 @@
                 document.getElementById('edit_a_sound').value = alarm.sound || 'none';
                 document.getElementById('edit_a_vibe').value = alarm.vibe || 'none';
                 document.getElementById('edit_a_biweekly').checked = !!alarm.biweekly;
+                document.getElementById('edit_a_week_interval').value = alarm.weekInterval || 2;
 
                 editAlarmSelectedDays = [...(alarm.repeatDays || [])];
                 updateEditAlarmDayButtonsUI();
@@ -6362,6 +6374,7 @@
                 const vibe = document.getElementById('edit_a_vibe').value;
                 const dur = parseInt(document.getElementById('edit_a_duration').value) || 2;
                 const biweekly = document.getElementById('edit_a_biweekly').checked;
+                const weekInterval = parseInt(document.getElementById('edit_a_week_interval').value, 10) || 2;
 
                 const alarm = appData.alarms.find(a => a.id === popupEditingAlarmId);
                 if (alarm) {
@@ -6369,6 +6382,7 @@
                     alarm.title = titleStr;
                     alarm.repeatDays = [...editAlarmSelectedDays].sort((a, b) => a - b);
                     alarm.biweekly = biweekly;
+                    alarm.weekInterval = weekInterval;
                     alarm.sound = sound;
                     alarm.vibe = vibe;
                     alarm.duration = dur;
@@ -6438,6 +6452,7 @@
                 const vibe = document.getElementById('a_vibe').value;
                 const dur = parseInt(document.getElementById('a_duration').value) || 2;
                 const biweekly = document.getElementById('a_biweekly').checked;
+                const weekInterval = parseInt(document.getElementById('a_week_interval').value, 10) || 2;
 
                 const newAlarm = {
                     id: Date.now(),
@@ -6445,6 +6460,7 @@
                     title: titleStr,
                     repeatDays: [...selectedAlarmDays].sort((a, b) => a - b),
                     biweekly: biweekly,
+                    weekInterval: weekInterval,
                     createdWeekIndex: Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)),
                     sound: sound,
                     vibe: vibe,
@@ -6459,6 +6475,7 @@
                 resetAlarmTimeInputsToCurrent();
                 document.getElementById('a_title').value = '';
                 document.getElementById('a_biweekly').checked = false;
+                document.getElementById('a_week_interval').value = '2';
                 selectedAlarmDays = [];
                 updateAlarmDayButtonsUI();
 
@@ -6552,21 +6569,23 @@
                     const title = alarm.title || '알람';
                     const repeatDays = alarm.repeatDays || [];
                     const biweekly = !!alarm.biweekly;
+                    const weekInterval = alarm.weekInterval || 2;
                     const isChecked = enabled ? 'checked' : '';
 
                     // 반복 주기 문자열 연산
                     let repeatStr = '';
+                    const suffix = biweekly ? ` (${weekInterval}주 마다)` : '';
                     if (repeatDays.length === 0) {
                         repeatStr = '1회성';
                     } else if (repeatDays.length === 7) {
-                        repeatStr = '매일' + (biweekly ? ' (격주)' : '');
+                        repeatStr = '매일' + suffix;
                     } else if (repeatDays.length === 5 && !repeatDays.includes(0) && !repeatDays.includes(6)) {
-                        repeatStr = '평일' + (biweekly ? ' (격주)' : '');
+                        repeatStr = '평일' + suffix;
                     } else if (repeatDays.length === 2 && repeatDays.includes(0) && repeatDays.includes(6)) {
-                        repeatStr = '주말' + (biweekly ? ' (격주)' : '');
+                        repeatStr = '주말' + suffix;
                     } else {
                         const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-                        repeatStr = repeatDays.map(d => dayNames[d]).join(',') + (biweekly ? ' (격주)' : '');
+                        repeatStr = repeatDays.map(d => dayNames[d]).join(',') + suffix;
                     }
 
                     const soundName = { 'none': '음소거', 'siren': '사이렌', 'beep_fast': '빠른비프A', 'beep_fast2': '빠른비프B', 'beep_slow': '느린비프A', 'beep_slow2': '느린비프B' }[alarm.sound] || '알수없음';
@@ -6660,7 +6679,8 @@
                                 } else if (biweekly) {
                                     const curWeek = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000));
                                     const startWeek = alarm.createdWeekIndex || 0;
-                                    if (Math.abs(curWeek - startWeek) % 2 !== 0) {
+                                    const interval = alarm.weekInterval || 2;
+                                    if (Math.abs(curWeek - startWeek) % interval !== 0) {
                                         shouldRing = false;
                                     }
                                 }
@@ -11005,9 +11025,13 @@
                     <div class="alarm-day-btn edit-alarm-day-btn" data-day="5" onclick="toggleEditAlarmDay(5)">금</div>
                     <div class="alarm-day-btn edit-alarm-day-btn" data-day="6" onclick="toggleEditAlarmDay(6)">토</div>
                 </div>
-                <!-- 격주 반복 토글 스위치 -->
+                <!-- N주 반복 설정 -->
                 <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 6px; box-sizing: border-box; margin-top: 4px;">
-                    <span style="font-size: 0.8rem; color: var(--text-primary);">격주로 반복 (2주 주기)</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.8rem; color: var(--text-primary);">반복 주기:</span>
+                        <input type="number" id="edit_a_week_interval" value="2" min="2" max="99" style="width: 50px; padding: 4px; text-align: center; margin: 0; font-size: 0.8rem; height: 26px; line-height: 26px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
+                        <span style="font-size: 0.8rem; color: var(--text-primary);">주마다 반복</span>
+                    </div>
                     <label class="toggle-switch-wrapper" style="margin: 0;">
                         <input type="checkbox" id="edit_a_biweekly">
                         <span class="switch-slider"></span>
