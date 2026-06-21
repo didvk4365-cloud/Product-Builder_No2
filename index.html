@@ -2112,6 +2112,101 @@
             font-size: 1.1rem;
         }
 
+        /* 카테고리 앨범형 그리드 레이아웃 */
+        .custom-modal-body.select-grid-layout {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .custom-option-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1 / 1;
+            padding: 10px 4px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .custom-option-card:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .custom-option-card.selected {
+            border-color: var(--primary-color);
+            border-width: 2px;
+            background-color: rgba(255, 152, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+        }
+
+        :root.red-mode .custom-option-card.selected {
+            background-color: rgba(220, 53, 69, 0.1);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .custom-option-card .card-icon {
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .custom-option-card.selected .card-icon {
+            color: var(--primary-color);
+        }
+
+        .custom-option-card .card-text-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .custom-option-card .card-title-ko {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .custom-option-card .card-title-en {
+            font-size: 0.62rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .custom-option-card .card-active-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 14px;
+            height: 14px;
+            background-color: var(--primary-color);
+            color: #000;
+            font-weight: bold;
+            font-size: 0.6rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        :root.red-mode .custom-option-card .card-active-badge {
+            color: #fff;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -2589,13 +2684,28 @@
             </div>
 
             <div class="card">
-                <h3 style="margin-bottom: 8px;">단위 변환기</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="margin: 0;">단위 변환기</h3>
+                    <button onclick="resetConverter()" class="secondary" style="margin:0; width:30px; height:26px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:4px;" title="변환 초기화">
+                        <svg viewBox="0 0 512 512" style="width: 14px; height: 14px; fill: var(--primary-color);">
+                            <g>
+                                <path d="M223.151,159.114l-38.806-38.724c21.75-11.384,45.884-17.32,71.004-17.32 c84.594,0,153.417,68.676,153.417,153.091H486c0-61.478-23.992-119.277-67.556-162.749S316.958,26,255.349,26 c-45.859,0-89.552,13.167-127.306,38.208L93.421,29.659L45.936,206.498L223.151,159.114z"/>
+                                <path d="M288.849,352.886l38.806,38.724c-21.75,11.384-45.884,17.32-71.004,17.32 c-84.594,0-153.417-68.676-153.417-153.092H26c0,61.478,23.992,119.277,67.556,162.749C137.12,462.059,195.042,486,256.651,486   c45.859,0,89.552-13.167,127.306-38.208l34.623,34.549l47.484-176.839L288.849,352.886z"/>
+                            </g>
+                        </svg>
+                    </button>
+                </div>
                 <div class="form-group" style="margin-top: 0;">
                     <select id="c_category" onchange="updateUnitOptions()" style="display: none;">
                         <option value="temp">온도 (Temperature)</option>
                         <option value="length">거리 (Length)</option>
                         <option value="weight">무게 (Weight)</option>
                         <option value="volume">부피 (Volume)</option>
+                        <option value="speed">속도 (Speed)</option>
+                        <option value="pressure">기압 (Pressure)</option>
+                        <option value="energy">에너지 (Energy)</option>
+                        <option value="power">전력 (Power)</option>
+                        <option value="area">면적 (Area)</option>
                     </select>
                     <div class="custom-select-trigger" id="trigger_c_category" onclick="openCustomSelectModal('c_category', '변환 종류')">
                         <span class="custom-select-val">온도 (Temperature)</span>
@@ -2604,7 +2714,7 @@
                 </div>
                 <div class="flex-row" style="align-items: center;">
                     <div class="form-group" style="margin-bottom:0; flex:1;">
-                        <input type="text" id="c_val_from" placeholder="값" inputmode="decimal" oninput="handleUnitValueInput(this)">
+                        <input type="text" id="c_val_from" placeholder="값" inputmode="decimal" oninput="handleUnitValueInput(this)" style="text-align: center;">
                     </div>
                     <div class="form-group" style="margin-bottom:0; flex:1;">
                         <select id="c_unit_from" onchange="convertUnit()" style="display: none;"></select>
@@ -2614,11 +2724,19 @@
                         </div>
                     </div>
                 </div>
-                <div style="text-align:center; padding: 10px 0; color:var(--primary-color);">▼</div>
+                <div style="display: flex; justify-content: center; align-items: center; padding: 6px 0;">
+                    <button onclick="swapConverter()" style="width: 32px; height: 32px; padding: 0; margin: 0; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--text-secondary); transition: color 0.15s; cursor: pointer; outline: none;" title="단위 스왑">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: 0;">
+                            <path d="M7 21V3m0 0L3 7m4-4l4 4M17 3v18m0 0l-4-4m4 4l4-4"/>
+                        </svg>
+                    </button>
+                </div>
                 <div class="flex-row" style="align-items: center;">
-                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                    <div class="form-group" style="margin-bottom:0; flex:1; display: flex; align-items: center;">
                         <input type="text" id="c_val_to" placeholder="결과" readonly
-                            style="background-color:var(--surface-color);">
+                            onclick="copyAndSaveResult()"
+                            style="text-align: center; border: 2px solid var(--primary-color); border-radius: 6px; color: var(--primary-color) !important; background-color: rgba(255, 255, 255, 0.05) !important; opacity: 1 !important; font-weight: bold; width: 100%; box-sizing: border-box; cursor: pointer;"
+                            title="클릭하여 복사 및 기록 저장">
                     </div>
                     <div class="form-group" style="margin-bottom:0; flex:1;">
                         <select id="c_unit_to" onchange="convertUnit()" style="display: none;"></select>
@@ -2626,6 +2744,13 @@
                             <span class="custom-select-val">-</span>
                             <span class="custom-select-arrow">▼</span>
                         </div>
+                    </div>
+                </div>
+                <!-- 최근 변환 기록 영역 -->
+                <div id="c_history_container" style="margin-top: 12px; display: none;">
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: bold;">최근 변환 기록:</div>
+                    <div style="background: rgba(255, 255, 255, 0.01); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 4px 8px;">
+                        <div id="c_history_list" style="display: flex; flex-direction: column;"></div>
                     </div>
                 </div>
             </div>
@@ -3433,6 +3558,31 @@
                 checkAndRestoreBodyScroll(); // 뒷배경 스크롤 복원 체크
             }
 
+            function getCategoryIcon(val) {
+                switch(val) {
+                    case 'temp':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>`;
+                    case 'length':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2" ry="2"/><line x1="6" y1="7" x2="6" y2="12"/><line x1="10" y1="7" x2="10" y2="10"/><line x1="14" y1="7" x2="14" y2="12"/><line x1="18" y1="7" x2="18" y2="10"/></svg>`;
+                    case 'weight':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="5" y1="7" x2="19" y2="7"/><path d="M5 7l-3 7h6L5 7zM19 7l-3 7h6L19 7z"/></svg>`;
+                    case 'volume':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M8 3v3a4 4 0 0 1-1.3 3L3 17a2 2 0 0 0 1.7 3h14.6a2 2 0 0 0 1.7-3l-3.7-8A4 4 0 0 1 16 6V3"/></svg>`;
+                    case 'speed':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 0-10 10M12 2a10 10 0 0 1 10 10M12 2v4M4.93 4.93l2.83 2.83M19.07 4.93l-2.83 2.83M12 12l4-4"/></svg>`;
+                    case 'pressure':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 12l2-5M8 12h8"/></svg>`;
+                    case 'energy':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`;
+                    case 'power':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+                    case 'area':
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>`;
+                    default:
+                        return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+                }
+            }
+
             function openCustomSelectModal(selectId, titleText) {
                 document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
                 currentTargetSelectId = selectId;
@@ -3448,26 +3598,78 @@
                 if (optionsContainer) {
                     optionsContainer.innerHTML = '';
                     
+                    if (selectId === 'c_category') {
+                        optionsContainer.className = 'custom-modal-body select-grid-layout';
+                    } else {
+                        optionsContainer.className = 'custom-modal-body';
+                    }
+                    
                     const options = selectEl.options;
                     const currentValue = selectEl.value;
                     
                     for (let i = 0; i < options.length; i++) {
                         const opt = options[i];
                         const item = document.createElement('div');
-                        item.className = 'custom-option-item';
-                        if (opt.value === currentValue) {
-                            item.classList.add('selected');
-                        }
                         
-                        const textSpan = document.createElement('span');
-                        textSpan.textContent = opt.textContent;
-                        item.appendChild(textSpan);
-                        
-                        if (opt.value === currentValue) {
-                            const checkSpan = document.createElement('span');
-                            checkSpan.className = 'custom-option-check';
-                            checkSpan.textContent = '✓';
-                            item.appendChild(checkSpan);
+                        if (selectId === 'c_category') {
+                            item.className = 'custom-option-card';
+                            if (opt.value === currentValue) {
+                                item.classList.add('selected');
+                            }
+                            
+                            // 아이콘 추가
+                            const iconEl = document.createElement('div');
+                            iconEl.className = 'card-icon';
+                            iconEl.innerHTML = getCategoryIcon(opt.value);
+                            
+                            // 텍스트 분리 및 구조화 (예: "온도 (Temperature)" -> ko: "온도", en: "Temperature")
+                            const textDiv = document.createElement('div');
+                            textDiv.className = 'card-text-container';
+                            
+                            const match = opt.textContent.match(/^([^(]+)\s*\(([^)]+)\)$/);
+                            if (match) {
+                                const koSpan = document.createElement('span');
+                                koSpan.className = 'card-title-ko';
+                                koSpan.textContent = match[1].trim();
+                                
+                                const enSpan = document.createElement('span');
+                                enSpan.className = 'card-title-en';
+                                enSpan.textContent = match[2].trim();
+                                
+                                textDiv.appendChild(koSpan);
+                                textDiv.appendChild(enSpan);
+                            } else {
+                                const mainSpan = document.createElement('span');
+                                mainSpan.className = 'card-title-ko';
+                                mainSpan.textContent = opt.textContent;
+                                textDiv.appendChild(mainSpan);
+                            }
+                            
+                            item.appendChild(iconEl);
+                            item.appendChild(textDiv);
+                            
+                            if (opt.value === currentValue) {
+                                const activeBadge = document.createElement('div');
+                                activeBadge.className = 'card-active-badge';
+                                activeBadge.textContent = '✓';
+                                item.appendChild(activeBadge);
+                            }
+                        } else {
+                            item.className = 'custom-option-item';
+                            if (opt.value === currentValue) {
+                                item.classList.add('selected');
+                            }
+                            
+                            const textSpan = document.createElement('span');
+                            textSpan.textContent = opt.textContent;
+                            item.appendChild(textSpan);
+                            
+                            if (opt.value === currentValue) {
+                                const checkSpan = document.createElement('span');
+                                checkSpan.className = 'custom-option-check';
+                                checkSpan.textContent = '✓';
+                                item.appendChild(checkSpan);
+                            }
                         }
                         
                         // 클릭 이벤트
@@ -3733,6 +3935,9 @@
                         if (el) el.value = appData['c_unit_to'];
                     }
                     convertUnit();
+                }
+                if (typeof renderConverterHistory === 'function') {
+                    renderConverterHistory();
                 }
                 saveAndCalcWater();
                 renderWaterRecipes();
@@ -6040,6 +6245,35 @@
                     { id: 'cc', name: 'Cubic Centimeter (cc)', factor: 0.001 },
                     { id: 'gal', name: 'US Gallon (gal)', factor: 3.78541 },
                     { id: 'floz', name: 'US Fl.Ounce (fl oz)', factor: 0.0295735 }
+                ],
+                speed: [
+                    { id: 'ms', name: 'Meter/Second (m/s)', factor: 1 },
+                    { id: 'kmh', name: 'Kilometer/Hour (km/h)', factor: 0.277777777778 },
+                    { id: 'mph', name: 'Mile/Hour (mph)', factor: 0.44704 },
+                    { id: 'knot', name: 'Knot (kt)', factor: 0.514444444444 }
+                ],
+                pressure: [
+                    { id: 'hPa', name: 'Hectopascal (hPa)', factor: 1 },
+                    { id: 'mmHg', name: 'mmHg (mmHg)', factor: 1.33322387415 },
+                    { id: 'psi', name: 'PSI (psi)', factor: 68.9475729318 },
+                    { id: 'bar', name: 'Bar (bar)', factor: 1000 }
+                ],
+                energy: [
+                    { id: 'J', name: 'Joule (J)', factor: 1 },
+                    { id: 'kJ', name: 'Kilojoule (kJ)', factor: 1000 },
+                    { id: 'cal', name: 'Calorie (cal)', factor: 4.184 },
+                    { id: 'kcal', name: 'Kilocalorie (kcal)', factor: 4184 }
+                ],
+                power: [
+                    { id: 'W', name: 'Watt (W)', factor: 1 },
+                    { id: 'kW', name: 'Kilowatt (kW)', factor: 1000 },
+                    { id: 'hp', name: 'Horsepower (hp)', factor: 745.699871582 }
+                ],
+                area: [
+                    { id: 'm2', name: 'Square Meter (㎡)', factor: 1 },
+                    { id: 'pyeong', name: 'Pyeong (평)', factor: 3.30578512397 },
+                    { id: 'acre', name: 'Acre (ac)', factor: 4046.8564224 },
+                    { id: 'hectare', name: 'Hectare (ha)', factor: 10000 }
                 ]
             };
 
@@ -6107,6 +6341,27 @@
                 convertUnit();
             }
 
+            function formatResultValue(val) {
+                // 1. 소수점 아래 6자리까지 고정하여 부동소수점 오차 보정 후 문자열 변환
+                const s = parseFloat(val.toFixed(6)).toString();
+                const parts = s.split('.');
+                
+                if (parts.length < 2) {
+                    return parts[0]; // 소수점 이하 없음
+                }
+                
+                const dec = parts[1];
+                const firstTwo = dec.substring(0, 2).padEnd(2, '0');
+                
+                if (firstTwo === '00') {
+                    return parts[0]; // 소수점 이하 2째자리까지 00인 경우 정수 부분만 표현
+                }
+                
+                // 소수점 2자리까지 반올림
+                const rounded = Math.round(val * 100) / 100;
+                return rounded.toString();
+            }
+
             function convertUnit() {
                 saveInputs();
                 const valFromEl = document.getElementById('c_val_from');
@@ -6157,9 +6412,195 @@
 
                 const valToEl = document.getElementById('c_val_to');
                 if (valToEl) {
-                    let resStr = parseFloat(result.toFixed(6)).toString();
-                    valToEl.value = formatNumberWithCommas(resStr);
+                    const formattedRes = formatResultValue(result);
+                    const valToFormatted = formatNumberWithCommas(formattedRes);
+                    valToEl.value = valToFormatted;
                 }
+            }
+
+            // --- 단위 변환기 추가 기능 (스왑, 복사, 최근 이력) ---
+            function resetConverter() {
+                const catEl = document.getElementById('c_category');
+                const valFromEl = document.getElementById('c_val_from');
+                const valToEl = document.getElementById('c_val_to');
+                if (!catEl || !valFromEl || !valToEl) return;
+                
+                catEl.value = 'temp';
+                updateUnitOptions(true);
+                
+                valFromEl.value = '';
+                valToEl.value = '';
+                
+                saveInputs();
+                syncCustomSelectTriggers();
+                convertUnit();
+                
+                showToast('단위 변환기가 초기화되었습니다.');
+            }
+
+            function copyAndSaveResult() {
+                const valFromEl = document.getElementById('c_val_from');
+                const valToEl = document.getElementById('c_val_to');
+                if (!valFromEl || !valToEl || !valToEl.value) return;
+
+                const copyText = valToEl.value.replace(/,/g, '');
+                navigator.clipboard.writeText(copyText).then(() => {
+                    showToast('결과가 복사되고 기록에 저장되었습니다.');
+                }).catch(err => {
+                    console.error('복사 실패: ', err);
+                });
+
+                const catEl = document.getElementById('c_category');
+                const unitFromEl = document.getElementById('c_unit_from');
+                const unitToEl = document.getElementById('c_unit_to');
+                if (!catEl || !unitFromEl || !unitToEl) return;
+
+                const cat = catEl.value;
+                const valFrom = valFromEl.value.trim();
+                const valTo = valToEl.value.trim();
+                const unitFrom = unitFromEl.value;
+                const unitTo = unitToEl.value;
+
+                if (valFrom && valTo) {
+                    addConverterHistory(cat, valFrom, unitFrom, valTo, unitTo);
+                }
+            }
+
+            function swapConverter() {
+                const valFromEl = document.getElementById('c_val_from');
+                const valToEl = document.getElementById('c_val_to');
+                const unitFromEl = document.getElementById('c_unit_from');
+                const unitToEl = document.getElementById('c_unit_to');
+                if (!valFromEl || !valToEl || !unitFromEl || !unitToEl) return;
+
+                const valFrom = valFromEl.value;
+                const valTo = valToEl.value;
+                const unitFrom = unitFromEl.value;
+                const unitTo = unitToEl.value;
+
+                if (!valFrom && !valTo) return;
+
+                valFromEl.value = valTo;
+                valToEl.value = valFrom;
+
+                unitFromEl.value = unitTo;
+                unitToEl.value = unitFrom;
+
+                saveInputs();
+                syncCustomSelectTriggers();
+                convertUnit();
+            }
+
+            function addConverterHistory(cat, valFrom, unitFrom, valTo, unitTo) {
+                if (!appData.c_history) {
+                    appData.c_history = [];
+                }
+                
+                const newHistory = {
+                    cat: cat,
+                    valFrom: valFrom,
+                    unitFrom: unitFrom,
+                    valTo: valTo,
+                    unitTo: unitTo,
+                    timestamp: Date.now()
+                };
+
+                // 값과 카테고리, 단위가 모두 일치하는 동일 항목만 제거 (값만 다른 경우는 누적되도록 함)
+                appData.c_history = appData.c_history.filter(h => !(h.cat === cat && h.valFrom === valFrom && h.unitFrom === unitFrom && h.unitTo === unitTo));
+                
+                // 최상단에 추가 및 최대 5개 유지
+                appData.c_history.unshift(newHistory);
+                appData.c_history = appData.c_history.slice(0, 5);
+                
+                saveInputs();
+                renderConverterHistory();
+            }
+
+            function renderConverterHistory() {
+                const listDiv = document.getElementById('c_history_list');
+                const container = document.getElementById('c_history_container');
+                if (!listDiv || !container) return;
+                
+                const history = appData.c_history || [];
+                if (history.length === 0) {
+                    container.style.display = 'none';
+                    return;
+                }
+                
+                container.style.display = 'block';
+                listDiv.innerHTML = '';
+                
+                history.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.style.cssText = "display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 6px 4px; cursor: pointer; transition: background-color 0.15s; border-radius: 4px;";
+                    if (idx < history.length - 1) {
+                        row.style.borderBottom = "1px solid rgba(255, 255, 255, 0.05)";
+                    }
+                    
+                    row.onmouseenter = () => { row.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; };
+                    row.onmouseleave = () => { row.style.backgroundColor = 'transparent'; };
+                    
+                    const uFromText = getUnitSymbol(item.cat, item.unitFrom);
+                    const uToText = getUnitSymbol(item.cat, item.unitTo);
+                    
+                    // 좌측 열 (입력값 가운데 정렬)
+                    const fromCol = document.createElement('div');
+                    fromCol.style.cssText = "text-align: center; font-size: 0.72rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+                    fromCol.textContent = `${item.valFrom} ${uFromText}`;
+                    
+                    // 중앙 열 (화살표)
+                    const arrowCol = document.createElement('div');
+                    arrowCol.style.cssText = "font-size: 0.72rem; color: var(--text-secondary); opacity: 0.6; display: flex; align-items: center; justify-content: center;";
+                    arrowCol.textContent = "➔";
+                    
+                    // 우측 열 (결과값 가운데 정렬)
+                    const toCol = document.createElement('div');
+                    toCol.style.cssText = "text-align: center; font-size: 0.72rem; color: var(--text-primary); font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+                    toCol.textContent = `${item.valTo} ${uToText}`;
+                    
+                    row.appendChild(fromCol);
+                    row.appendChild(arrowCol);
+                    row.appendChild(toCol);
+                    
+                    row.onclick = () => {
+                        applyConverterHistory(item.cat, item.valFrom, item.unitFrom, item.unitTo);
+                    };
+                    
+                    listDiv.appendChild(row);
+                });
+            }
+
+            function getUnitSymbol(cat, unitId) {
+                if (cat === 'temp') {
+                    return unitId === 'C' ? '°C' : (unitId === 'F' ? '°F' : 'K');
+                }
+                if (UNIT_DATA[cat]) {
+                    const u = UNIT_DATA[cat].find(x => x.id === unitId);
+                    if (u) {
+                        const match = u.name.match(/\(([^)]+)\)/);
+                        return match ? match[1] : unitId;
+                    }
+                }
+                return unitId;
+            }
+
+            function applyConverterHistory(cat, valFrom, unitFrom, unitTo) {
+                const catEl = document.getElementById('c_category');
+                const valFromEl = document.getElementById('c_val_from');
+                const unitFromEl = document.getElementById('c_unit_from');
+                const unitToEl = document.getElementById('c_unit_to');
+                if (!catEl || !valFromEl || !unitFromEl || !unitToEl) return;
+                
+                catEl.value = cat;
+                updateUnitOptions(true);
+                
+                valFromEl.value = valFrom;
+                unitFromEl.value = unitFrom;
+                unitToEl.value = unitTo;
+                
+                saveInputs();
+                syncCustomSelectTriggers();
+                convertUnit();
             }
 
             // === D. 알림 시스템 (Alert) === 이건 진짜 신경 많이 쓴거다.
