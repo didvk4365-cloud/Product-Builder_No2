@@ -300,15 +300,7 @@
             transform: translate(-50%, -50%) rotate(45deg);
         }
 
-        /* 반복 재생 (Loop) 체크박스는 미니멀한 UI 밸런스를 위해 주황/빨강 채우기를 배제하고 체크 마크만 테마색으로 세련되게 표현 */
-        #s_repeat:checked {
-            background-color: var(--bg-color) !important;
-            border-color: var(--text-secondary) !important;
-        }
 
-        #s_repeat:checked::after {
-            border-color: var(--primary-color) !important;
-        }
 
         input::placeholder {
             color: var(--text-secondary) !important;
@@ -2359,7 +2351,7 @@
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">모스부호 (Morse Code)</h3>
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
-                            <span id="label_morse_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1;">📱 플래쉬 off</span>
+                            <span id="label_morse_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1; font-weight: bold;">플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
                                 <input type="checkbox" id="s_morse_flash_toggle"
                                     onchange="updateToggleLabels(); saveInputs()">
@@ -2371,11 +2363,12 @@
                 <div class="form-group">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                        <label
-                            style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin: 0; padding: 0; border: none; background: none; font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap;">
-                            <input type="checkbox" id="s_repeat" onchange="saveInputs()"
-                                style="width: 16px; height: 16px; margin: 0;">
-                            반복 재생 (Loop)
+                        <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
+                            <span id="label_s_repeat" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1; font-weight: bold;">┗ 반복 재생 off</span>
+                            <span class="toggle-switch-wrapper">
+                                <input type="checkbox" id="s_repeat" onchange="updateToggleLabels(); saveInputs()">
+                                <span class="switch-slider"></span>
+                            </span>
                         </label>
                         <label style="margin: 0; padding: 0; text-align: right;">텍스트 입력 (영문/숫자)</label>
                     </div>
@@ -2457,7 +2450,7 @@
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">긴급 스트로보 (Strobe)</h3>
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
-                            <span id="label_strobe_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1;">📱 플래쉬 off</span>
+                            <span id="label_strobe_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1; font-weight: bold;">플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
                                 <input type="checkbox" id="s_strobe_flash_toggle"
                                     onchange="updateToggleLabels(); saveInputs()">
@@ -2476,7 +2469,7 @@
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">비콘 모드 (Beacon)</h3>
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
-                            <span id="label_beacon_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1;">📱 플래쉬 off</span>
+                            <span id="label_beacon_flash" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1; font-weight: bold;">플래쉬 off</span>
                             <span class="toggle-switch-wrapper">
                                 <input type="checkbox" id="s_beacon_flash_toggle"
                                     onchange="updateToggleLabels(); saveInputs()">
@@ -2624,11 +2617,11 @@
                 </div>
                 <div class="flex-row">
                     <div class="form-group">
-                        <label>위도 (Latitude)</label>
+                        <label style="text-align: center; padding-right: 0;">위도 (Latitude)</label>
                         <input type="number" id="n_lat" placeholder="--.--">
                     </div>
                     <div class="form-group">
-                        <label>경도 (Longitude)</label>
+                        <label style="text-align: center; padding-right: 0;">경도 (Longitude)</label>
                         <input type="number" id="n_lng" placeholder="--.--">
                     </div>
                 </div>
@@ -2754,12 +2747,15 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin:0;">⏱ 타이머 (Timer)</h3>
-                    <label
-                        style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; border: 1.5px solid var(--text-secondary); color: var(--text-secondary); padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; margin:0; text-align: left; height: 26px; box-sizing: border-box; font-weight: normal; background: transparent;">
-                        <input type="checkbox" id="a_repeat" onchange="saveInputs()"
-                            style="width:14px; height:14px; margin:0;">
-                        반복알람
-                    </label>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
+                            <span id="label_a_repeat" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1; font-weight: bold;">반복 off</span>
+                            <span class="toggle-switch-wrapper">
+                                <input type="checkbox" id="a_repeat" onchange="updateToggleLabels(); saveInputs()">
+                                <span class="switch-slider"></span>
+                            </span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="flex-row">
@@ -2780,9 +2776,8 @@
                     </div>
                 </div>
 
-                <div class="flex-row" style="margin-top: 4px;">
+                <div class="flex-row" style="margin-top: 14px;">
                     <div class="form-group" style="flex:1;">
-                        <label>활동 소리</label>
                         <select id="t_sound" onchange="saveInputs()" style="display: none;">
                             <option value="none">음소거</option>
                             <option value="siren" selected>사이렌</option>
@@ -2797,7 +2792,6 @@
                         </div>
                     </div>
                     <div class="form-group" style="flex:1;">
-                        <label>활동 진동</label>
                         <select id="t_vibe" onchange="saveInputs()" style="display: none;">
                             <option value="none">진동 끄기</option>
                             <option value="long" selected>긴 진동 A</option>
@@ -2836,9 +2830,8 @@
                     </div>
                 </div>
 
-                <div class="flex-row" style="margin-top: 4px;">
+                <div class="flex-row" style="margin-top: 14px;">
                     <div class="form-group" style="flex:1;">
-                        <label>휴식 종료 소리</label>
                         <select id="ri_sound" onchange="saveInputs()" style="display: none;">
                             <option value="none">음소거</option>
                             <option value="siren">사이렌</option>
@@ -2853,7 +2846,6 @@
                         </div>
                     </div>
                     <div class="form-group" style="flex:1;">
-                        <label>휴식 종료 진동</label>
                         <select id="ri_vibe" onchange="saveInputs()" style="display: none;">
                             <option value="none">진동 끄기</option>
                             <option value="long">긴 진동 A</option>
@@ -2901,9 +2893,8 @@
                             style="height: 45px; text-align: center; padding: 0 5px;">
                     </div>
                 </div>
-                <div class="flex-row" style="margin-top: 4px;">
+                <div class="flex-row" style="margin-top: 14px;">
                     <div class="form-group" style="flex:1; margin-bottom: 0;">
-                        <label>소리</label>
                         <select id="a_sound" onchange="saveInputs()" style="display: none;">
                             <option value="none">음소거</option>
                             <option value="siren">사이렌</option>
@@ -2918,7 +2909,6 @@
                         </div>
                     </div>
                     <div class="form-group" style="flex:1; margin-bottom: 0;">
-                        <label>진동</label>
                         <select id="a_vibe" onchange="saveInputs()" style="display: none;">
                             <option value="none">진동 끄기</option>
                             <option value="long">긴 진동 A</option>
@@ -3966,25 +3956,38 @@
                 if (morseToggle) {
                     const label = document.getElementById('label_morse_flash');
                     if (label) {
-                        label.innerHTML = morseToggle.checked
-                            ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
-                            : '📱 플래쉬 off';
+                        label.textContent = morseToggle.checked ? '플래쉬 on' : '플래쉬 off';
+                        label.style.color = morseToggle.checked ? 'var(--primary-color)' : 'var(--text-secondary)';
                     }
                 }
                 if (strobeToggle) {
                     const label = document.getElementById('label_strobe_flash');
                     if (label) {
-                        label.innerHTML = strobeToggle.checked
-                            ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
-                            : '📱 플래쉬 off';
+                        label.textContent = strobeToggle.checked ? '플래쉬 on' : '플래쉬 off';
+                        label.style.color = strobeToggle.checked ? 'var(--primary-color)' : 'var(--text-secondary)';
                     }
                 }
                 if (beaconToggle) {
                     const label = document.getElementById('label_beacon_flash');
                     if (label) {
-                        label.innerHTML = beaconToggle.checked
-                            ? '<span style="color:var(--primary-color); font-weight:bold;">⚡ 플래쉬 on</span>'
-                            : '📱 플래쉬 off';
+                        label.textContent = beaconToggle.checked ? '플래쉬 on' : '플래쉬 off';
+                        label.style.color = beaconToggle.checked ? 'var(--primary-color)' : 'var(--text-secondary)';
+                    }
+                }
+                const repeatToggle = document.getElementById('a_repeat');
+                if (repeatToggle) {
+                    const label = document.getElementById('label_a_repeat');
+                    if (label) {
+                        label.textContent = repeatToggle.checked ? '반복 on' : '반복 off';
+                        label.style.color = repeatToggle.checked ? 'var(--primary-color)' : 'var(--text-secondary)';
+                    }
+                }
+                const sRepeatToggle = document.getElementById('s_repeat');
+                if (sRepeatToggle) {
+                    const label = document.getElementById('label_s_repeat');
+                    if (label) {
+                        label.textContent = sRepeatToggle.checked ? '┗ 반복 재생 on' : '┗ 반복 재생 off';
+                        label.style.color = sRepeatToggle.checked ? 'var(--primary-color)' : 'var(--text-secondary)';
                     }
                 }
             }
@@ -11426,9 +11429,8 @@
                 </div>
             </div>
 
-            <div class="flex-row" style="margin-top: 2px;">
+            <div class="flex-row" style="margin-top: 12px;">
                 <div class="form-group" style="flex:1; margin-bottom: 0;">
-                    <label>소리</label>
                     <select id="edit_a_sound" style="display: none;">
                         <option value="none">음소거</option>
                         <option value="siren">사이렌</option>
@@ -11443,7 +11445,6 @@
                     </div>
                 </div>
                 <div class="form-group" style="flex:1; margin-bottom: 0;">
-                    <label>진동</label>
                     <select id="edit_a_vibe" style="display: none;">
                         <option value="none">진동 끄기</option>
                         <option value="long">긴 진동 A</option>
