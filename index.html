@@ -2136,10 +2136,6 @@
             box-sizing: border-box;
         }
 
-        .custom-option-card:hover {
-            border-color: var(--primary-color);
-            background-color: rgba(255, 255, 255, 0.02);
-        }
 
         .custom-option-card.selected {
             border-color: var(--primary-color);
@@ -2470,7 +2466,7 @@
                         </label>
                     </div>
                 </div>
-                <button class="danger" onclick="toggleStrobe()" id="btn_strobe">🚨 SOS 스트로보 시작</button>
+                <button class="danger" onclick="toggleStrobe()" id="btn_strobe">🚨 긴급 스트로보 시작</button>
                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px; margin-bottom:0;">⚠️ 경고: 광과민성 발작을 유발할 수 있습니다.
                     (Wake Lock 작동)</p>
             </div>
@@ -2489,17 +2485,14 @@
                         </label>
                     </div>
                 </div>
-                <div class="flex-row">
-                    <div class="form-group">
-                        <label>간격 (초)</label>
-                        <input type="number" id="s_beacon_interval" value="3" min="1" oninput="saveInputs()">
-                    </div>
-                    <div class="form-group">
-                        <label>횟수 (회)</label>
-                        <input type="number" id="s_beacon_count" value="1" min="1" oninput="saveInputs()">
-                    </div>
+                <div class="flex-row" style="margin-bottom:4px; gap:8px; align-items:center; justify-content:flex-start; font-size:0.85rem;">
+                    <input type="number" id="s_beacon_interval" value="3" min="1" oninput="saveInputs()" style="margin:0; text-align:center; width:25%; flex:none;">
+                    <span style="color:var(--text-secondary); white-space:nowrap; margin-right:12px;">초 (간격)</span>
+                    
+                    <input type="number" id="s_beacon_count" value="1" min="1" oninput="saveInputs()" style="margin:0; text-align:center; width:25%; flex:none;">
+                    <span style="color:var(--text-secondary); white-space:nowrap;">회 (횟수)</span>
                 </div>
-                <button onclick="toggleBeacon()" id="btn_beacon">📡 Beacon Start</button>
+                <button onclick="toggleBeacon()" id="btn_beacon" style="margin-top:4px;">📡 Beacon Start</button>
                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px; margin-bottom:0;">📡 위치 표시를 위해 일정 간격으로 강력한 섬광을
                     내보냅니다.</p>
             </div>
@@ -2747,7 +2740,7 @@
                     </div>
                 </div>
                 <!-- 최근 변환 기록 영역 -->
-                <div id="c_history_container" style="margin-top: 12px; display: none;">
+                <div id="c_history_container" style="margin-top: 12px; display: block;">
                     <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: bold;">최근 변환 기록:</div>
                     <div style="background: rgba(255, 255, 255, 0.01); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 4px 8px;">
                         <div id="c_history_list" style="display: flex; flex-direction: column;"></div>
@@ -3588,6 +3581,16 @@
                 currentTargetSelectId = selectId;
                 const selectEl = document.getElementById(selectId);
                 if (!selectEl) return;
+                
+                // 모달 헤더 처리 (c_category 선택 시 타이틀 및 X 닫기 영역 숨김)
+                const headerEl = document.querySelector('#custom-select-modal .custom-modal-header');
+                if (headerEl) {
+                    if (selectId === 'c_category') {
+                        headerEl.style.display = 'none';
+                    } else {
+                        headerEl.style.display = 'flex';
+                    }
+                }
                 
                 // 모달 타이틀 설정
                 const titleEl = document.getElementById('custom-modal-title');
@@ -6521,14 +6524,14 @@
                 const container = document.getElementById('c_history_container');
                 if (!listDiv || !container) return;
                 
-                const history = appData.c_history || [];
-                if (history.length === 0) {
-                    container.style.display = 'none';
-                    return;
-                }
-                
                 container.style.display = 'block';
                 listDiv.innerHTML = '';
+                
+                const history = appData.c_history || [];
+                if (history.length === 0) {
+                    listDiv.innerHTML = '<div style="text-align:center; padding:10px; color:var(--text-secondary); opacity: 0.6; font-size:0.72rem; border:1px dashed var(--border-color); border-radius:6px; margin: 4px 0;">최근 변환 기록이 없습니다.</div>';
+                    return;
+                }
                 
                 history.forEach((item, idx) => {
                     const row = document.createElement('div');
