@@ -3856,12 +3856,38 @@
                     appData.waterRecipes = [];
                 }
 
+                if (!Array.isArray(appData.todoCategories)) {
+                    appData.todoCategories = [
+                        { id: 'cat-water', name: '식수' },
+                        { id: 'cat-power', name: '전력' },
+                        { id: 'cat-hygiene', name: '위생' },
+                        { id: 'cat-food', name: '식량' }
+                    ];
+                }
+                if (!Array.isArray(appData.todoItems)) {
+                    appData.todoItems = [
+                        { id: 1, catId: 'cat-water', text: '생수 유통기한 확인 및 교체하기', checked: false },
+                        { id: 2, catId: 'cat-water', text: '휴대용 정수 필터 상태 점검', checked: true },
+                        { id: 3, catId: 'cat-power', text: '보조배터리 완충해두기', checked: false },
+                        { id: 4, catId: 'cat-power', text: '비상용 자가발전 라디오 점검', checked: false },
+                        { id: 5, catId: 'cat-hygiene', text: '물티슈 및 소독제 비축분 확인', checked: false },
+                        { id: 6, catId: 'cat-food', text: '전투식량 및 통조림 보관 주기 확인', checked: false }
+                    ];
+                }
+                if (appData.todoCategories && appData.todoCategories.length > 0) {
+                    if (!currentTodoCatId || !appData.todoCategories.some(c => c.id === currentTodoCatId)) {
+                        currentTodoCatId = appData.todoCategories[0].id;
+                    }
+                } else {
+                    currentTodoCatId = '';
+                }
+
                 if (!Array.isArray(appData.erp)) appData.erp = [];
                 appData.erp.forEach(item => {
                     if (!Array.isArray(item.history)) item.history = [];
                     item.history.forEach((log, idx) => {
                         if (!log.id) {
-                            log.id = 'log_' + Date.now() + '_' + idx + '_' + Math.floor(Math.random() * 100000);
+                             log.id = 'log_' + Date.now() + '_' + idx + '_' + Math.floor(Math.random() * 100000);
                         }
                     });
                 });
@@ -7390,8 +7416,16 @@
                         
                         // 데이터 로드 및 카테고리 자가 복구, 드롭다운 동기화 강제 정합
                         loadData();
+                        initWiki();
+                        initTodo();
                         initCategories();
                         updateCatDropdowns();
+                        
+                        // 데이터가 최종 초기화된 상태에서 UI 동기화를 위해 한 번 더 렌더링 호출
+                        if (typeof renderTodoTabs === 'function') renderTodoTabs();
+                        if (typeof renderTodoList === 'function') renderTodoList();
+                        if (typeof renderWikiList === 'function') renderWikiList();
+                        if (typeof renderMemos === 'function') renderMemos();
                         
                         alert("데이터가 성공적으로 복원되었습니다.");
                     } catch (loadErr) {
