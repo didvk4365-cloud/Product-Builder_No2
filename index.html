@@ -2699,10 +2699,10 @@
                     </div>
                 </div>
                 <div class="flex-row" style="align-items: center;">
-                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                    <div class="form-group" style="margin-bottom:0; flex:1; min-width: 0;">
                         <input type="text" id="c_val_from" placeholder="값" inputmode="decimal" oninput="handleUnitValueInput(this)" style="text-align: center;">
                     </div>
-                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                    <div class="form-group" style="margin-bottom:0; flex:1; min-width: 0;">
                         <select id="c_unit_from" onchange="convertUnit()" style="display: none;"></select>
                         <div class="custom-select-trigger" id="trigger_c_unit_from" onclick="openCustomSelectModal('c_unit_from', '변환 전 단위')">
                             <span class="custom-select-val">-</span>
@@ -2718,13 +2718,13 @@
                     </button>
                 </div>
                 <div class="flex-row" style="align-items: center;">
-                    <div class="form-group" style="margin-bottom:0; flex:1; display: flex; align-items: center;">
+                    <div class="form-group" style="margin-bottom:0; flex:1; min-width: 0; display: flex; align-items: center;">
                         <input type="text" id="c_val_to" placeholder="결과" readonly
                             onclick="copyAndSaveResult()"
                             style="text-align: center; border: 2px solid var(--primary-color); border-radius: 6px; color: var(--primary-color) !important; background-color: rgba(255, 255, 255, 0.05) !important; opacity: 1 !important; font-weight: bold; width: 100%; box-sizing: border-box; cursor: pointer;"
                             title="클릭하여 복사 및 기록 저장">
                     </div>
-                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                    <div class="form-group" style="margin-bottom:0; flex:1; min-width: 0;">
                         <select id="c_unit_to" onchange="convertUnit()" style="display: none;"></select>
                         <div class="custom-select-trigger" id="trigger_c_unit_to" onclick="openCustomSelectModal('c_unit_to', '변환 후 단위')">
                             <span class="custom-select-val">-</span>
