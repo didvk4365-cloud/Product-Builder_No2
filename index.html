@@ -2141,6 +2141,20 @@
             padding: 12px;
         }
 
+        /* 단위 선택 2열 그리드 레이아웃 */
+        .custom-modal-body.select-grid-layout-2col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding: 12px 16px;
+        }
+        .select-grid-layout-2col .custom-option-item {
+            margin-bottom: 0;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
         .custom-option-card {
             position: relative;
             display: flex;
@@ -3662,6 +3676,8 @@
                     
                     if (selectId === 'c_category') {
                         optionsContainer.className = 'custom-modal-body select-grid-layout';
+                    } else if (selectId === 'c_unit_from' || selectId === 'c_unit_to') {
+                        optionsContainer.className = 'custom-modal-body select-grid-layout-2col';
                     } else {
                         optionsContainer.className = 'custom-modal-body';
                     }
@@ -6353,27 +6369,49 @@
                     { id: 'mile', name: 'mi (Mile)', factor: 1609.344 },
                     { id: 'yard', name: 'yd (Yard)', factor: 0.9144 },
                     { id: 'foot', name: 'ft (Foot)', factor: 0.3048 },
-                    { id: 'inch', name: 'in (Inch)', factor: 0.0254 }
+                    { id: 'inch', name: 'in (Inch)', factor: 0.0254 },
+                    { id: 'nmi', name: 'nmi (Nautical Mile)', factor: 1852 },
+                    { id: 'mil', name: 'mil (Mil)', factor: 0.0000254 },
+                    { id: 'ja', name: '자(尺)', factor: 0.3030303 },
+                    { id: 'ri', name: '리(里)', factor: 392.727 }
                 ],
                 weight: [
+                    { id: 't', name: 't (Ton)', factor: 1000000 },
                     { id: 'kg', name: 'kg (Kilogram)', factor: 1000 },
                     { id: 'g', name: 'g (Gram)', factor: 1 },
                     { id: 'mg', name: 'mg (Milligram)', factor: 0.001 },
                     { id: 'lb', name: 'lb (Pound)', factor: 453.59237 },
-                    { id: 'oz', name: 'oz (Ounce)', factor: 28.34952 }
+                    { id: 'oz', name: 'oz (Ounce)', factor: 28.34952 },
+                    { id: 'sh_ton', name: 'ton (US Short Ton)', factor: 907184.74 },
+                    { id: 'l_ton', name: 'ton (UK Long Ton)', factor: 1016046.9088 },
+                    { id: 'geun', name: '근(斤)', factor: 600 },
+                    { id: 'don', name: '돈(錢)', factor: 3.75 }
                 ],
                 volume: [
+                    { id: 'm3', name: 'm³ (Cubic Meter)', factor: 1000 },
                     { id: 'L', name: 'L (Liter)', factor: 1 },
                     { id: 'ml', name: 'ml (Milliliter)', factor: 0.001 },
                     { id: 'cc', name: 'cc (Cubic Centimeter)', factor: 0.001 },
                     { id: 'gal', name: 'gal (US Gallon)', factor: 3.78541 },
-                    { id: 'floz', name: 'fl oz (US Fl.Ounce)', factor: 0.0295735 }
+                    { id: 'uk_gal', name: 'gal (UK Gallon)', factor: 4.54609 },
+                    { id: 'floz', name: 'fl oz (US Fl.Ounce)', factor: 0.0295735 },
+                    { id: 'in3', name: 'in³ (Cubic Inch)', factor: 0.016387064 },
+                    { id: 'ft3', name: 'ft³ (Cubic Foot)', factor: 28.316846592 },
+                    { id: 'mal', name: '말(斗)', factor: 18.039 },
+                    { id: 'doe', name: '되(승)', factor: 1.8039 }
                 ],
                 speed: [
                     { id: 'ms', name: 'm/s (Meter/Second)', factor: 1 },
+                    { id: 'mh', name: 'm/h (Meter/Hour)', factor: 0.00027777777778 },
+                    { id: 'kms', name: 'km/s (Kilometer/Second)', factor: 1000 },
                     { id: 'kmh', name: 'km/h (Kilometer/Hour)', factor: 0.277777777778 },
                     { id: 'mph', name: 'mph (Mile/Hour)', factor: 0.44704 },
-                    { id: 'knot', name: 'kt (Knot)', factor: 0.514444444444 }
+                    { id: 'knot', name: 'kt (Knot)', factor: 0.514444444444 },
+                    { id: 'ins', name: 'in/s (Inch/Second)', factor: 0.0254 },
+                    { id: 'inh', name: 'in/h (Inch/Hour)', factor: 0.0000070555555556 },
+                    { id: 'fts', name: 'ft/s (Foot/Second)', factor: 0.3048 },
+                    { id: 'fth', name: 'ft/h (Foot/Hour)', factor: 0.0000846666666667 },
+                    { id: 'mis', name: 'mi/s (Mile/Second)', factor: 1609.344 }
                 ],
                 pressure: [
                     { id: 'hPa', name: 'hPa (Hectopascal)', factor: 1 },
@@ -6394,9 +6432,12 @@
                 ],
                 area: [
                     { id: 'm2', name: '㎡ (Square Meter)', factor: 1 },
-                    { id: 'pyeong', name: '평 (Pyeong)', factor: 3.30578512397 },
+                    { id: 'pyeong', name: '평(坪)', factor: 3.30578512397 },
                     { id: 'acre', name: 'ac (Acre)', factor: 4046.8564224 },
-                    { id: 'hectare', name: 'ha (Hectare)', factor: 10000 }
+                    { id: 'hectare', name: 'ha (Hectare)', factor: 10000 },
+                    { id: 'are', name: 'a (Are)', factor: 100 },
+                    { id: 'ft2', name: 'ft² (Square Foot)', factor: 0.09290304 },
+                    { id: 'in2', name: 'in² (Square Inch)', factor: 0.00064516 }
                 ]
             };
 
@@ -6474,14 +6515,14 @@
                 }
                 
                 const dec = parts[1];
-                const firstTwo = dec.substring(0, 2).padEnd(2, '0');
+                const firstThree = dec.substring(0, 3).padEnd(3, '0');
                 
-                if (firstTwo === '00') {
-                    return parts[0]; // 소수점 이하 2째자리까지 00인 경우 정수 부분만 표현
+                if (firstThree === '000') {
+                    return parts[0]; // 소수점 이하 3째자리까지 000인 경우 정수 부분만 표현
                 }
                 
-                // 소수점 2자리까지 반올림
-                const rounded = Math.round(val * 100) / 100;
+                // 소수점 3자리까지 반올림
+                const rounded = Math.round(val * 1000) / 1000;
                 return rounded.toString();
             }
 
@@ -6694,14 +6735,11 @@
             }
 
             function getUnitSymbol(cat, unitId) {
-                if (cat === 'temp') {
-                    return unitId === 'C' ? '°C' : (unitId === 'F' ? '°F' : 'K');
-                }
                 if (UNIT_DATA[cat]) {
                     const u = UNIT_DATA[cat].find(x => x.id === unitId);
                     if (u) {
-                        const match = u.name.match(/\(([^)]+)\)/);
-                        return match ? match[1] : unitId;
+                        const idx = u.name.indexOf(' (');
+                        return idx !== -1 ? u.name.substring(0, idx) : u.name;
                     }
                 }
                 return unitId;
