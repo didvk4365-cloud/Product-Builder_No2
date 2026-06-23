@@ -2548,7 +2548,7 @@
                 <div id="rf_result_box" class="result-box" style="display:block; font-size:0.95rem; line-height:1.5; padding:12px; text-align:left; border-radius:8px;">
                     <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-pin"/></svg>계측 결과</div>
                     <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-stopwatch"/></svg>시간차: <strong style="color:var(--text-secondary);">---</strong></div>
-                    <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-wind"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
+                    <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-megaphone"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
                     <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
                         <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-ruler"/></svg>예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
                     </div>
@@ -2779,7 +2779,7 @@
         <div id="tab-alert" class="tab-content">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="margin:0;">⏱ 타이머 (Timer)</h3>
+                    <h3 style="margin:0; display:inline-flex; align-items:center; gap:6px;"><svg class="icon-svg-inline" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: -2px;"><use href="#icon-stopwatch"/></svg>타이머 (Timer)</h3>
                     <div style="display: flex; align-items: center; gap: 4px;">
                         <label class="switch-container" style="margin: 0; display: inline-flex; align-items: center; gap: 4px;">
                             <span id="label_a_repeat" style="font-size: 0.78rem; white-space: nowrap; color: var(--text-secondary); line-height: 1; font-weight: bold;">반복 off</span>
@@ -2842,8 +2842,7 @@
 
                 <div style="margin: 4px 0 0 0; border-top: 1px dashed var(--border-color); padding-top: 8px;">
                     <label
-                        style="text-align: left; margin-bottom: 4px; font-weight: bold; color: var(--primary-color);">⏳
-                        휴식 / 인터벌 (Rest Interval)</label>
+                        style="text-align: left; margin-bottom: 4px; font-weight: bold; color: var(--primary-color); display: inline-flex; align-items: center; gap: 4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-hourglass"/></svg>휴식 / 인터벌 (Rest Interval)</label>
                     <div class="flex-row">
                         <div class="form-group" style="flex: 3.2; margin-bottom: 0;">
                             <label>시간 설정</label>
@@ -2901,15 +2900,15 @@
                     <span id="timer_display">00:00:00</span>
                 </div>
                 <div class="flex-row">
-                    <button onclick="startTimer()" id="btn_timer_start">시작</button>
-                    <button class="secondary" onclick="stopTimer()" style="white-space:nowrap;">정지/초기화</button>
+                    <button onclick="startTimer()" id="btn_timer_start" style="display:inline-flex; align-items:center; justify-content:center; gap:6px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-play"/></svg>시작</button>
+                    <button class="secondary" onclick="stopTimer()" style="white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:6px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-stop"/></svg>정지/초기화</button>
                     <button class="secondary" onclick="playAlarmSound('timer', true)"
-                        style="width:auto; flex:none; padding:12px 14px;">🔊</button>
+                        style="width:auto; flex:none; padding:12px 14px; display:inline-flex; align-items:center; justify-content:center;"><svg class="icon-svg-inline" style="width: 16px; height: 16px;"><use href="#icon-volume"/></svg></button>
                 </div>
             </div>
 
             <div class="card">
-                <h3>⏰ 알람(Alarm)</h3>
+                <h3 style="display:inline-flex; align-items:center; gap:6px;"><svg class="icon-svg-inline" style="width: 16px; height: 16px; margin-right: 4px; vertical-align: -2px;"><use href="#icon-alarm"/></svg>알람(Alarm)</h3>
                 <div class="flex-row">
                     <div class="form-group" style="flex:2; margin-bottom: 0;">
                         <label>시간 설정</label>
@@ -2995,10 +2994,10 @@
                     </div>
                 </div>
                 <div class="flex-row">
-                    <button id="btn_add_alarm" onclick="addAlarm()" style="flex:1;">➕ 추가</button>
-                    <button class="danger" onclick="deleteSelectedAlarms()" style="flex:1;">🗑 삭제</button>
+                    <button id="btn_add_alarm" onclick="addAlarm()" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-plus"/></svg>추가</button>
+                    <button class="danger" onclick="deleteSelectedAlarms()" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-trash"/></svg>삭제</button>
                     <button class="secondary" onclick="playAlarmSound('alarm', true)"
-                        style="width:auto; flex:none; padding:12px 14px;">🔊</button>
+                        style="width:auto; flex:none; padding:12px 14px; display:inline-flex; align-items:center; justify-content:center;"><svg class="icon-svg-inline" style="width: 16px; height: 16px;"><use href="#icon-volume"/></svg></button>
                 </div>
                 <!-- 알람 필터 및 정렬 툴바 -->
                 <div class="erp-toolbar" style="flex-direction: column; align-items: stretch; gap: 8px; margin-top: 15px; margin-bottom: 5px;">
@@ -3006,23 +3005,23 @@
                         <!-- 1. 필터 선택 -->
                         <div style="flex: 1; display: flex; align-items: center; min-width: 0;">
                             <select id="alarm_filter" onchange="renderAlarms(); saveInputs();" style="display: none;">
-                                <option value="all">📱 전체 알람</option>
-                                <option value="active">🔔 활성 알람</option>
-                                <option value="inactive">🔕 비활성 알람</option>
+                                <option value="all">전체 알람</option>
+                                <option value="active">활성 알람</option>
+                                <option value="inactive">비활성 알람</option>
                             </select>
                             <div class="custom-select-trigger" id="trigger_alarm_filter" onclick="openCustomSelectModal('alarm_filter', '알람 필터')" style="flex: 1; min-width: 0;">
-                                <span class="custom-select-val">📱 전체 알람</span>
+                                <span class="custom-select-val"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#icon-phone"/></svg>전체 알람</span>
                                 <span class="custom-select-arrow">▼</span>
                             </div>
                         </div>
                         <!-- 2. 정렬 선택 -->
                         <div style="flex: 1; display: flex; align-items: center; min-width: 0;">
                             <select id="alarm_sort" onchange="renderAlarms(); saveInputs();" style="display: none;">
-                                <option value="title">✏️ 알람 이름</option>
-                                <option value="time">⏰ 알람 시간</option>
+                                <option value="title">알람 이름</option>
+                                <option value="time">알람 시간</option>
                             </select>
                             <div class="custom-select-trigger" id="trigger_alarm_sort" onclick="openCustomSelectModal('alarm_sort', '정렬 기준')" style="flex: 1; min-width: 0;">
-                                <span class="custom-select-val">✏️ 알람 이름</span>
+                                <span class="custom-select-val"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#icon-edit"/></svg>알람 이름</span>
                                 <span class="custom-select-arrow">▼</span>
                             </div>
                         </div>
@@ -3109,7 +3108,7 @@
                     <div style="display:flex; align-items:center; gap:5px;">
                         <button class="secondary"
                             style="margin:0; padding:4px 10px 4px 7px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center;"
-                            onclick="event.stopPropagation(); toggleCatManager()">⚙️분류 관리</button>
+                            onclick="event.stopPropagation(); toggleCatManager()"><svg class="icon-svg-inline" style="width: 12px; height: 12px; margin-right: 4px; vertical-align: -1px;"><use href="#icon-settings"/></svg>분류 관리</button>
                         <button class="secondary" id="btn_erp_form_toggle"
                             style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">펼치기 ▼</button>
                     </div>
@@ -3619,6 +3618,23 @@
                 return '<svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#' + iconId + '"/></svg>';
             }
 
+            function getAlarmFilterIconHtml(value) {
+                let iconId = "";
+                if (value === 'all') iconId = "icon-phone";
+                else if (value === 'active') iconId = "icon-bell";
+                else if (value === 'inactive') iconId = "icon-bell-off";
+                if (!iconId) return "";
+                return '<svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#' + iconId + '"/></svg>';
+            }
+
+            function getAlarmSortIconHtml(value) {
+                let iconId = "";
+                if (value === 'title') iconId = "icon-edit";
+                else if (value === 'time') iconId = "icon-alarm";
+                if (!iconId) return "";
+                return '<svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#' + iconId + '"/></svg>';
+            }
+
             function openCustomSelectModal(selectId, titleText) {
                 document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
                 currentTargetSelectId = selectId;
@@ -3711,6 +3727,10 @@
                                 textSpan.innerHTML = getSunTargetIconHtml(opt.value) + opt.textContent;
                             } else if (selectId === 'erp_sort') {
                                 textSpan.innerHTML = getErpSortIconHtml(opt.value) + opt.textContent;
+                            } else if (selectId === 'alarm_filter') {
+                                textSpan.innerHTML = getAlarmFilterIconHtml(opt.value) + opt.textContent;
+                            } else if (selectId === 'alarm_sort') {
+                                textSpan.innerHTML = getAlarmSortIconHtml(opt.value) + opt.textContent;
                             } else {
                                 textSpan.textContent = opt.textContent;
                             }
@@ -3776,6 +3796,10 @@
                                 triggerValEl.innerHTML = getSunTargetIconHtml(selectedOption.value) + selectedOption.textContent;
                             } else if (id === 'erp_sort') {
                                 triggerValEl.innerHTML = getErpSortIconHtml(selectedOption.value) + selectedOption.textContent;
+                            } else if (id === 'alarm_filter') {
+                                triggerValEl.innerHTML = getAlarmFilterIconHtml(selectedOption.value) + selectedOption.textContent;
+                            } else if (id === 'alarm_sort') {
+                                triggerValEl.innerHTML = getAlarmSortIconHtml(selectedOption.value) + selectedOption.textContent;
                             } else {
                                 triggerValEl.textContent = selectedOption.textContent;
                             }
@@ -5567,7 +5591,7 @@
                     resultBox.innerHTML = `
                         <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-pin"/></svg>계측 결과 (측정 중...)</div>
                         <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-stopwatch"/></svg>시간차: <strong style="color:var(--text-secondary);">---</strong></div>
-                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-wind"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-megaphone"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
                         <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
                             <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-ruler"/></svg>예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
                         </div>
@@ -5588,7 +5612,7 @@
                     let resultHtml = `
                         <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-pin"/></svg>계측 결과</div>
                         <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-stopwatch"/></svg>시간차: <strong style="color:var(--text-primary);">${duration.toFixed(3)}초</strong></div>
-                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-wind"/></svg>보정 음속: <strong style="color:var(--text-primary);">${speed.toFixed(1)} m/s</strong> (기온 ${temp}°C, 습도 ${humidity}%)</div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-megaphone"/></svg>보정 음속: <strong style="color:var(--text-primary);">${speed.toFixed(1)} m/s</strong> (기온 ${temp}°C, 습도 ${humidity}%)</div>
                         <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
                             <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-ruler"/></svg>예상 거리: <strong style="color:var(--danger-color); font-size:1.15rem;">약 ${distance.toFixed(1)}m</strong> (${(distance/1000).toFixed(2)}km)
                         </div>
@@ -5626,7 +5650,7 @@
                     resultBox.innerHTML = `
                         <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-pin"/></svg>계측 결과</div>
                         <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-stopwatch"/></svg>시간차: <strong style="color:var(--text-secondary);">---</strong></div>
-                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-wind"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-megaphone"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
                         <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
                             <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-ruler"/></svg>예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
                         </div>
@@ -6741,7 +6765,7 @@
                     return;
                 }
 
-                document.getElementById('btn_timer_start').innerText = "작동중...";
+                document.getElementById('btn_timer_start').innerHTML = '<svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 6px; vertical-align: -1px;"><use href="#icon-stopwatch"/></svg>작동중...';
                 document.getElementById('btn_timer_start').disabled = true;
 
                 timerInterval = setInterval(() => {
@@ -6783,7 +6807,7 @@
             function stopTimer() {
                 clearInterval(timerInterval);
                 isResting = false;
-                document.getElementById('btn_timer_start').innerText = "시작";
+                document.getElementById('btn_timer_start').innerHTML = '<svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 6px; vertical-align: -1px;"><use href="#icon-play"/></svg>시작';
                 document.getElementById('btn_timer_start').disabled = false;
                 document.getElementById('timer_status').innerText = "READY";
                 document.getElementById('timer_status').style.color = "var(--text-secondary)";
@@ -7162,18 +7186,9 @@
                                 </div>
                                 <button onclick="toggleAlarmEnabled(${alarm.id})" class="toggle-alarm-btn" style="width: 32px; height: 32px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid ${enabled ? 'var(--primary-color)' : 'var(--border-color)'}; background: ${enabled ? 'var(--primary-glow)' : 'rgba(255,255,255,0.02)'}; color: ${enabled ? 'var(--primary-color)' : 'var(--text-secondary)'}; cursor: pointer; transition: all 0.2s; pointer-events: auto !important; outline: none; -webkit-tap-highlight-color: transparent;" title="${enabled ? '알람 켜짐' : '알람 꺼짐'}">
                                     ${enabled ? `
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; display: block;">
-                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" fill="currentColor" />
-                                        </svg>
+                                        <svg class="icon-svg-inline" style="width: 16px; height: 16px; display: block;"><use href="#icon-bell"/></svg>
                                     ` : `
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; display: block; opacity: 0.6;">
-                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" fill="currentColor" />
-                                            <path d="M18.63 13A17.89 17.89 0 0 1 18 8" />
-                                            <path d="M6.26 6.26A5.86 5.86 0 0 0 6 8v7a2 2 0 0 0-2 2h13.74" />
-                                            <path d="M12 3a3 3 0 0 0-3 3v1.74" />
-                                            <line x1="1" y1="1" x2="23" y2="23" />
-                                        </svg>
+                                        <svg class="icon-svg-inline" style="width: 16px; height: 16px; display: block; opacity: 0.6;"><use href="#icon-bell-off"/></svg>
                                     `}
                                 </button>
                             </div>
@@ -11517,7 +11532,7 @@
     <!-- 알람 수정 모달 팝업 -->
     <div id="alarm-edit-modal" onclick="closeAlarmEditModalPopup(event)" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.88); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10025; align-items:center; justify-content:center; padding:16px; box-sizing:border-box;">
         <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:18px; width:100%; max-width:360px; box-sizing:border-box; display:flex; flex-direction:column; max-height:92vh; max-height:92dvh; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); overflow-y:auto;">
-            <h3 style="margin: 0 0 14px 0; color: var(--primary-color); display:flex; align-items:center; gap:8px;">✏️ 알람 수정</h3>
+            <h3 style="margin: 0 0 14px 0; color: var(--primary-color); display:flex; align-items:center; gap:8px;"><svg class="icon-svg-inline" style="width: 16px; height: 16px;"><use href="#icon-edit"/></svg>알람 수정</h3>
             
             <div class="form-group" style="margin-bottom: 6px;">
                 <label>알람 제목 / 설명</label>
@@ -11606,8 +11621,8 @@
             </div>
 
             <div class="flex-row" style="margin-top: 6px; gap: 8px;">
-                <button onclick="saveAlarmEditPopup()" style="flex:1; margin:0; height: 38px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;">💾 저장</button>
-                <button onclick="hideAlarmEditModalPopup()" class="secondary" style="flex:1; margin:0; height: 38px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1;">❌ 취소</button>
+                <button onclick="saveAlarmEditPopup()" style="flex:1; margin:0; height: 38px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; gap:6px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-save"/></svg>저장</button>
+                <button onclick="hideAlarmEditModalPopup()" class="secondary" style="flex:1; margin:0; height: 38px; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; gap:6px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-close"/></svg>취소</button>
             </div>
         </div>
     </div>
@@ -11616,7 +11631,8 @@
     <svg style="display: none;">
         <!-- Water droplet (💧) -->
         <symbol id="icon-droplet" viewBox="0 0 24 24">
-            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+            <path d="M12 2C12 2 5.5 8.5 5.5 14A6.5 6.5 0 0 0 18.5 14C18.5 8.5 12 2 12 2z" />
+            <path d="M9.5 12.5c0.5-2 1.5-3.5 2.5-4" />
         </symbol>
         <!-- Flashlight (🔦) -->
         <symbol id="icon-flashlight" viewBox="0 0 24 24">
@@ -11888,6 +11904,33 @@
             <line x1="7" y1="10" x2="7" y2="22" />
             <line x1="14" y1="2" x2="14" y2="22" />
             <line x1="18" y1="2" x2="18" y2="22" />
+        </symbol>
+        <!-- Play Icon (▶️) -->
+        <symbol id="icon-play" viewBox="0 0 24 24">
+            <polygon points="5 3 19 12 5 21 5 3" />
+        </symbol>
+        <!-- Bell / Alarm Active (🔔) -->
+        <symbol id="icon-bell" viewBox="0 0 24 24">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" fill="currentColor" />
+        </symbol>
+        <!-- Bell Off / Alarm Inactive (🔕) -->
+        <symbol id="icon-bell-off" viewBox="0 0 24 24">
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" fill="currentColor" />
+            <path d="M18.63 13A17.89 17.89 0 0 1 18 8" />
+            <path d="M6.26 6.26A5.86 5.86 0 0 0 6 8v7a2 2 0 0 0-2 2h13.74" />
+            <path d="M12 3a3 3 0 0 0-3 3v1.74" />
+            <line x1="1" y1="1" x2="23" y2="23" />
+        </symbol>
+        <!-- Close/Cancel Icon (❌) -->
+        <symbol id="icon-close" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+        </symbol>
+        <!-- Megaphone/Cone (📣) -->
+        <symbol id="icon-megaphone" viewBox="0 0 24 24">
+            <path d="m3 11 18-5v12L3 14v-3z" />
+            <path d="M11.6 16.8 9 22H4l2.5-5" />
         </symbol>
     </svg>
 </body>
