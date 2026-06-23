@@ -631,6 +631,16 @@
             transform: scale(1.1);
         }
 
+        .icon-svg-inline {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
         .flex-row {
             display: flex;
             gap: 10px;
@@ -2278,7 +2288,7 @@
             <div class="card">
                 <h3 style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; margin-bottom:0;"
                     onclick="const dWater = document.getElementById('water_calc_body'); const iWater = document.getElementById('water_calc_toggle_btn'); if(dWater.style.display==='none'){dWater.style.display='block'; iWater.innerHTML='접기 ▲'; this.style.marginBottom='10px';}else{dWater.style.display='none'; iWater.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
-                    <span style="margin:0;">💧 계산기</span>
+                    <span style="margin:0; display:inline-flex; align-items:center; gap:6px;"><svg class="icon-svg-inline" style="width: 15px; height: 15px;"><use href="#icon-droplet"/></svg>계산기</span>
                     <button class="secondary" id="water_calc_toggle_btn"
                         style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">펼치기 ▼</button>
                 </h3>
@@ -2337,8 +2347,8 @@
                         <div id="water_result_text" style="flex: 1; text-align: left; line-height: 1.45;">
                             물의 양을 입력하세요.
                         </div>
-                        <button id="water_result_save_btn" onclick="saveCurrentWaterRecipe()" title="이 계산 결과로 레시피 저장" style="width: 29px; height: 29px; padding: 0; margin: 0; font-size: 0.95rem; border-radius: 6px; border: 1px solid rgba(255, 152, 0, 0.5); background: transparent; color: var(--text-primary); cursor: pointer; display: none; align-items: center; justify-content: center; flex-shrink: 0; outline: none; box-sizing: border-box;">
-                            💾
+                        <button id="water_result_save_btn" onclick="saveCurrentWaterRecipe()" title="이 계산 결과로 레시피 저장" style="width: 29px; height: 29px; padding: 0; margin: 0; font-size: 0.95rem; border-radius: 6px; border: 1px solid var(--primary-color); background: transparent; color: var(--text-primary); cursor: pointer; display: none; align-items: center; justify-content: center; flex-shrink: 0; outline: none; box-sizing: border-box;">
+                            <svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-save"/></svg>
                         </button>
                     </div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px; margin-bottom:0; line-height: 1.45;">
@@ -2355,7 +2365,7 @@
             <!-- 저장된 정화 레시피 영역 -->
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <h4 style="margin:0; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;">💧 Recipe</h4>
+                    <h4 style="margin:0; font-size:0.95rem; color:var(--text-primary); display:flex; align-items:center; gap:6px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-droplet"/></svg>Recipe</h4>
                 </div>
                 <div id="water_recipe_list" style="display:flex; flex-direction:column; gap:8px;">
                     <!-- JS로 동적 생성 -->
@@ -3256,36 +3266,27 @@
     <!-- 하단 탭 바 -->
     <nav class="bottom-nav">
             <button class="nav-item active" onclick="switchTab('tab-water', this)">
-                <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></span>
+                <span class="nav-icon"><svg><use href="#icon-droplet"/></svg></span>
                 <span>정화</span>
             </button>
             <button class="nav-item" onclick="switchTab('tab-signal', this)">
-                <span class="nav-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M15 21H9a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1z" />
-                        <path d="M18 8H6v4h12V8z" />
-                        <line x1="12" y1="15" x2="12" y2="17" />
-                        <line x1="6" y1="2" x2="8" y2="4" />
-                        <line x1="12" y1="1" x2="12" y2="3" />
-                        <line x1="18" y1="2" x2="16" y2="4" />
-                    </svg>
-                </span>
+                <span class="nav-icon"><svg><use href="#icon-flashlight"/></svg></span>
                 <span>신호</span>
             </button>
             <button class="nav-item" onclick="switchTab('tab-nav', this)">
-                <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>
+                <span class="nav-icon"><svg><use href="#icon-compass"/></svg></span>
                 <span>위치</span>
             </button>
             <button class="nav-item" onclick="switchTab('tab-erp', this)">
-                <span class="nav-icon"><svg viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></span>
+                <span class="nav-icon"><svg><use href="#icon-box"/></svg></span>
                 <span>물자</span>
             </button>
             <button class="nav-item" onclick="switchTab('tab-alert', this)">
-                <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3L2 6M19 3l3 3"/></svg></span>
+                <span class="nav-icon"><svg><use href="#icon-alarm"/></svg></span>
                 <span>알람</span>
             </button>
             <button class="nav-item" onclick="switchTab('tab-settings', this)">
-                <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                <span class="nav-icon"><svg><use href="#icon-settings"/></svg></span>
                 <span>설정</span>
             </button>
         </nav>
@@ -11570,6 +11571,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Global SVG Sprite Sheet -->
+    <svg style="display: none;">
+        <!-- Water droplet (💧) -->
+        <symbol id="icon-droplet" viewBox="0 0 24 24">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+        </symbol>
+        <!-- Flashlight (🔦) -->
+        <symbol id="icon-flashlight" viewBox="0 0 24 24">
+            <path d="M15 21H9a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1z" />
+            <path d="M18 8H6v4h12V8z" />
+            <line x1="12" y1="15" x2="12" y2="17" />
+            <line x1="6" y1="2" x2="8" y2="4" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="18" y1="2" x2="16" y2="4" />
+        </symbol>
+        <!-- Compass (🧭) -->
+        <symbol id="icon-compass" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        </symbol>
+        <!-- Box (📦) -->
+        <symbol id="icon-box" viewBox="0 0 24 24">
+            <polyline points="21 8 21 21 3 21 3 8" />
+            <rect x="1" y="3" width="22" height="5" />
+            <line x1="10" y1="12" x2="14" y2="12" />
+        </symbol>
+        <!-- Alarm Clock (⏰) -->
+        <symbol id="icon-alarm" viewBox="0 0 24 24">
+            <circle cx="12" cy="13" r="8" />
+            <path d="M12 9v4l2 2" />
+            <path d="M5 3L2 6" />
+            <path d="M19 3l3 3" />
+        </symbol>
+        <!-- Settings (⚙️) -->
+        <symbol id="icon-settings" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </symbol>
+        <!-- Save Disk (💾) -->
+        <symbol id="icon-save" viewBox="0 0 24 24">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+        </symbol>
+    </svg>
 </body>
 
 </html>
