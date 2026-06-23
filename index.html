@@ -2404,15 +2404,15 @@
                     <div style="display: flex; gap: 8px; width: 100%;">
                         <input type="text" id="s_text" value="SOS" oninput="saveInputs()"
                             onfocus="if(this.value==='SOS')this.value=''" style="text-transform: uppercase; flex: 1; margin: 0;">
-                        <button id="morse-preset-open-btn" onclick="openMorsePresetModal()" style="width: 42px; height: 42px; padding: 0; margin: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">📋</button>
+                        <button id="morse-preset-open-btn" onclick="openMorsePresetModal()" style="width: 42px; height: 42px; padding: 0; margin: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);"><svg class="icon-svg-inline" style="width: 18px; height: 18px;"><use href="#icon-clipboard"/></svg></button>
                     </div>
                 </div>
                 <div class="result-box" id="s_morse_result"
                     style="font-size: 1.15rem; letter-spacing: 2px; word-wrap: break-word; margin-top: 6px; padding: 5px 10px; min-height: 24px; line-height: 1.3;"></div>
 
                 <div class="flex-row">
-                    <button onclick="playMorse(false)">🎵 Sound</button>
-                    <button onclick="playMorse(true)">💡 Light</button>
+                    <button onclick="playMorse(false)"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 6px;"><use href="#icon-music"/></svg>Sound</button>
+                    <button onclick="playMorse(true)"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 6px;"><use href="#icon-bulb"/></svg>Light</button>
                 </div>
             </div>
 
@@ -2421,7 +2421,7 @@
                     onclick="const fMorse = document.getElementById('morse_dec_body'); const btnMorse = document.getElementById('btn_morse_dec_toggle'); if(fMorse.style.display==='none'){fMorse.style.display='block'; btnMorse.innerHTML='접기 ▲'; this.style.marginBottom='12px';}else{fMorse.style.display='none'; btnMorse.innerHTML='펼치기 ▼'; this.style.marginBottom='0';}">
                     <h3 style="margin: 0; white-space: nowrap; font-size: 1.02rem; letter-spacing: -0.5px;">┗ 모스 디코더 (Decoder)</h3>
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <button onclick="event.stopPropagation(); openMorsePracticeModal()" class="secondary" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">🎯 연습</button>
+                        <button onclick="event.stopPropagation(); openMorsePracticeModal()" class="secondary" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;"><svg class="icon-svg-inline" style="width: 12px; height: 12px; margin-right: 4px;"><use href="#icon-target"/></svg>연습</button>
                         <button class="secondary" id="btn_morse_dec_toggle" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;">펼치기 ▼</button>
                     </div>
                 </div>
@@ -2488,7 +2488,7 @@
                         </label>
                     </div>
                 </div>
-                <button class="danger" onclick="toggleStrobe()" id="btn_strobe">🚨 긴급 스트로보 시작</button>
+                <button class="danger" onclick="toggleStrobe()" id="btn_strobe"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-siren"/></svg>긴급 스트로보 시작</button>
                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px; margin-bottom:0;">⚠️ 경고: 광과민성 발작을 유발할 수 있습니다.
                     (Wake Lock 작동)</p>
             </div>
@@ -2514,7 +2514,7 @@
                     <input type="number" id="s_beacon_count" value="1" min="1" oninput="saveInputs()" style="margin:0; text-align:center; width:25%; flex:none;">
                     <span style="color:var(--text-secondary); white-space:nowrap;">회 (횟수)</span>
                 </div>
-                <button onclick="toggleBeacon()" id="btn_beacon" style="margin-top:4px;">📡 Beacon Start</button>
+                <button onclick="toggleBeacon()" id="btn_beacon" style="margin-top:4px;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-beacon"/></svg>Beacon Start</button>
                 <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top:10px; margin-bottom:0;">📡 위치 표시를 위해 일정 간격으로 강력한 섬광을
                     내보냅니다.</p>
             </div>
@@ -2535,7 +2535,7 @@
                     <span style="color:var(--text-secondary); white-space:nowrap;">% (상대습도)</span>
                 </div>
                 <div class="flex-row" style="margin-bottom:12px; gap:8px;">
-                    <button id="btn_rf_trigger" onclick="handleRangeFinderClick()" class="danger" style="margin:0; flex:1; height:44px; font-weight:bold; font-size:0.95rem;">⚡ 번쩍임 감지 (측정 시작)</button>
+                    <button id="btn_rf_trigger" onclick="handleRangeFinderClick()" class="danger" style="margin:0; flex:1; height:44px; font-weight:bold; font-size:0.95rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-zap"/></svg>번쩍임 감지 (측정 시작)</button>
                     <button onclick="resetRangeFinder()" class="secondary" style="margin:0; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:6px;">
                         <svg viewBox="0 0 512 512" style="width: 18px; height: 18px; fill: var(--primary-color);">
                             <g>
@@ -2546,14 +2546,14 @@
                     </button>
                 </div>
                 <div id="rf_result_box" class="result-box" style="display:block; font-size:0.95rem; line-height:1.5; padding:12px; text-align:left; border-radius:8px;">
-                    <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;">📍 계측 결과</div>
-                    <div style="margin-bottom:4px;">⏱️ 시간차: <strong style="color:var(--text-secondary);">---</strong></div>
-                    <div style="margin-bottom:4px;">💨 보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
+                    <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-pin"/></svg>계측 결과</div>
+                    <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-stopwatch"/></svg>시간차: <strong style="color:var(--text-secondary);">---</strong></div>
+                    <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-wind"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
                     <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
-                        📏 예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
+                        <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-ruler"/></svg>예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
                     </div>
                     <div style="font-size:0.82rem; color:var(--text-secondary);">
-                        🚶‍♂️ 도보: <strong>---</strong>
+                        <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-walking"/></svg>도보: <strong>---</strong>
                     </div>
                 </div>
             </div>
@@ -4932,8 +4932,8 @@
                 releaseWakeLock();
                 stopCameraStream(); // 플래시 해제 및 스트림 완전 종료
                 closeAlignmentModal(); // 뷰파인더 조준경 팝업 및 스트림 종료 안전장치 추가
-                document.getElementById('btn_strobe').innerText = "🚨 SOS 스트로보 시작";
-                document.getElementById('btn_beacon').innerText = "📡 비콘 모드 시작";
+                document.getElementById('btn_strobe').innerHTML = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-siren"/></svg>SOS 스트로보 시작';
+                document.getElementById('btn_beacon').innerHTML = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-beacon"/></svg>비콘 모드 시작';
                 const overlay = document.getElementById('strobe_overlay');
                 if (overlay) overlay.classList.remove('active', 'flash');
             }
@@ -5521,7 +5521,7 @@
                 if (rfState === 'ready') {
                     rfStartTime = performance.now();
                     rfState = 'measuring';
-                    btn.innerText = '🔊 폭음 감지 (측정 완료)';
+                    btn.innerHTML = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-volume"/></svg>폭음 감지 (측정 완료)';
                     btn.classList.remove('danger');
                     btn.style.backgroundColor = 'transparent';
                     btn.style.border = '1px solid var(--primary-color)';
@@ -5529,14 +5529,14 @@
                     
                     // 측정 진행되는 동안 레이아웃 사라짐 없이 ---로 리셋 표기
                     resultBox.innerHTML = `
-                        <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;">📍 계측 결과 (측정 중...)</div>
-                        <div style="margin-bottom:4px;">⏱️ 시간차: <strong style="color:var(--text-secondary);">---</strong></div>
-                        <div style="margin-bottom:4px;">💨 보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
+                        <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-pin"/></svg>계측 결과 (측정 중...)</div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-stopwatch"/></svg>시간차: <strong style="color:var(--text-secondary);">---</strong></div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-wind"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
                         <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
-                            📏 예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
+                            <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-ruler"/></svg>예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
                         </div>
                         <div style="font-size:0.82rem; color:var(--text-secondary);">
-                            🚶‍♂️ 도보: <strong>---</strong>
+                            <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-walking"/></svg>도보: <strong>---</strong>
                         </div>
                     `;
                 } else if (rfState === 'measuring') {
@@ -5550,14 +5550,14 @@
                     const walkingMinutes = Math.round(distance / 66.7);
 
                     let resultHtml = `
-                        <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;">📍 계측 결과</div>
-                        <div style="margin-bottom:4px;">⏱️ 시간차: <strong style="color:var(--text-primary);">${duration.toFixed(3)}초</strong></div>
-                        <div style="margin-bottom:4px;">💨 보정 음속: <strong style="color:var(--text-primary);">${speed.toFixed(1)} m/s</strong> (기온 ${temp}°C, 습도 ${humidity}%)</div>
+                        <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-pin"/></svg>계측 결과</div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-stopwatch"/></svg>시간차: <strong style="color:var(--text-primary);">${duration.toFixed(3)}초</strong></div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-wind"/></svg>보정 음속: <strong style="color:var(--text-primary);">${speed.toFixed(1)} m/s</strong> (기온 ${temp}°C, 습도 ${humidity}%)</div>
                         <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
-                            📏 예상 거리: <strong style="color:var(--danger-color); font-size:1.15rem;">약 ${distance.toFixed(1)}m</strong> (${(distance/1000).toFixed(2)}km)
+                            <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-ruler"/></svg>예상 거리: <strong style="color:var(--danger-color); font-size:1.15rem;">약 ${distance.toFixed(1)}m</strong> (${(distance/1000).toFixed(2)}km)
                         </div>
                         <div style="font-size:0.82rem; color:var(--text-secondary);">
-                            🚶‍♂️ 도보: <strong>약 ${walkingMinutes}분</strong> (속도 4km/h 기준)
+                            <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-walking"/></svg>도보: <strong>약 ${walkingMinutes}분</strong> (속도 4km/h 기준)
                         </div>
                     `;
 
@@ -5565,7 +5565,7 @@
                     resultBox.style.display = 'block';
 
                     rfState = 'ready';
-                    btn.innerText = '⚡ 번쩍임 감지 (측정 시작)';
+                    btn.innerHTML = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-zap"/></svg>번쩍임 감지 (측정 시작)';
                     btn.classList.add('danger');
                     btn.style.backgroundColor = '';
                     btn.style.border = '';
@@ -5580,7 +5580,7 @@
                 const btn = document.getElementById('btn_rf_trigger');
                 const resultBox = document.getElementById('rf_result_box');
                 if (btn) {
-                    btn.innerText = '⚡ 번쩍임 감지 (측정 시작)';
+                    btn.innerHTML = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-zap"/></svg>번쩍임 감지 (측정 시작)';
                     btn.classList.add('danger');
                     btn.style.backgroundColor = '';
                     btn.style.border = '';
@@ -5588,14 +5588,14 @@
                 }
                 if (resultBox) {
                     resultBox.innerHTML = `
-                        <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;">📍 계측 결과</div>
-                        <div style="margin-bottom:4px;">⏱️ 시간차: <strong style="color:var(--text-secondary);">---</strong></div>
-                        <div style="margin-bottom:4px;">💨 보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
+                        <div style="font-weight:bold; color:var(--primary-color); margin-bottom:8px; font-size:1.05rem;"><svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-pin"/></svg>계측 결과</div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-stopwatch"/></svg>시간차: <strong style="color:var(--text-secondary);">---</strong></div>
+                        <div style="margin-bottom:4px;"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-wind"/></svg>보정 음속: <strong style="color:var(--text-secondary);">---</strong></div>
                         <div style="margin-bottom:8px; border-top:1px dashed var(--border-color); padding-top:8px; margin-top:8px;">
-                            📏 예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
+                            <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-ruler"/></svg>예상 거리: <strong style="color:var(--text-secondary); font-size:1.15rem;">---</strong>
                         </div>
                         <div style="font-size:0.82rem; color:var(--text-secondary);">
-                            🚶‍♂️ 도보: <strong>---</strong>
+                            <svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-walking"/></svg>도보: <strong>---</strong>
                         </div>
                     `;
                 }
@@ -5609,7 +5609,7 @@
                     stopSignal();
                     strobeActive = false;
                     overlay.classList.remove('active');
-                    btn.innerText = "🚨 SOS 스트로보 시작";
+                    btn.innerHTML = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-siren"/></svg>SOS 스트로보 시작';
                 } else {
                     stopSignal();
 
@@ -5623,7 +5623,7 @@
                     strobeActive = true;
                     document.getElementById('strobe_text').innerText = "SOS STROBE";
                     overlay.classList.add('active');
-                    btn.innerText = "🚨 스트로보 정지";
+                    btn.innerHTML = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-siren"/></svg>스트로보 정지';
 
                     // 플래시 모드일 때만 뷰파인더 조명 정렬 버튼 노출
                     const triggerBtn = document.getElementById('strobe_alignment_trigger_container');
@@ -5674,7 +5674,7 @@
                     beaconActive = true;
                     document.getElementById('strobe_text').innerText = "BEACON MODE";
                     overlay.classList.add('active');
-                    btn.innerText = "⏹ 비콘 중지";
+                    btn.innerHTML = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px;"><use href="#icon-stop"/></svg>비콘 중지';
 
                     // 플래시 모드일 때만 뷰파인더 조명 정렬 버튼 노출
                     const triggerBtn = document.getElementById('strobe_alignment_trigger_container');
@@ -11286,7 +11286,7 @@
             </style>
 
             <h4 style="margin-top:0; color:var(--primary-color); font-size:1rem; margin-bottom:12px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
-                <span>🎯 모스부호 연습</span>
+                <span><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px;"><use href="#icon-target"/></svg>모스부호 연습</span>
                 <button onclick="closeMorsePracticeModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
             </h4>
 
@@ -11367,6 +11367,8 @@
                     <!-- Row 4 (y: 210) -->
                     <circle cx="125" cy="210" r="10" class="morse-tree-node" id="node-N" />
                     <text x="125" y="210.5" text-anchor="middle" dominant-baseline="central" alignment-baseline="middle" font-size="9" fill="#fff" font-weight="bold" pointer-events="none">N</text>
+
+
 
                     <!-- Row 5 (y: 260) - K, Y, C -->
                     <!-- K, Y (N에서 좌측 분기 - Row 4, y: 210) -->
@@ -11615,6 +11617,101 @@
             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
             <polyline points="17 21 17 13 7 13 7 21" />
             <polyline points="7 3 7 8 15 8" />
+        </symbol>
+        <!-- Ruler (📏) -->
+        <symbol id="icon-ruler" viewBox="0 0 24 24">
+            <rect x="2" y="7" width="20" height="10" rx="2" ry="2" />
+            <line x1="6" y1="7" x2="6" y2="12" />
+            <line x1="10" y1="7" x2="10" y2="10" />
+            <line x1="14" y1="7" x2="14" y2="12" />
+            <line x1="18" y1="7" x2="18" y2="10" />
+        </symbol>
+        <!-- Clipboard (📋) -->
+        <symbol id="icon-clipboard" viewBox="0 0 24 24">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+        </symbol>
+        <!-- Music note (🎵) -->
+        <symbol id="icon-music" viewBox="0 0 24 24">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+        </symbol>
+        <!-- Light Bulb (💡) -->
+        <symbol id="icon-bulb" viewBox="0 0 24 24">
+            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1 .3 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+            <line x1="9" y1="18" x2="15" y2="18" />
+            <line x1="10" y1="22" x2="14" y2="22" />
+        </symbol>
+        <!-- Target (🎯) -->
+        <symbol id="icon-target" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+        </symbol>
+        <!-- Siren (🚨) -->
+        <symbol id="icon-siren" viewBox="0 0 24 24">
+            <path d="M12 9a5 5 0 0 0-5 5v5h10v-5a5 5 0 0 0-5-5Z" />
+            <path d="M4 21h16" />
+            <path d="M12 3v2.5" />
+            <path d="M4 4l2.5 2.5" />
+            <path d="M20 4l-2.5 2.5" />
+        </symbol>
+        <!-- Satellite/Beacon (📡) -->
+        <symbol id="icon-beacon" viewBox="0 0 24 24">
+            <!-- Left waves -->
+            <path d="M4.22 1.22a11 11 0 0 0 0 15.56" />
+            <path d="M6.34 3.34a8 8 0 0 0 0 11.32" />
+            <path d="M8.46 5.46a5 5 0 0 0 0 7.08" />
+            <!-- Center circle -->
+            <circle cx="12" cy="9" r="2" />
+            <!-- Right waves -->
+            <path d="M15.54 5.46a5 5 0 0 1 0 7.08" />
+            <path d="M17.66 3.34a8 8 0 0 1 0 11.32" />
+            <path d="M19.78 1.22a11 11 0 0 1 0 15.56" />
+            <!-- Tower -->
+            <path d="M5 22h14" />
+            <path d="m8 22 4-11 4 11" />
+            <path d="M9.8 17h4.4" />
+        </symbol>
+        <!-- Thunderbolt (⚡) -->
+        <symbol id="icon-zap" viewBox="0 0 24 24">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </symbol>
+        <!-- Speaker/Volume (🔊) -->
+        <symbol id="icon-volume" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+        </symbol>
+        <!-- Pin (📍) -->
+        <symbol id="icon-pin" viewBox="0 0 24 24">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+        </symbol>
+        <!-- Stopwatch (⏱️) -->
+        <symbol id="icon-stopwatch" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+            <line x1="12" y1="2" x2="12" y2="4" />
+        </symbol>
+        <!-- Wind (💨) -->
+        <symbol id="icon-wind" viewBox="0 0 24 24">
+            <path d="M2 5.5h13a1.5 1.5 0 0 0 0-3h-1.5" />
+            <path d="M2 9.8h19.5a1.5 1.5 0 0 0 0-3h-1.5" />
+            <path d="M2 14.2h16.5a1.5 1.5 0 0 1 0 3h-1.5" />
+            <path d="M2 19h11.5a1.5 1.5 0 0 1 0 3h-1.5" />
+        </symbol>
+        <!-- Walking (🚶‍♂️) -->
+        <symbol id="icon-walking" viewBox="0 0 24 24">
+            <circle cx="13" cy="4" r="1" />
+            <path d="M4 17l5 1 .75-1.5" />
+            <path d="M15 21v-4l-4-3 1-6" />
+            <path d="M7 12v-3l5-1 3 3 3 1" />
+        </symbol>
+        <!-- Stop box (⏹) -->
+        <symbol id="icon-stop" viewBox="0 0 24 24">
+            <rect x="4" y="4" width="16" height="16" rx="2" />
         </symbol>
     </svg>
 </body>
