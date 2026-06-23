@@ -6362,82 +6362,113 @@
                     { id: 'K', name: 'K (Kelvin)' }
                 ],
                 length: [
+                    // 미터법 (Metric)
                     { id: 'km', name: 'km (Kilometer)', factor: 1000 },
                     { id: 'm', name: 'm (Meter)', factor: 1 },
                     { id: 'cm', name: 'cm (Centimeter)', factor: 0.01 },
                     { id: 'mm', name: 'mm (Millimeter)', factor: 0.001 },
+                    // 야드파운드법 (Imperial)
+                    { id: 'nmi', name: 'nmi (Nautical Mile)', factor: 1852 },
                     { id: 'mile', name: 'mi (Mile)', factor: 1609.344 },
                     { id: 'yard', name: 'yd (Yard)', factor: 0.9144 },
                     { id: 'foot', name: 'ft (Foot)', factor: 0.3048 },
                     { id: 'inch', name: 'in (Inch)', factor: 0.0254 },
-                    { id: 'nmi', name: 'nmi (Nautical Mile)', factor: 1852 },
                     { id: 'mil', name: 'mil (Mil)', factor: 0.0000254 },
-                    { id: 'ja', name: '자(尺)', factor: 0.3030303 },
-                    { id: 'ri', name: '리(里)', factor: 392.727 }
+                    // 척관법 (Korean)
+                    { id: 'ri', name: '리(里)', factor: 392.727 },
+                    { id: 'ja', name: '자(尺)', factor: 0.3030303 }
                 ],
                 weight: [
+                    // 미터법 (Metric)
                     { id: 't', name: 't (Ton)', factor: 1000000 },
                     { id: 'kg', name: 'kg (Kilogram)', factor: 1000 },
                     { id: 'g', name: 'g (Gram)', factor: 1 },
                     { id: 'mg', name: 'mg (Milligram)', factor: 0.001 },
+                    // 야드파운드법 (Imperial)
+                    { id: 'l_ton', name: 'ton (UK Long Ton)', factor: 1016046.9088 },
+                    { id: 'sh_ton', name: 'ton (US Short Ton)', factor: 907184.74 },
                     { id: 'lb', name: 'lb (Pound)', factor: 453.59237 },
                     { id: 'oz', name: 'oz (Ounce)', factor: 28.34952 },
-                    { id: 'sh_ton', name: 'ton (US Short Ton)', factor: 907184.74 },
-                    { id: 'l_ton', name: 'ton (UK Long Ton)', factor: 1016046.9088 },
+                    // 척관법 (Korean)
                     { id: 'geun', name: '근(斤)', factor: 600 },
                     { id: 'don', name: '돈(錢)', factor: 3.75 }
                 ],
                 volume: [
+                    // 미터법 - 부피 단위 (Metric Volume)
                     { id: 'm3', name: 'm³ (Cubic Meter)', factor: 1000 },
+                    { id: 'cc', name: 'cc (Cubic Centimeter)', factor: 0.001 },
+                    // 미터법 - 리터 단위 (Metric Liter)
                     { id: 'L', name: 'L (Liter)', factor: 1 },
                     { id: 'ml', name: 'ml (Milliliter)', factor: 0.001 },
-                    { id: 'cc', name: 'cc (Cubic Centimeter)', factor: 0.001 },
-                    { id: 'gal', name: 'gal (US Gallon)', factor: 3.78541 },
+                    // 야드파운드법 - 입방 단위 (Imperial Cubic)
+                    { id: 'yd3', name: 'yd³ (Cubic Yard)', factor: 764.554857984 },
+                    { id: 'ft3', name: 'ft³ (Cubic Foot)', factor: 28.316846592 },
+                    // 야드파운드법 - 액량 단위 (Imperial Gallon)
                     { id: 'uk_gal', name: 'gal (UK Gallon)', factor: 4.54609 },
+                    { id: 'gal', name: 'gal (US Gallon)', factor: 3.78541 },
+                    // 야드파운드법 - 소형 단위 (Imperial Small)
                     { id: 'floz', name: 'fl oz (US Fl.Ounce)', factor: 0.0295735 },
                     { id: 'in3', name: 'in³ (Cubic Inch)', factor: 0.016387064 },
-                    { id: 'ft3', name: 'ft³ (Cubic Foot)', factor: 28.316846592 },
+                    // 척관법 (Korean)
                     { id: 'mal', name: '말(斗)', factor: 18.039 },
                     { id: 'doe', name: '되(승)', factor: 1.8039 }
                 ],
                 speed: [
-                    { id: 'ms', name: 'm/s (Meter/Second)', factor: 1 },
-                    { id: 'mh', name: 'm/h (Meter/Hour)', factor: 0.00027777777778 },
+                    // 킬로미터 계열 (Kilometer-based)
                     { id: 'kms', name: 'km/s (Kilometer/Second)', factor: 1000 },
                     { id: 'kmh', name: 'km/h (Kilometer/Hour)', factor: 0.277777777778 },
+                    // 미터 계열 (Meter-based)
+                    { id: 'ms', name: 'm/s (Meter/Second)', factor: 1 },
+                    { id: 'mh', name: 'm/h (Meter/Hour)', factor: 0.00027777777778 },
+                    // 마일 계열 (Mile-based)
+                    { id: 'mis', name: 'mi/s (Mile/Second)', factor: 1609.344 },
                     { id: 'mph', name: 'mph (Mile/Hour)', factor: 0.44704 },
-                    { id: 'knot', name: 'kt (Knot)', factor: 0.514444444444 },
-                    { id: 'ins', name: 'in/s (Inch/Second)', factor: 0.0254 },
-                    { id: 'inh', name: 'in/h (Inch/Hour)', factor: 0.0000070555555556 },
+                    // 피트 계열 (Foot-based)
                     { id: 'fts', name: 'ft/s (Foot/Second)', factor: 0.3048 },
                     { id: 'fth', name: 'ft/h (Foot/Hour)', factor: 0.0000846666666667 },
-                    { id: 'mis', name: 'mi/s (Mile/Second)', factor: 1609.344 }
+                    // 인치 계열 (Inch-based)
+                    { id: 'ins', name: 'in/s (Inch/Second)', factor: 0.0254 },
+                    { id: 'inh', name: 'in/h (Inch/Hour)', factor: 0.0000070555555556 },
+                    // 해상 계열 (Marine-based)
+                    { id: 'knot', name: 'kt (Knot)', factor: 0.514444444444 }
                 ],
                 pressure: [
+                    // 기압/헥토파스칼 (Metric atmospheric)
+                    { id: 'bar', name: 'bar (Bar)', factor: 1000 },
                     { id: 'hPa', name: 'hPa (Hectopascal)', factor: 1 },
-                    { id: 'mmHg', name: 'mmHg (mmHg)', factor: 1.33322387415 },
+                    // 프사이/수은주 (Customary/Mercury)
                     { id: 'psi', name: 'psi (PSI)', factor: 68.9475729318 },
-                    { id: 'bar', name: 'bar (Bar)', factor: 1000 }
+                    { id: 'mmHg', name: 'mmHg (mmHg)', factor: 1.33322387415 }
                 ],
                 energy: [
-                    { id: 'J', name: 'J (Joule)', factor: 1 },
+                    // 칼로리/줄 계열 (Kilo-based)
+                    { id: 'kcal', name: 'kcal (Kilocalorie)', factor: 4184 },
                     { id: 'kJ', name: 'kJ (Kilojoule)', factor: 1000 },
+                    // 칼로리/줄 계열 (Base-based)
                     { id: 'cal', name: 'cal (Calorie)', factor: 4.184 },
-                    { id: 'kcal', name: 'kcal (Kilocalorie)', factor: 4184 }
+                    { id: 'J', name: 'J (Joule)', factor: 1 }
                 ],
                 power: [
-                    { id: 'W', name: 'W (Watt)', factor: 1 },
+                    // 전력 단위 (Electric power)
                     { id: 'kW', name: 'kW (Kilowatt)', factor: 1000 },
-                    { id: 'hp', name: 'hp (Horsepower)', factor: 745.699871582 }
+                    { id: 'W', name: 'W (Watt)', factor: 1 },
+                    // 마력 단위 (Horsepower)
+                    { id: 'hp', name: 'hp (Horsepower)', factor: 745.699871582 },
+                    { id: 'ps', name: 'ps (Metric Horsepower)', factor: 735.49875 }
                 ],
                 area: [
+                    // 미터법 - 제곱 단위 (Metric Squared)
+                    { id: 'km2', name: 'km² (Square Kilometer)', factor: 1000000 },
                     { id: 'm2', name: '㎡ (Square Meter)', factor: 1 },
-                    { id: 'pyeong', name: '평(坪)', factor: 3.30578512397 },
-                    { id: 'acre', name: 'ac (Acre)', factor: 4046.8564224 },
+                    // 미터법 - 아르 단위 (Metric Land)
                     { id: 'hectare', name: 'ha (Hectare)', factor: 10000 },
                     { id: 'are', name: 'a (Are)', factor: 100 },
+                    // 야드파운드법 - 제곱 단위 (Imperial Squared)
                     { id: 'ft2', name: 'ft² (Square Foot)', factor: 0.09290304 },
-                    { id: 'in2', name: 'in² (Square Inch)', factor: 0.00064516 }
+                    { id: 'in2', name: 'in² (Square Inch)', factor: 0.00064516 },
+                    // 관습 토지 단위 (Customary Land)
+                    { id: 'acre', name: 'ac (Acre)', factor: 4046.8564224 },
+                    { id: 'pyeong', name: '평(坪)', factor: 3.30578512397 }
                 ]
             };
 
