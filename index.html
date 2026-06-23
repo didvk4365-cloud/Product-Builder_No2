@@ -2565,11 +2565,11 @@
                 <div
                     style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); margin-bottom:15px; padding-bottom:10px;">
                     <div id="tab_btn_compass" onclick="switchNavTool('compass')"
-                        style="flex:1; text-align:center; cursor:pointer; font-weight:bold; color:var(--primary-color);">
-                        🧭 나침반</div>
+                        style="flex:1; text-align:center; cursor:pointer; font-weight:bold; color:var(--primary-color); display:inline-flex; align-items:center; justify-content:center; gap:4px;">
+                        <svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-compass"/></svg>나침반</div>
                     <div id="tab_btn_level" onclick="switchNavTool('level')"
-                        style="flex:1; text-align:center; cursor:pointer; font-weight:bold; color:var(--text-secondary);">
-                        📐 수평계</div>
+                        style="flex:1; text-align:center; cursor:pointer; font-weight:bold; color:var(--text-secondary); display:inline-flex; align-items:center; justify-content:center; gap:4px;">
+                        <svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-ruler-triangle"/></svg>수평계</div>
                 </div>
 
                 <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; width: 100%;">
@@ -2578,8 +2578,10 @@
                         <div class="compass-circle">
                             <!-- Calibration Overlay -->
                             <div id="compass_cal_overlay" style="display:none; position: absolute; top:-8px; left:-8px; right:-8px; bottom:-8px; border-radius:50%; background:rgba(0,0,0,0.92); z-index:20; flex-direction:column; justify-content:center; align-items:center; gap:8px; padding:15px; box-sizing:border-box; text-align:center; border:8px solid var(--primary-color);">
-                                <div class="sensor-cal-icon">📱</div>
-                                <span style="font-size:0.8rem; font-weight:bold; color:var(--primary-color); letter-spacing: 0.5px;">🧭 나침반 보정 중...</span>
+                                <div class="sensor-cal-icon" style="display:flex; align-items:center; justify-content:center;"><svg class="icon-svg-inline" style="width: 40px; height: 40px;"><use href="#icon-phone"/></svg></div>
+                                <span style="font-size:0.8rem; font-weight:bold; color:var(--primary-color); letter-spacing: 0.5px; display:inline-flex; align-items:center; gap:4px;">
+                                    <svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-compass"/></svg>나침반 보정 중...
+                                </span>
                                 <span style="font-size:0.65rem; color:var(--text-secondary); line-height: 1.3; max-width: 160px; margin: 0 auto;">기기를 8자 모양으로 크게 흔들어주세요.</span>
                                 <span id="compass_cal_timer" style="font-size:1.6rem; font-weight:bold; color:white; font-family:monospace; margin-top:2px;">3</span>
                             </div>
@@ -2596,7 +2598,7 @@
                                 <button onclick="toggleCompass()" id="btn_compass" class="sensor-action-btn">나침반 시작</button>
                             </div>
                             <div class="sensor-right-slot">
-                                <button onclick="startCompassCalibration()" class="sensor-cal-btn" id="btn_compass_cal">🎯 보정</button>
+                                <button onclick="startCompassCalibration()" class="sensor-cal-btn" id="btn_compass_cal"><svg class="icon-svg-inline" style="width: 13px; height: 13px; margin-right: 4px;"><use href="#icon-target"/></svg>보정</button>
                             </div>
                         </div>
                     </div>
@@ -2606,8 +2608,10 @@
                         <div class="level-container" id="level_container">
                             <!-- Calibration Overlay -->
                             <div id="level_cal_overlay" style="display:none; position: absolute; top:-8px; left:-8px; right:-8px; bottom:-8px; border-radius:50%; background:rgba(0,0,0,0.92); z-index:20; flex-direction:column; justify-content:center; align-items:center; gap:8px; padding:15px; box-sizing:border-box; text-align:center; border:8px solid var(--primary-color);">
-                                <div class="sensor-cal-icon">📱</div>
-                                <span style="font-size:0.8rem; font-weight:bold; color:var(--primary-color); letter-spacing: 0.5px;">📐 수평계 보정 중...</span>
+                                <div class="sensor-cal-icon" style="display:flex; align-items:center; justify-content:center;"><svg class="icon-svg-inline" style="width: 40px; height: 40px;"><use href="#icon-phone"/></svg></div>
+                                <span style="font-size:0.8rem; font-weight:bold; color:var(--primary-color); letter-spacing: 0.5px; display:inline-flex; align-items:center; gap:4px;">
+                                    <svg class="icon-svg-inline" style="width: 14px; height: 14px;"><use href="#icon-ruler-triangle"/></svg>수평계 보정 중...
+                                </span>
                                 <span style="font-size:0.65rem; color:var(--text-secondary); line-height: 1.3; max-width: 160px; margin: 0 auto;">기기를 8자 모양으로 크게 흔들어주세요.</span>
                                 <span id="level_cal_timer" style="font-size:1.6rem; font-weight:bold; color:white; font-family:monospace; margin-top:2px;">3</span>
                             </div>
@@ -2625,7 +2629,7 @@
                                 <button onclick="toggleLevel()" id="btn_level" class="sensor-action-btn">수평계 시작</button>
                             </div>
                             <div class="sensor-right-slot">
-                                <button onclick="startLevelCalibration()" class="sensor-cal-btn" id="btn_level_cal">🎯 보정</button>
+                                <button onclick="startLevelCalibration()" class="sensor-cal-btn" id="btn_level_cal"><svg class="icon-svg-inline" style="width: 13px; height: 13px; margin-right: 4px;"><use href="#icon-target"/></svg>보정</button>
                             </div>
                         </div>
                     </div>
@@ -2655,7 +2659,7 @@
                     </div>
                 </div>
                 <div class="flex-row">
-                    <button class="secondary" onclick="getLocation()" style="margin-top:0;">📍 현재 위치</button>
+                    <button class="secondary" onclick="getLocation()" style="margin-top:0; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"><svg class="icon-svg-inline" style="width: 13px; height: 13px;"><use href="#icon-pin"/></svg>현재 위치</button>
                     <button onclick="calcSunMoon()" style="margin-top:0;">계산하기</button>
                 </div>
 
@@ -2668,13 +2672,13 @@
                     <div class="flex-row" style="align-items: center; gap: 8px;">
                         <div class="form-group" style="margin-bottom:0; width: 50%; flex: none;">
                             <select id="sun_target_type" onchange="updateSunCountdown()" style="display: none;">
-                                <option value="bmnt">🌅 BMNT(항해박명초) 전 준비</option>
-                                <option value="sunrise" selected>☀️ 일출 전 준비</option>
-                                <option value="sunset">🌙 일몰 전 준비</option>
-                                <option value="eent">🌆 EENT(항해박명종) 전 준비</option>
+                                <option value="bmnt">BMNT 전 준비</option>
+                                <option value="sunrise" selected>일출 전 준비</option>
+                                <option value="sunset">일몰 전 준비</option>
+                                <option value="eent">EENT 전 준비</option>
                             </select>
                             <div class="custom-select-trigger" id="trigger_sun_target_type" onclick="openCustomSelectModal('sun_target_type', '알람 기준 시간')" style="margin: 0; width: 100%;">
-                                <span class="custom-select-val">☀️ 일출 전 준비</span>
+                                <span class="custom-select-val"><svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#icon-sun"/></svg>일출 전 준비</span>
                                 <span class="custom-select-arrow">▼</span>
                             </div>
                         </div>
@@ -3595,6 +3599,16 @@
                 }
             }
 
+            function getSunTargetIconHtml(value) {
+                let iconId = "";
+                if (value === 'bmnt') iconId = "icon-sunrise";
+                else if (value === 'sunrise') iconId = "icon-sun";
+                else if (value === 'sunset') iconId = "icon-moon-crescent";
+                else if (value === 'eent') iconId = "icon-sunset";
+                if (!iconId) return "";
+                return '<svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#' + iconId + '"/></svg>';
+            }
+
             function openCustomSelectModal(selectId, titleText) {
                 document.body.style.overflow = 'hidden'; // 뒷배경 스크롤 방지
                 currentTargetSelectId = selectId;
@@ -3683,7 +3697,11 @@
                             }
                             
                             const textSpan = document.createElement('span');
-                            textSpan.textContent = opt.textContent;
+                            if (selectId === 'sun_target_type') {
+                                textSpan.innerHTML = getSunTargetIconHtml(opt.value) + opt.textContent;
+                            } else {
+                                textSpan.textContent = opt.textContent;
+                            }
                             item.appendChild(textSpan);
                             
                             if (opt.value === currentValue) {
@@ -3742,7 +3760,11 @@
                     if (selectEl && triggerValEl) {
                         const selectedOption = selectEl.options[selectEl.selectedIndex];
                         if (selectedOption) {
-                            triggerValEl.textContent = selectedOption.textContent;
+                            if (id === 'sun_target_type') {
+                                triggerValEl.innerHTML = getSunTargetIconHtml(selectedOption.value) + selectedOption.textContent;
+                            } else {
+                                triggerValEl.textContent = selectedOption.textContent;
+                            }
                         }
                     }
                 });
@@ -5974,8 +5996,8 @@
                     sunText = '☀️ <strong>백야:</strong> 하루 종일 해가 지지 않음<br>';
                 } else {
                     sunText =
-                        '☀️ <strong>일출:</strong> <span style="color: var(--primary-color); font-weight: bold;">' + formatTime(res.sunrise) + '</span>&nbsp;&nbsp;<span style="color:var(--text-secondary)">(☀️ 주간 : ' + formatDur(res.dayLength) + ')</span><br>' +
-                        '🌙 <strong>일몰:</strong> <span style="color: var(--primary-color); font-weight: bold;">' + formatTime(res.sunset) + '</span>&nbsp;&nbsp;<span style="color:var(--text-secondary)">(🌙 야간 : ' + formatDur(24 - res.dayLength) + ')</span><br>';
+                        '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px; vertical-align: -2.5px;"><use href="#icon-sun"/></svg><strong>일출:</strong> <span style="color: var(--primary-color); font-weight: bold;">' + formatTime(res.sunrise) + '</span>&nbsp;&nbsp;<span style="color:var(--text-secondary)">(<svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#icon-sun"/></svg>주간 : ' + formatDur(res.dayLength) + ')</span><br>' +
+                        '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px; vertical-align: -2.5px;"><use href="#icon-moon-crescent"/></svg><strong>일몰:</strong> <span style="color: var(--primary-color); font-weight: bold;">' + formatTime(res.sunset) + '</span>&nbsp;&nbsp;<span style="color:var(--text-secondary)">(<svg class="icon-svg-inline" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: -2px;"><use href="#icon-moon-crescent"/></svg>야간 : ' + formatDur(24 - res.dayLength) + ')</span><br>';
                 }
 
                 let bmntEentText = '';
@@ -5983,18 +6005,19 @@
                     // divider 1
                     bmntEentText += '<div style="border-top: 1px dashed var(--border-color); margin: 8px 0;"></div>';
                     if (res.bmnt) {
-                        bmntEentText += '🌅 <strong>BMNT</strong> (항해박명초): ' + formatTime(res.bmnt) + '<br>';
+                        bmntEentText += '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px; vertical-align: -2.5px;"><use href="#icon-sunrise"/></svg><strong>BMNT</strong> (항해박명초): ' + formatTime(res.bmnt) + '<br>';
                     }
                     if (res.eent) {
-                        bmntEentText += '🌆 <strong>EENT</strong>&nbsp;&nbsp;&nbsp;(항해박명종): ' + formatTime(res.eent) + '<br>';
+                        bmntEentText += '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px; vertical-align: -2.5px;"><use href="#icon-sunset"/></svg><strong>EENT</strong>&nbsp;&nbsp;&nbsp;(항해박명종): ' + formatTime(res.eent) + '<br>';
                     }
                 }
 
                 // divider 2
                 let dividerHtml = '<div style="border-top: 1px dashed var(--border-color); margin: 8px 0;"></div>';
 
+                let moonIconHtml = '<svg class="icon-svg-inline" style="width: 15px; height: 15px; margin-right: 4px; vertical-align: -2.5px;"><use href="#' + moon.iconId + '"/></svg>';
                 let moonText =
-                    '<strong>월령</strong>(위상): ' + moon.phaseName + '<br>' +
+                    '<strong>월령</strong>(위상): ' + moonIconHtml + moon.phaseName + '<br>' +
                     '<strong>월출:</strong> ' + moon.rise.split(' ')[0] + '&nbsp;&nbsp;<span style="color:var(--text-secondary)">(오차 ±2시간)</span><br>' +
                     '<strong>월몰:</strong> ' + moon.set.split(' ')[0] + '&nbsp;&nbsp;<span style="color:var(--text-secondary)">(오차 ±2시간)</span>';
 
@@ -6254,14 +6277,15 @@
                 if (phase < 0) phase += 1;
 
                 let phaseName = "";
-                if (phase < 0.05 || phase > 0.95) phaseName = "🌑 삭 (밤새 관측 불가)";
-                else if (phase < 0.2) phaseName = "🌒 초승달";
-                else if (phase < 0.3) phaseName = "🌓 상현달";
-                else if (phase < 0.45) phaseName = "🌔 상현망간";
-                else if (phase < 0.55) phaseName = "🌕 보름달 (밤새 관측)";
-                else if (phase < 0.7) phaseName = "🌖 하현망간";
-                else if (phase < 0.8) phaseName = "🌗 하현달";
-                else phaseName = "🌘 그믐달";
+                let iconId = "";
+                if (phase < 0.05 || phase > 0.95) { phaseName = "삭 (밤새 관측 불가)"; iconId = "icon-moon-new"; }
+                else if (phase < 0.2) { phaseName = "초승달"; iconId = "icon-moon-waxing-crescent"; }
+                else if (phase < 0.3) { phaseName = "상현달"; iconId = "icon-moon-first-quarter"; }
+                else if (phase < 0.45) { phaseName = "상현망간"; iconId = "icon-moon-waxing-gibbous"; }
+                else if (phase < 0.55) { phaseName = "보름달 (밤새 관측)"; iconId = "icon-moon-full"; }
+                else if (phase < 0.7) { phaseName = "하현망간"; iconId = "icon-moon-waning-gibbous"; }
+                else if (phase < 0.8) { phaseName = "하현달"; iconId = "icon-moon-last-quarter"; }
+                else { phaseName = "그믐달"; iconId = "icon-moon-waning-crescent"; }
 
                 let transitHour = (12 + 24 * phase) % 24;
                 let riseHour = (transitHour - 6 + 24) % 24;
@@ -6273,7 +6297,7 @@
                     return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0') + ' (오차 ±2시간)';
                 };
 
-                return { phaseName: phaseName, rise: formatTime(riseHour), set: formatTime(setHour) };
+                return { phaseName: phaseName, iconId: iconId, rise: formatTime(riseHour), set: formatTime(setHour) };
             }
 
             // Unit Converter
@@ -11712,6 +11736,91 @@
         <!-- Stop box (⏹) -->
         <symbol id="icon-stop" viewBox="0 0 24 24">
             <rect x="4" y="4" width="16" height="16" rx="2" />
+        </symbol>
+        <!-- Smartphone (📱) -->
+        <symbol id="icon-phone" viewBox="0 0 24 24">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+            <line x1="12" y1="18" x2="12" y2="18" />
+        </symbol>
+        <!-- Triangle Ruler (📐) -->
+        <symbol id="icon-ruler-triangle" viewBox="0 0 24 24">
+            <path d="M2.4 21.6h19.2L2.4 2.4v19.2z M4.8 19.2h12L4.8 7.2v12z" />
+        </symbol>
+        <!-- Moon - New (🌑) -->
+        <symbol id="icon-moon-new" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" style="fill: rgba(255,255,255,0.08); stroke: none;" />
+        </symbol>
+        <!-- Moon - Waxing Crescent (🌒) -->
+        <symbol id="icon-moon-waxing-crescent" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" style="fill: rgba(255,255,255,0.08); stroke: none;" />
+            <path d="M12 2a10 10 0 0 1 0 20a5 10 0 0 0 0-20z" style="fill: currentColor; stroke: none;" />
+        </symbol>
+        <!-- Moon - First Quarter (🌓) -->
+        <symbol id="icon-moon-first-quarter" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" style="fill: rgba(255,255,255,0.08); stroke: none;" />
+            <path d="M12 2a10 10 0 0 1 0 20z" style="fill: currentColor; stroke: none;" />
+        </symbol>
+        <!-- Moon - Waxing Gibbous (🌔) -->
+        <symbol id="icon-moon-waxing-gibbous" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" style="fill: rgba(255,255,255,0.08); stroke: none;" />
+            <path d="M12 2a10 10 0 0 1 0 20a5 10 0 0 1 0-20z" style="fill: currentColor; stroke: none;" />
+        </symbol>
+        <!-- Moon - Full (🌕) -->
+        <symbol id="icon-moon-full" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" style="fill: currentColor; stroke: none;" />
+        </symbol>
+        <!-- Moon - Waning Gibbous (🌖) -->
+        <symbol id="icon-moon-waning-gibbous" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" style="fill: rgba(255,255,255,0.08); stroke: none;" />
+            <path d="M12 2a10 10 0 0 0 0 20a5 10 0 0 0 0-20z" style="fill: currentColor; stroke: none;" />
+        </symbol>
+        <!-- Moon - Last Quarter (🌗) -->
+        <symbol id="icon-moon-last-quarter" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" style="fill: rgba(255,255,255,0.08); stroke: none;" />
+            <path d="M12 2a10 10 0 0 0 0 20z" style="fill: currentColor; stroke: none;" />
+        </symbol>
+        <!-- Moon - Waning Crescent (🌘) -->
+        <symbol id="icon-moon-waning-crescent" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" style="fill: rgba(255,255,255,0.08); stroke: none;" />
+            <path d="M12 2a10 10 0 0 0 0 20a5 10 0 0 1 0-20z" style="fill: currentColor; stroke: none;" />
+        </symbol>
+        <!-- Sun (☀️) -->
+        <symbol id="icon-sun" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2" />
+            <path d="M12 20v2" />
+            <path d="m4.93 4.93 1.41 1.41" />
+            <path d="m17.66 17.66 1.41 1.41" />
+            <path d="M2 12h2" />
+            <path d="M20 12h2" />
+            <path d="m6.34 17.66-1.41 1.41" />
+            <path d="m19.07 4.93-1.41 1.41" />
+        </symbol>
+        <!-- Moon Crescent (🌙) -->
+        <symbol id="icon-moon-crescent" viewBox="0 0 24 24">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+        </symbol>
+        <!-- Sunrise (🌅) -->
+        <symbol id="icon-sunrise" viewBox="0 0 24 24">
+            <path d="M12 2v8" />
+            <path d="m4.93 10.93 1.41 1.41" />
+            <path d="M2 18h2" />
+            <path d="M20 18h2" />
+            <path d="m19.07 10.93-1.41 1.41" />
+            <path d="M22 22H2" />
+            <path d="m8 6 4-4 4 4" />
+            <path d="M16 18a4 4 0 0 0-8 0" />
+        </symbol>
+        <!-- Sunset (🌆) -->
+        <symbol id="icon-sunset" viewBox="0 0 24 24">
+            <path d="M12 10V2" />
+            <path d="m4.93 10.93 1.41 1.41" />
+            <path d="M2 18h2" />
+            <path d="M20 18h2" />
+            <path d="m19.07 10.93-1.41 1.41" />
+            <path d="M22 22H2" />
+            <path d="m16 6-4 4-4-4" />
+            <path d="M16 18a4 4 0 0 0-8 0" />
         </symbol>
     </svg>
 </body>
