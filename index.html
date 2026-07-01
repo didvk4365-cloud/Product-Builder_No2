@@ -1537,12 +1537,6 @@
             transition: opacity 0.15s;
             cursor: pointer;
         }
-        .todo-item-row:hover .todo-item-input {
-            color: var(--primary-color) !important;
-        }
-        .todo-item-row.checked:hover .todo-item-input {
-            color: var(--text-secondary) !important;
-        }
         .todo-item-row.checked {
             opacity: 0.5;
         }
@@ -3713,7 +3707,7 @@
                     
                     if (selectId === 'c_category') {
                         optionsContainer.className = 'custom-modal-body select-grid-layout';
-                    } else if (selectId === 'c_unit_from' || selectId === 'c_unit_to') {
+                    } else if (selectId === 'c_unit_from' || selectId === 'c_unit_to' || selectId === 'todo-edit-category') {
                         optionsContainer.className = 'custom-modal-body select-grid-layout-2col';
                     } else {
                         optionsContainer.className = 'custom-modal-body';
@@ -3838,7 +3832,7 @@
             }
 
             function syncCustomSelectTriggers() {
-                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'edit_a_sound', 'edit_a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub', 'water_recipe_edit_s', 'water_recipe_edit_c', 'sun_target_type', 'alarm_filter', 'alarm_sort'];
+                const ids = ['t_sound', 't_vibe', 'ri_sound', 'ri_vibe', 'a_sound', 'a_vibe', 'edit_a_sound', 'edit_a_vibe', 'c_category', 'c_unit_from', 'c_unit_to', 'wiki_filter_select', 'wiki_cat_select', 'erp_sort', 'erp_filter_main', 'erp_filter_sub', 'w_s', 'w_c', 'cat_mgr_main_select', 'erp_cat_main', 'erp_cat_sub', 'water_recipe_edit_s', 'water_recipe_edit_c', 'sun_target_type', 'alarm_filter', 'alarm_sort', 'todo-edit-category'];
                 ids.forEach(id => {
                     const selectEl = document.getElementById(id);
                     const triggerValEl = document.querySelector(`#trigger_${id} .custom-select-val`);
@@ -9889,6 +9883,7 @@
                     });
                     
                     catSelect.value = item.catId;
+                    syncCustomSelectTriggers(); // Force sync custom trigger text
                     
                     modal.style.display = 'flex';
                     document.body.style.overflow = 'hidden';
@@ -11299,7 +11294,7 @@
     <!-- 할 일 수정 모달 -->
     <div id="todo-edit-modal" onclick="closeTodoEditModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10025; align-items:flex-start; justify-content:center; padding: 15vh 16px 16px 16px; box-sizing:border-box;">
         <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:95%; max-width:400px; box-sizing:border-box; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); display:flex; flex-direction:column; gap:15px;">
-            <h4 style="margin:0; color:var(--primary-color); font-size:1.1rem; font-weight:bold; text-align:left;">✏️ 할 일 수정</h4>
+            <h4 style="margin:0; color:var(--primary-color); font-size:1.1rem; font-weight:bold; text-align:left; display:flex; align-items:center; gap:6px;"><svg class="icon-svg-inline" style="width:16px; height:16px;"><use href="#icon-edit"/></svg>할 일 수정</h4>
             
             <div class="form-group" style="margin:0;">
                 <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--text-secondary); text-align:left;">할 일 내용</label>
@@ -11308,13 +11303,19 @@
             
             <div class="form-group" style="margin:0;">
                 <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--text-secondary); text-align:left;">카테고리 이동</label>
-                <select id="todo-edit-category" style="width:100%; padding:8px 10px; box-sizing:border-box; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); border-radius:6px; outline:none; font-family:inherit; font-size:0.95rem; display:block; height:38px;"></select>
+                <!-- Native select element, hidden from view -->
+                <select id="todo-edit-category" style="display: none;"></select>
+                <!-- Custom select trigger -->
+                <div class="custom-select-trigger" id="trigger_todo-edit-category" onclick="openCustomSelectModal('todo-edit-category', '카테고리 선택')" style="width:100%; border-radius:6px; box-sizing:border-box; height:38px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                    <span class="custom-select-val">카테고리 선택</span>
+                    <span class="custom-select-arrow">▼</span>
+                </div>
             </div>
             
-            <div style="display:flex; gap:8px; margin-top:5px;">
-                <button class="danger" onclick="deleteTodoFromEdit()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1; height:38px;">삭제</button>
-                <button class="secondary" onclick="closeTodoEditModal()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1; height:38px;">취소</button>
-                <button class="primary" onclick="saveTodoFromEdit()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1.5; height:38px;">저장</button>
+            <div style="display:flex; gap:8px; margin-top:5px; width:100%;">
+                <button class="danger" onclick="deleteTodoFromEdit()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1; height:38px; display:inline-flex; align-items:center; justify-content:center; text-align:center; box-sizing:border-box;">삭제</button>
+                <button class="secondary" onclick="closeTodoEditModal()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1; height:38px; display:inline-flex; align-items:center; justify-content:center; text-align:center; box-sizing:border-box;">취소</button>
+                <button class="primary" onclick="saveTodoFromEdit()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1; height:38px; display:inline-flex; align-items:center; justify-content:center; text-align:center; box-sizing:border-box;">저장</button>
             </div>
         </div>
     </div>
