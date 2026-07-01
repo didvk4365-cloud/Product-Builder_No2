@@ -2286,8 +2286,7 @@
             <div style="display:flex; align-items:center; gap:10px;">
                 <h1 onclick="toggleRedMode()" style="cursor:pointer; user-select:none;" title="야간 테마 전환">Survival Tool
                 </h1>
-                <span onclick="openWikiLayer()" style="cursor:pointer; display:inline-flex; align-items:center; user-select:none;"
-                    title="메뉴얼"><svg class="icon-svg-inline" style="width: 20px; height: 20px;"><use href="#icon-book-wiki"/></svg></span>
+                <button class="secondary" onclick="openWikiLayer()" style="margin:0; padding:4px 10px; font-size:0.75rem; width:auto; height: 26px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; font-weight:normal;" title="메뉴얼">NOTE</button>
             </div>
             <div class="header-clock">
                 <span id="current_date"></span>
@@ -10159,7 +10158,7 @@
                 const nameSpan = document.getElementById('todo-del-cat-name');
                 if (modal && nameSpan) {
                     nameSpan.textContent = name;
-                    modal.style.zIndex = '3100'; // Ensure it's above the manage modal
+                    modal.style.zIndex = '10020'; // Ensure it's above the manage modal
                     modal.style.display = 'flex';
                 }
                 
