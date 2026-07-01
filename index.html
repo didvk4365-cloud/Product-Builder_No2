@@ -3471,7 +3471,7 @@
                         <span id="memo-active-title" class="memo-active-title">메모를 선택하거나 새로 추가하세요</span>
                         
                         <!-- 메모 카테고리 이동 드롭다운 -->
-                        <div class="custom-select-trigger" id="trigger_memo-active-category" onclick="if(appData.activeMemoId) openCustomSelectModal('memo-active-category', '카테고리 이동')" style="display:none; max-width:120px; min-width:90px; height:28px; padding:0 8px; border-radius:6px; font-size:0.8rem; box-sizing:border-box; align-items:center; justify-content:space-between; margin-left:auto; cursor:pointer; flex-shrink:0;">
+                        <div class="custom-select-trigger" id="trigger_memo-active-category" onclick="if(appData.activeMemoId) openCustomSelectModal('memo-active-category', '카테고리 이동')" style="display:none; max-width:120px; min-width:90px; height:36px !important; min-height:36px !important; padding:0 8px; border-radius:6px; font-size:0.8rem; box-sizing:border-box; align-items:center; justify-content:space-between; margin-left:auto; cursor:pointer; flex-shrink:0;">
                             <span class="custom-select-val" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">카테고리</span>
                             <span class="custom-select-arrow" style="font-size:0.6rem; margin-left:4px;">▼</span>
                         </div>
@@ -10099,8 +10099,14 @@
                 if (!btn) return;
                 
                 if (window.memoSortCriteria === 'date') {
-                    window.memoSortCriteria = 'name';
-                    btn.innerText = '제목';
+                    window.memoSortCriteria = 'kr';
+                    btn.innerText = 'ㄱㄴㄷ';
+                } else if (window.memoSortCriteria === 'kr') {
+                    window.memoSortCriteria = 'en';
+                    btn.innerText = 'ABCD';
+                } else if (window.memoSortCriteria === 'en') {
+                    window.memoSortCriteria = 'num';
+                    btn.innerText = '0123';
                 } else {
                     window.memoSortCriteria = 'date';
                     btn.innerText = '날짜';
@@ -10256,10 +10262,25 @@
                         const timeA = a.updatedAt || 0;
                         const timeB = b.updatedAt || 0;
                         return (timeA - timeB) * sortDir;
-                    } else if (sortVal === 'name') {
+                    } else if (sortVal === 'kr') {
                         const titleA = a.title || '새 메모';
                         const titleB = b.title || '새 메모';
-                        return titleA.localeCompare(titleB, 'ko-KR', { numeric: true }) * sortDir;
+                        return titleA.localeCompare(titleB, 'ko') * sortDir;
+                    } else if (sortVal === 'en') {
+                        const titleA = a.title || '새 메모';
+                        const titleB = b.title || '새 메모';
+                        return titleA.localeCompare(titleB, 'en') * sortDir;
+                    } else if (sortVal === 'num') {
+                        const titleA = a.title || '새 메모';
+                        const titleB = b.title || '새 메모';
+                        
+                        const aMatch = titleA.match(/\d+/);
+                        const bMatch = titleB.match(/\d+/);
+                        const aNum = aMatch ? parseInt(aMatch[0], 10) : Infinity;
+                        const bNum = bMatch ? parseInt(bMatch[0], 10) : Infinity;
+                        
+                        if (aNum !== bNum) return (aNum - bNum) * sortDir;
+                        return titleA.localeCompare(titleB) * sortDir;
                     }
                     return 0;
                 });
