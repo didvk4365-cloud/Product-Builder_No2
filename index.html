@@ -1697,6 +1697,12 @@
         }
 
         /* 메모 목록 팝업 내 아이템 */
+#memo-tabs-container::-webkit-scrollbar {
+            display: none;
+        }
+        #memo-tabs-container.dragging {
+            cursor: grabbing;
+        }
         .memo-list-items {
             display: flex;
             flex-direction: column;
@@ -3498,16 +3504,16 @@
                             </div>
                             
                             <!-- 메모 카테고리 탭 영역 -->
-                            <div style="position:relative; display:flex; align-items:center; gap:4px; padding:0 12px; background:rgba(0,0,0,0.05); overflow:hidden; flex-shrink:0; border-bottom: 2px solid var(--border-color); margin-bottom: 0;">
+                            <div style="position:relative; display:flex; align-items:flex-end; gap:4px; padding:0 12px; background:rgba(0,0,0,0.05); overflow:hidden; flex-shrink:0; border-bottom: 2px solid var(--border-color); margin-bottom: 0;">
                                 <div id="memo-tabs-fade-left" style="position: absolute; left: 0; top: 0; bottom: 0; width: 40px; background: linear-gradient(to right, var(--surface-color, #1a1a1a) 20%, transparent); pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.2s;"></div>
-                                <div id="memo-tabs-container" style="flex:1; overflow-x:auto; overflow-y:hidden; position:relative; -webkit-overflow-scrolling:touch; touch-action:pan-x; display:flex; align-items:center; scrollbar-width: none; cursor: grab; padding-top: 5px;">
+                                <div id="memo-tabs-container" style="flex:1; overflow-x:auto; overflow-y:hidden;  -webkit-overflow-scrolling:touch; touch-action:pan-x; display:flex; align-items:flex-end; scrollbar-width: none; cursor: grab; padding-top: 5px;">
                                     <div id="memo-tabs-list" class="todo-tabs-list" style="gap:6px; flex-shrink:0; white-space:nowrap; padding:2px 0;">
                                         <!-- JS 동적 생성 -->
                                     </div>
                                 </div>
                                 <div id="memo-tabs-fade-right" style="position: absolute; right: 38px; top: 0; bottom: 0; width: 40px; background: linear-gradient(to left, var(--surface-color, #1a1a1a) 20%, transparent); pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.2s;"></div>
-                                <button class="todo-tab-add" onclick="openMemoCatManageModal()" style="padding:6px 14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; height:34px; width:34px; margin:0; z-index:3; border-bottom: none;" title="카테고리 관리">
-                                    <svg class="icon-svg-inline" style="width:14px; height:14px;"><use href="#icon-settings"/></svg>
+                                <button class="todo-tab-add" onclick="openMemoCatManageModal()" style="padding:0; display:flex; align-items:center; justify-content:center; flex-shrink:0; height:34px; width:34px; margin:0; z-index:3; border-bottom: none;" title="카테고리 관리">
+                                    <svg class="icon-svg-inline" style="width:16px; height:16px;"><use href="#icon-settings"/></svg>
                                 </button>
                             </div>
 
@@ -9898,7 +9904,8 @@
                         row.addEventListener('click', (e) => {
                             // Only open edit modal if we didn't click the checkbox
                             if (e.target.type === 'checkbox') return;
-                            openTodoEditModal(item);
+                            const latestItem = (appData.todoItems || []).find(i => i.id === item.id);
+                            if (latestItem) openTodoEditModal(latestItem);
                         });
                         
                         cb = document.createElement('input');
@@ -10501,7 +10508,7 @@
                 renderMemoCatManageList();
                 renderMemoTabs();
                 renderMemoListOnly();
-                showToast('정렬 방식이 변경되었습니다.');
+                
             }
 
             function toggleMemoCatSortDirection() {
@@ -10511,7 +10518,7 @@
                 renderMemoCatManageList();
                 renderMemoTabs();
                 renderMemoListOnly();
-                showToast('정렬 방향이 변경되었습니다.');
+                
             }
 
             function updateMemoCatSortButtons() {
@@ -10934,7 +10941,7 @@
                 updateTodoCatSortButtons();
                 renderTodoCatManageList();
                 renderTodoTabs();
-                showToast('정렬 방식이 변경되었습니다.');
+                
             }
 
             function toggleTodoCatSortDirection() {
@@ -10943,7 +10950,7 @@
                 updateTodoCatSortButtons();
                 renderTodoCatManageList();
                 renderTodoTabs();
-                showToast('정렬 방향이 변경되었습니다.');
+                
             }
 
             function updateTodoCatSortButtons() {
