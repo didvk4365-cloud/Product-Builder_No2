@@ -1412,6 +1412,10 @@
             padding-top: 5px;
             overflow-x: auto;
             scrollbar-width: none; /* Firefox */
+            cursor: grab;
+        }
+        .todo-tabs-container.dragging {
+            cursor: grabbing;
         }
         .todo-tabs-container::-webkit-scrollbar {
             display: none; /* Safari/Chrome */
@@ -1487,7 +1491,6 @@
             cursor: grabbing;
         }
 
-        /* + 버튼 견출지 */
         .todo-tab-add {
             background: transparent;
             border: 1px dashed var(--border-color);
@@ -1507,6 +1510,17 @@
             width: auto;
             margin-top: 0;
             flex-shrink: 0;
+            position: relative;
+        }
+        .todo-tab-add::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 6px 6px 0 0;
         }
         .todo-tab-add:hover {
             background: rgba(255, 255, 255, 0.05);
@@ -3419,11 +3433,19 @@
 
                 <!-- 할 일 목록 (To-Do List) 뷰 -->
                 <div id="wiki_todo_view" style="display:none;">
-                    <div class="todo-tabs-container">
-                        <div id="todo-tabs-list" class="todo-tabs-list">
-                            <!-- JS로 렌더링 -->
+                    <div class="todo-tabs-row" style="display: flex; align-items: flex-end; gap: 8px; border-bottom: 2px solid var(--border-color); margin-bottom: 15px;">
+                        <div class="todo-tabs-wrapper" style="position: relative; flex: 1; min-width: 0; overflow: hidden; display: flex; align-items: flex-end;">
+                            <div id="todo-tabs-fade-left" style="position: absolute; left: 0; top: 0; bottom: 0; width: 40px; background: linear-gradient(to right, var(--bg-color, #121212) 20%, transparent); pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.2s;"></div>
+                            
+                            <div id="todo-tabs-container" class="todo-tabs-container" style="width: 100%; overflow-x: auto; display: flex; align-items: flex-end; scrollbar-width: none; border-bottom: none; margin-bottom: 0; padding-top: 5px;">
+                                <div id="todo-tabs-list" class="todo-tabs-list">
+                                    <!-- JS로 렌더링 -->
+                                </div>
+                            </div>
+                            
+                            <div id="todo-tabs-fade-right" style="position: absolute; right: 0; top: 0; bottom: 0; width: 40px; background: linear-gradient(to left, var(--bg-color, #121212) 20%, transparent); pointer-events: none; z-index: 2; opacity: 0; transition: opacity 0.2s;"></div>
                         </div>
-                        <button class="todo-tab-add" onclick="openTodoCatManageModal()" style="padding:6px 12px; display:flex; align-items:center; justify-content:center;" title="카테고리 관리"><svg class="icon-svg-inline" style="width: 16px; height: 16px;"><use href="#icon-settings"/></svg></button>
+                        <button class="todo-tab-add" onclick="openTodoCatManageModal()" style="padding:6px 12px; display:flex; align-items:center; justify-content:center; flex-shrink: 0; margin-bottom: 2px; height: 32px;" title="카테고리 관리"><svg class="icon-svg-inline" style="width: 16px; height: 16px;"><use href="#icon-settings"/></svg></button>
                     </div>
 
                     <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:15px; display:flex; flex-direction:column; margin-bottom:15px;">
@@ -9606,6 +9628,10 @@
                     tabBtn.appendChild(nameSpan);
                     
                     tabBtn.addEventListener('click', () => {
+                        const container = document.getElementById('todo-tabs-container');
+                        if (container && container.classList.contains('was-dragging')) {
+                            return;
+                        }
                         currentTodoCatId = cat.id;
                         renderTodoTabs();
                         renderTodoList();
@@ -9613,6 +9639,82 @@
                     
                     tabsList.appendChild(tabBtn);
                 });
+
+                if (typeof updateTodoTabsFade === 'function') {
+                    updateTodoTabsFade();
+                }
+            }
+
+            function initTodoDragScroll() {
+                const container = document.getElementById('todo-tabs-container');
+                if (!container) return;
+
+                let isDown = false;
+                let startX;
+                let startY;
+                let scrollLeft;
+                let hasMoved = false;
+
+                container.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    hasMoved = false;
+                    container.classList.remove('was-dragging');
+                    container.classList.add('dragging');
+                    startX = e.pageX - container.offsetLeft;
+                    startY = e.pageY - container.offsetTop;
+                    scrollLeft = container.scrollLeft;
+                });
+
+                container.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    container.classList.remove('dragging');
+                });
+
+                container.addEventListener('mouseup', () => {
+                    isDown = false;
+                    container.classList.remove('dragging');
+                    if (hasMoved) {
+                        setTimeout(() => {
+                            container.classList.remove('was-dragging');
+                        }, 50);
+                    }
+                });
+
+                container.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    const x = e.pageX - container.offsetLeft;
+                    const y = e.pageY - container.offsetTop;
+                    const dist = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2);
+                    if (dist > 5) {
+                        hasMoved = true;
+                        container.classList.add('was-dragging');
+                    }
+                    e.preventDefault();
+                    const walk = (x - startX) * 1.5;
+                    container.scrollLeft = scrollLeft - walk;
+                });
+
+                container.addEventListener('scroll', updateTodoTabsFade);
+                window.addEventListener('resize', updateTodoTabsFade);
+                
+                updateTodoTabsFade();
+            }
+
+            function updateTodoTabsFade() {
+                const container = document.getElementById('todo-tabs-container');
+                const fadeLeft = document.getElementById('todo-tabs-fade-left');
+                const fadeRight = document.getElementById('todo-tabs-fade-right');
+                if (!container) return;
+
+                const scrollLeft = container.scrollLeft;
+                const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+                if (fadeLeft) {
+                    fadeLeft.style.opacity = scrollLeft > 2 ? '1' : '0';
+                }
+                if (fadeRight) {
+                    fadeRight.style.opacity = scrollLeft < maxScrollLeft - 2 ? '1' : '0';
+                }
             }
 
             function autoResizeTodoTextarea(el) {
@@ -10813,6 +10915,9 @@
                 if (location.hash.startsWith('#wiki')) {
                     setTimeout(handleHashChange, 100);
                 }
+
+                // To-Do 견출지 드래그 스크롤 및 페이드 효과 초기화
+                initTodoDragScroll();
             }
 
             if (document.readyState === 'loading') {
