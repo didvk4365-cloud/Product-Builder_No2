@@ -4000,6 +4000,21 @@
                         { id: 'cat-food', name: '식량' }
                     ];
                 }
+                
+                // Initialize customOrder if missing
+                if (appData.todoCategories) {
+                    appData.todoCategories.forEach((cat, idx) => {
+                        if (cat.customOrder === undefined) {
+                            cat.customOrder = idx;
+                        }
+                    });
+                }
+                if (appData.todoCatSortType === undefined) {
+                    appData.todoCatSortType = 'custom';
+                }
+                if (appData.todoCatSortAsc === undefined) {
+                    appData.todoCatSortAsc = true;
+                }
                 if (!Array.isArray(appData.todoItems)) {
                     appData.todoItems = [
                         { id: 1, catId: 'cat-water', text: '생수 유통기한 확인 및 교체하기', checked: false },
@@ -9617,16 +9632,17 @@
                 
                 tabsList.innerHTML = '';
                 
-                if (!appData.todoCategories || appData.todoCategories.length === 0) {
+                const sortedCategories = getSortedTodoCategories();
+                if (sortedCategories.length === 0) {
                     currentTodoCatId = '';
                     return;
                 }
                 
-                if (!currentTodoCatId || !appData.todoCategories.some(c => c.id === currentTodoCatId)) {
-                    currentTodoCatId = appData.todoCategories[0].id;
+                if (!currentTodoCatId || !sortedCategories.some(c => c.id === currentTodoCatId)) {
+                    currentTodoCatId = sortedCategories[0].id;
                 }
                 
-                appData.todoCategories.forEach((cat, idx) => {
+                sortedCategories.forEach((cat, idx) => {
                     const tabBtn = document.createElement('div');
                     tabBtn.className = `todo-tab${cat.id === currentTodoCatId ? ' active' : ''}`;
                     tabBtn.dataset.id = cat.id;
@@ -9875,7 +9891,7 @@
                     
                     // Populate categories dropdown
                     catSelect.innerHTML = '';
-                    (appData.todoCategories || []).forEach(cat => {
+                    getSortedTodoCategories().forEach(cat => {
                         const opt = document.createElement('option');
                         opt.value = cat.id;
                         opt.textContent = cat.name;
@@ -10184,8 +10200,10 @@
                 if (!list) return;
                 list.innerHTML = '';
 
-                const categories = appData.todoCategories || [];
+                const categories = getSortedTodoCategories();
                 const maxIdx = categories.length - 1;
+                
+                updateTodoCatSortButtons();
 
                 categories.forEach((cat, idx) => {
                     const row = document.createElement('div');
@@ -10289,13 +10307,99 @@
                 }
             }
 
-            function moveTodoCatOrder(idx, direction) {
-                const targetIdx = idx + direction;
-                if (targetIdx < 0 || targetIdx >= appData.todoCategories.length) return;
+            function getSortedTodoCategories() {
+                const categories = [...(appData.todoCategories || [])];
+                const sortType = appData.todoCatSortType || 'custom';
+                const isAsc = appData.todoCatSortAsc !== false;
+                
+                if (sortType === 'kr') {
+                    categories.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+                } else if (sortType === 'en') {
+                    categories.sort((a, b) => a.name.localeCompare(b.name, 'en'));
+                } else if (sortType === 'num') {
+                    categories.sort((a, b) => {
+                        const aMatch = a.name.match(/\d+/);
+                        const bMatch = b.name.match(/\d+/);
+                        const aNum = aMatch ? parseInt(aMatch[0], 10) : Infinity;
+                        const bNum = bMatch ? parseInt(bMatch[0], 10) : Infinity;
+                        
+                        if (aNum !== bNum) return aNum - bNum;
+                        return a.name.localeCompare(b.name);
+                    });
+                } else {
+                    // 'custom' order: sort by customOrder ascending
+                    categories.sort((a, b) => (a.customOrder ?? 0) - (b.customOrder ?? 0));
+                }
+                
+                if (!isAsc) {
+                    categories.reverse();
+                }
+                
+                return categories;
+            }
 
-                const temp = appData.todoCategories[idx];
-                appData.todoCategories[idx] = appData.todoCategories[targetIdx];
-                appData.todoCategories[targetIdx] = temp;
+            function setTodoCatSort(type) {
+                appData.todoCatSortType = type;
+                saveInputs();
+                updateTodoCatSortButtons();
+                renderTodoCatManageList();
+                renderTodoTabs();
+                showToast('정렬 방식이 변경되었습니다.');
+            }
+
+            function toggleTodoCatSortDirection() {
+                appData.todoCatSortAsc = appData.todoCatSortAsc === false ? true : false;
+                saveInputs();
+                updateTodoCatSortButtons();
+                renderTodoCatManageList();
+                renderTodoTabs();
+                showToast('정렬 방향이 변경되었습니다.');
+            }
+
+            function updateTodoCatSortButtons() {
+                const sortType = appData.todoCatSortType || 'custom';
+                const btnIds = ['custom', 'kr', 'en', 'num'];
+                
+                btnIds.forEach(id => {
+                    const btn = document.getElementById('todo-cat-sort-btn-' + id);
+                    if (btn) {
+                        if (sortType === id) {
+                            btn.style.background = 'var(--primary-color)';
+                            btn.style.borderColor = 'var(--primary-color)';
+                            btn.style.color = '#111827';
+                            btn.style.fontWeight = 'bold';
+                        } else {
+                            btn.style.background = 'transparent';
+                            btn.style.borderColor = 'var(--border-color)';
+                            btn.style.color = 'var(--text-secondary)';
+                            btn.style.fontWeight = 'normal';
+                        }
+                    }
+                });
+                
+                const dirBtn = document.getElementById('todo-cat-sort-dir-btn');
+                if (dirBtn) {
+                    dirBtn.textContent = (appData.todoCatSortAsc !== false) ? '▲' : '▼';
+                }
+            }
+
+            function moveTodoCatOrder(idx, direction) {
+                const sorted = getSortedTodoCategories();
+                const targetIdx = idx + direction;
+                if (targetIdx < 0 || targetIdx >= sorted.length) return;
+
+                const temp = sorted[idx];
+                sorted[idx] = sorted[targetIdx];
+                sorted[targetIdx] = temp;
+
+                // Re-index customOrder
+                sorted.forEach((cat, newIdx) => {
+                    cat.customOrder = newIdx;
+                });
+                
+                appData.todoCategories = sorted;
+                appData.todoCatSortType = 'custom';
+                appData.todoCatSortAsc = true; // reset direction on manual move
 
                 saveInputs();
                 renderTodoCatManageList();
@@ -10319,7 +10423,9 @@
 
                 const newId = 'cat-' + Date.now();
                 if (!appData.todoCategories) appData.todoCategories = [];
-                appData.todoCategories.push({ id: newId, name: name });
+                
+                const maxOrder = appData.todoCategories.reduce((max, cat) => Math.max(max, cat.customOrder ?? 0), -1);
+                appData.todoCategories.push({ id: newId, name: name, customOrder: maxOrder + 1 });
 
                 currentTodoCatId = newId;
                 input.value = '';
@@ -11260,6 +11366,16 @@
                 <span>카테고리 관리</span>
                 <button onclick="closeTodoCatManageModal()" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer; padding:0; line-height:1; width:auto; margin:0;">×</button>
             </h4>
+            
+            <!-- 카테고리 정렬 옵션 -->
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:12px; font-size:0.8rem; border-bottom:1px solid var(--border-color); padding-bottom:10px; flex-wrap:wrap; flex-shrink:0;">
+                <span style="color:var(--text-secondary); font-weight:bold;">정렬:</span>
+                <button id="todo-cat-sort-btn-custom" class="secondary" onclick="setTodoCatSort('custom')" style="margin:0; padding:4px 8px; font-size:0.75rem; height:24px; width:auto; line-height:1; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:bold;">사용자</button>
+                <button id="todo-cat-sort-btn-kr" class="secondary" onclick="setTodoCatSort('kr')" style="margin:0; padding:4px 8px; font-size:0.75rem; height:24px; width:auto; line-height:1; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:normal;">ㄱㄴㄷ</button>
+                <button id="todo-cat-sort-btn-en" class="secondary" onclick="setTodoCatSort('en')" style="margin:0; padding:4px 8px; font-size:0.75rem; height:24px; width:auto; line-height:1; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:normal;">ABCD</button>
+                <button id="todo-cat-sort-btn-num" class="secondary" onclick="setTodoCatSort('num')" style="margin:0; padding:4px 8px; font-size:0.75rem; height:24px; width:auto; line-height:1; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:normal;">0123</button>
+                <button id="todo-cat-sort-dir-btn" onclick="toggleTodoCatSortDirection()" style="margin:0; margin-left:4px; padding:2px 6px; font-size:0.75rem; height:24px; width:24px; line-height:1; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:bold; border:1px solid var(--border-color); background:transparent; color:var(--text-primary); cursor:pointer;">▲</button>
+            </div>
             
             <!-- 카테고리 목록 리스트 -->
             <div id="todo-cat-manage-list" style="flex:1; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:10px; padding-right:5px;">
