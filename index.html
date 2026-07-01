@@ -1535,6 +1535,13 @@
             padding: 6px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
             transition: opacity 0.15s;
+            cursor: pointer;
+        }
+        .todo-item-row:hover .todo-item-input {
+            color: var(--primary-color) !important;
+        }
+        .todo-item-row.checked:hover .todo-item-input {
+            color: var(--text-secondary) !important;
         }
         .todo-item-row.checked {
             opacity: 0.5;
@@ -3577,6 +3584,10 @@
                 const customSelectModal = document.getElementById('custom-select-modal');
                 const agreementModal = document.getElementById('agreement-modal');
                 const sunAlarmConfirmModal = document.getElementById('sun-alarm-confirm-modal');
+                const todoEditModal = document.getElementById('todo-edit-modal');
+                const todoCatManageModal = document.getElementById('todo-cat-manage-modal');
+                const todoCatDelModal = document.getElementById('todo-cat-del-modal');
+                const todoDeleteConfirmModal = document.getElementById('todo-delete-confirm-modal');
                 
                 const isAnyModalOpen = 
                     (detailModal && detailModal.style.display === 'flex') ||
@@ -3584,7 +3595,11 @@
                     (deleteModal && deleteModal.style.display === 'flex') ||
                     (customSelectModal && customSelectModal.style.display === 'flex') ||
                     (agreementModal && agreementModal.style.display === 'flex') ||
-                    (sunAlarmConfirmModal && sunAlarmConfirmModal.style.display === 'flex');
+                    (sunAlarmConfirmModal && sunAlarmConfirmModal.style.display === 'flex') ||
+                    (todoEditModal && todoEditModal.style.display === 'flex') ||
+                    (todoCatManageModal && todoCatManageModal.style.display === 'flex') ||
+                    (todoCatDelModal && todoCatDelModal.style.display === 'flex') ||
+                    (todoDeleteConfirmModal && todoDeleteConfirmModal.style.display === 'flex');
                     
                 if (!isAnyModalOpen) {
                     document.body.style.overflow = '';
@@ -9790,14 +9805,20 @@
                         }
                         
                         input = row.querySelector('.todo-item-input');
-                        if (input && input.value !== item.text) {
-                            input.value = item.text;
+                        if (input && input.textContent !== item.text) {
+                            input.textContent = item.text;
                         }
                     } else {
                         // Create a new row
                         row = document.createElement('div');
                         row.className = `todo-item-row${item.checked ? ' checked' : ''}`;
                         row.setAttribute('data-id', itemIdStr);
+                        
+                        row.addEventListener('click', (e) => {
+                            // Only open edit modal if we didn't click the checkbox
+                            if (e.target.type === 'checkbox') return;
+                            openTodoEditModal(item);
+                        });
                         
                         cb = document.createElement('input');
                         cb.type = 'checkbox';
@@ -9811,41 +9832,21 @@
                             toggleTodoItem(item.id);
                         });
                         
-                        input = document.createElement('textarea');
+                        input = document.createElement('div');
                         input.className = 'todo-item-input';
-                        input.value = item.text;
-                        input.rows = 1;
-                        
-                        input.addEventListener('input', () => {
-                            autoResizeTodoTextarea(input);
-                        });
-                        input.addEventListener('change', (e) => {
-                            updateTodoItemText(item.id, e.target.value);
-                        });
-                        input.addEventListener('blur', (e) => {
-                            updateTodoItemText(item.id, e.target.value);
-                        });
-                        
-                        const delBtn = document.createElement('button');
-                        delBtn.className = 'todo-item-delete';
-                        delBtn.textContent = '×';
-                        delBtn.style.fontSize = '1.1rem';
-                        delBtn.style.marginTop = '2px';
-                        delBtn.addEventListener('click', () => {
-                            openTodoDeleteConfirmModal(item.id);
-                        });
+                        input.textContent = item.text;
+                        input.style.pointerEvents = 'none'; // Click bubbles to row
+                        input.style.whiteSpace = 'pre-wrap';
+                        input.style.wordBreak = 'break-all';
+                        input.style.padding = '2px 0';
                         
                         row.appendChild(cb);
                         row.appendChild(input);
-                        row.appendChild(delBtn);
                     }
                     
                     // Append row to position it correctly according to the sorted order.
                     // If the row was already in the DOM, appendChild moves it.
                     listItems.appendChild(row);
-                    
-                    // Adjust height synchronously
-                    autoResizeTodoTextarea(input);
                 });
             }
 
@@ -9863,6 +9864,87 @@
                 if (modal) {
                     modal.style.display = 'none';
                 }
+            }
+
+            // --- To-Do Edit Modal JS Logic ---
+            let todoIdEditing = null;
+
+            function openTodoEditModal(item) {
+                todoIdEditing = item.id;
+                
+                const modal = document.getElementById('todo-edit-modal');
+                const textInput = document.getElementById('todo-edit-text');
+                const catSelect = document.getElementById('todo-edit-category');
+                
+                if (modal && textInput && catSelect) {
+                    textInput.value = item.text;
+                    
+                    // Populate categories dropdown
+                    catSelect.innerHTML = '';
+                    (appData.todoCategories || []).forEach(cat => {
+                        const opt = document.createElement('option');
+                        opt.value = cat.id;
+                        opt.textContent = cat.name;
+                        catSelect.appendChild(opt);
+                    });
+                    
+                    catSelect.value = item.catId;
+                    
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeTodoEditModal() {
+                const modal = document.getElementById('todo-edit-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    checkAndRestoreBodyScroll();
+                }
+                todoIdEditing = null;
+            }
+
+            function saveTodoFromEdit() {
+                if (!todoIdEditing) return;
+                
+                const textInput = document.getElementById('todo-edit-text');
+                const catSelect = document.getElementById('todo-edit-category');
+                
+                if (textInput && catSelect) {
+                    const newText = textInput.value.trim();
+                    if (!newText) {
+                        alert('할 일 내용을 입력해주세요.');
+                        return;
+                    }
+                    
+                    const newCatId = catSelect.value;
+                    
+                    // Update item
+                    appData.todoItems = (appData.todoItems || []).map(item => {
+                        if (item.id === todoIdEditing) {
+                            return {
+                                ...item,
+                                text: newText,
+                                catId: newCatId,
+                                updatedAt: Date.now()
+                            };
+                        }
+                        return item;
+                    });
+                    
+                    saveInputs();
+                    closeTodoEditModal();
+                    renderTodoList();
+                    showToast('할 일이 수정되었습니다.');
+                }
+            }
+
+            function deleteTodoFromEdit() {
+                if (!todoIdEditing) return;
+                
+                const idToDelete = todoIdEditing;
+                closeTodoEditModal();
+                openTodoDeleteConfirmModal(idToDelete);
             }
             
             // === 독립 메모(Memo) 앱 CRUD 구현 ===
@@ -11210,6 +11292,29 @@
             <div style="display:flex; gap:10px;">
                 <button onclick="closeTodoCatDelModal()" class="secondary" style="margin:0; padding:8px; flex:1;">취소</button>
                 <button id="todo-cat-del-confirm-btn" class="danger" style="margin:0; padding:8px; flex:1;">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 할 일 수정 모달 -->
+    <div id="todo-edit-modal" onclick="closeTodoEditModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10, 10, 10, 0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:10025; align-items:flex-start; justify-content:center; padding: 15vh 16px 16px 16px; box-sizing:border-box;">
+        <div onclick="event.stopPropagation()" style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:20px; width:95%; max-width:400px; box-sizing:border-box; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); display:flex; flex-direction:column; gap:15px;">
+            <h4 style="margin:0; color:var(--primary-color); font-size:1.1rem; font-weight:bold; text-align:left;">✏️ 할 일 수정</h4>
+            
+            <div class="form-group" style="margin:0;">
+                <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--text-secondary); text-align:left;">할 일 내용</label>
+                <textarea id="todo-edit-text" rows="3" style="width:100%; padding:10px; box-sizing:border-box; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); border-radius:6px; outline:none; resize:none; font-family:inherit; font-size:0.95rem; display:block; line-height:1.4;"></textarea>
+            </div>
+            
+            <div class="form-group" style="margin:0;">
+                <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--text-secondary); text-align:left;">카테고리 이동</label>
+                <select id="todo-edit-category" style="width:100%; padding:8px 10px; box-sizing:border-box; background:var(--bg-color); border:1px solid var(--border-color); color:var(--text-primary); border-radius:6px; outline:none; font-family:inherit; font-size:0.95rem; display:block; height:38px;"></select>
+            </div>
+            
+            <div style="display:flex; gap:8px; margin-top:5px;">
+                <button class="danger" onclick="deleteTodoFromEdit()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1; height:38px;">삭제</button>
+                <button class="secondary" onclick="closeTodoEditModal()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1; height:38px;">취소</button>
+                <button class="primary" onclick="saveTodoFromEdit()" style="padding:10px; margin:0; font-size:0.9rem; font-weight:bold; flex:1.5; height:38px;">저장</button>
             </div>
         </div>
     </div>
