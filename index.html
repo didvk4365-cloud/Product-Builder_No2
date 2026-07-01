@@ -3897,6 +3897,7 @@
 
             // To-Do List State Variables
             let currentTodoCatId = '';
+            let currentMemoCatId = '';
             let catIdToDelete = null;
             let dragTabIdx = -1;
             let isDragging = false;
@@ -4422,7 +4423,7 @@
                 listContainer.innerHTML = '';
 
                 if (recipes.length === 0) {
-                    listContainer.innerHTML = '<div style="text-align:center; padding:15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px;">저장된 정화 레시피가 없습니다.</div>';
+                    listContainer.innerHTML = '<div style="text-align:center; padding:30px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px; background:rgba(255,255,255,0.015);">저장된 정화 레시피가 없습니다.</div>';
                     return;
                 }
 
@@ -6853,7 +6854,7 @@
                 
                 const history = appData.c_history || [];
                 if (history.length === 0) {
-                    listDiv.innerHTML = '<div style="text-align:center; padding:10px; color:var(--text-secondary); opacity: 0.6; font-size:0.72rem; border:1px dashed var(--border-color); border-radius:6px; margin: 4px 0;">최근 변환 기록이 없습니다.</div>';
+                    listDiv.innerHTML = '<div style="text-align:center; padding:20px 15px; color:var(--text-secondary); font-size:0.82rem; border:1px dashed var(--border-color); border-radius:8px; background:rgba(255,255,255,0.015); margin: 4px 0;">최근 변환 기록이 없습니다.</div>';
                     return;
                 }
                 
@@ -8344,13 +8345,13 @@
                 });
 
                 if (erpList.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; padding:30px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px;">등록된 물품이 없습니다.</div>';
+                    container.innerHTML = '<div style="text-align:center; padding:35px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px; background:rgba(255,255,255,0.015);">등록된 물품이 없습니다.</div>';
                     renderErpExpiryAlerts();
                     return;
                 }
 
                 if (filteredList.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; padding:30px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px;">조건에 맞는 물품이 없습니다.</div>';
+                    container.innerHTML = '<div style="text-align:center; padding:35px 15px; color:var(--text-secondary); font-size:0.85rem; border:1px dashed var(--border-color); border-radius:8px; background:rgba(255,255,255,0.015);">조건에 맞는 물품이 없습니다.</div>';
                     renderErpExpiryAlerts();
                     return;
                 }
@@ -10353,7 +10354,7 @@
                 showToast('메모 카테고리가 이동되었습니다.');
             }
 
-            let currentMemoCatId = '';
+            
 
             function renderMemoTabs() {
                 const tabsList = document.getElementById('memo-tabs-list');
